@@ -2,22 +2,19 @@
 
 Japacity is a browser life-sim about leaving Nigeria. The simulation is pure and deterministic. Every rule has a name, and every rule name has a test. Read this whole page before you change anything.
 
+This page holds the instructions you must follow. What the commands and the check do, and how CI and merging work, is in [Working on it](docs/site/built/working.md); [Where each fact lives](docs/site/built/working.md#where-each-fact-lives) says which page owns each kind of fact.
+
 ## Commands
 
-Run these from the repository root. pnpm switches itself to the pinned version there.
+Run them from the repository root; pnpm switches itself to the pinned version there. Every command is in [Commands](docs/site/built/working.md#commands), and each step of the check in [The check](docs/site/built/working.md#the-check).
 
-| Command | Does |
+| Command | When |
 |---|---|
-| `pnpm install` | Install |
-| `pnpm check` | Everything, in order: the Workers' generated types, typecheck, lint, tests, simulated play, rule names, the content version, assets, the size budget and the scrub check. It must end with `CHECK PASSED` before you say you are done |
-| `pnpm test` | Tests without simulated play. For one file: `pnpm vitest run --project sim path/to/file` |
-| `pnpm test:play` | Simulated play only: the balance, endings and random-play files. These take most of the test time. For one file: `pnpm test:play path/to/file` |
-| `pnpm typecheck`, `pnpm lint` | One step of the check each |
-| `pnpm check:rules` | Checks that every rule name has a test and every cited name exists |
-| `pnpm bless` | Regenerates the golden files. This is the only way they change |
-| `pnpm content:freeze` | Run before raising the content version. Keeps the shipped content: writes it to `packages/content/src/older/<version>` and lists it (server:older-content-frozen) |
-| `pnpm content:seal` | Run after raising the content version, when the content or the simulation changed. Seals the new version (server:content-version-sealed) |
-| `pnpm dev`, `pnpm build` | Run or build the client |
+| `pnpm check` | Before you say you are done. It must end with `CHECK PASSED` |
+| `pnpm exec vitest run <file>`, `pnpm test:play <file>` | While you work: only the tests you touch |
+| `pnpm typecheck`, `pnpm lint`, `pnpm check:rules` | One step of the check each, when you need it alone |
+| `pnpm bless` | Only when the maintainer asks (rule 5) |
+| `pnpm content:freeze`, then `pnpm content:seal` | Around raising the content version, in the order the `japacity-shipped-lives` skill gives |
 
 ## Where things are
 
@@ -27,11 +24,11 @@ Run these from the repository root. pnpm switches itself to the pinned version t
 | `docs/rules/<kind>.md` | The rules for one kind, each with a name, and its entries | Before touching that kind |
 | `docs/rules/text.md` | Where words live and how they sound | Before writing any player-facing text |
 | `packages/sim/src/engine/types.ts` | The contract in types | Always |
-| `packages/sim/src/<kind>/` | `<kind>.schema.ts`, `<kind>.events.ts`, `<kind>.logic.ts`, `<kind>.test.ts` | |
+| `packages/sim/src/<kind>/` | `<kind>.schema.ts`, `<kind>.events.ts`, `<kind>.logic.ts`, `<kind>.test.ts` (only the files a kind needs) | |
 | `packages/content/src/<kind>/` | `<kind>.data.ts`, `<kind>.text.ts` | |
 | `packages/api/src/` | The HTTP contract: every route's request and reply, shared by the client and the server | Before changing a route |
-| `apps/client/src/features/<kind>/` | Screens | |
-| `docs/design/` | The reasons behind the game's design | When a rule seems wrong |
+| `apps/client/src/features/<kind>/` | Screens, their words reader (`<kind>.words.ts`) and their tests (`Thing.test.tsx`) | |
+| `docs/design/` | The reasons behind the game's design. Section 1 of `03-structure-and-conventions.md` defines the project's terms (kind, slice, effect, command, view) | When a rule seems wrong, or a term is new to you |
 | `docs/decisions/` | One short record per decision | |
 
 ## Rules
@@ -71,7 +68,7 @@ Run these from the repository root. pnpm switches itself to the pinned version t
 
 ## Writing text
 
-- Short plain sentences. No filler. No emoji.
+- Short plain sentences. No filler. No emoji. No exclamation marks in the narrator's voice.
 - Player text follows `docs/rules/text.md`.
 
 ## Pinned versions
@@ -124,7 +121,7 @@ The working method is also kept as skills in `.claude/skills/`:
 - `japacity-play`: the end-to-end play driver, `pnpm play`.
 - `japacity-shipped-lives`: how a change is judged against the lives players already have on production. Read it before changing the simulation's rules, the content's shape or the database schema.
 
-`CONTRIBUTING.md` explains them for a person.
+[`CONTRIBUTING.md`](CONTRIBUTING.md#skills) explains them for a person.
 
 ## Your report
 
@@ -140,11 +137,11 @@ End every task with:
 
 Keep commits small, with a subject that says what changed and where. If a hook refuses a commit, fix the problem; never force it. Add a body only when the change needs one, with one line per bullet. Use `git add` with explicit paths.
 
-A pull request runs the quick checks on every push; the full suite, simulated play included, runs in the merge queue before the merge (decision 0040). `pnpm check` runs everything locally, so run it before you push. Pull request titles follow `CONTRIBUTING.md`.
+CI runs only part of the check on a pull request ([The check in CI](docs/site/built/working.md#the-check-in-ci)), so run `pnpm check` before you push. Pull request titles and descriptions follow [`CONTRIBUTING.md`](CONTRIBUTING.md#pull-requests).
 
 ## Never
 
 - Copy anything from another game.
-- Put a real person or a real photo into content. A real business name only as neutral scenery under city:sponsor-shows-name-only and city:invented-names-for-risky-businesses (a place the player only visits, eats at, shops at or meets at; never a bank, lender, agent, employer, sponsor, school or airline; never with a logo or in a fraud, a mishap or bad news).
+- Put a real person or a real photo into content. A real business name stands only as neutral scenery, under city:sponsor-shows-name-only and city:invented-names-for-risky-businesses ([the city rules](docs/rules/city.md)).
 - Add a dependency without the maintainer's agreement. Use only well-adopted tools.
 - Publish or deploy. Push your branch only when your task says to and `pnpm check` has passed. Never push `main`.

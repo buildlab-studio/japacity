@@ -1,6 +1,8 @@
 # The front door
 
-A new player builds a person before the life starts: a look, a first name, a path through the years before, an age and a home. The front door is three screens on a flat sky. Everything but the name is already chosen, so a name, Next, Next and Begin start a life in under a minute. The last screen, Where you live, carries Begin. After Begin a travel data page prints with every answer on it and fills with how the years went, and Go opens the world.
+This page shows how a new player makes a person and starts a life: the three screens of the front door, then the page that prints after Begin. The exact rules are in [the prologue's rules](../../rules/prologue.md).
+
+Everything on the door is already chosen except the name, so a name, Next, Next and Begin start a life in under a minute.
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
   <img src="/pictures/dev-01-front-door.webp" alt="Who are you?: the figure whole on a photo card with the name on a sticker, the name box with a dice, the looks as round face stickers, and Next" width="220">
@@ -22,106 +24,77 @@ flowchart LR
   C -->|"Path and age"| B
 ```
 
-**Who are you?**
+The screens stand on a flat sky with nothing behind them. Shuffle, at the top of the first two, picks a look and a life at random and leaves a typed name as it is; Skip goes straight to Where you live.
 
-- The player's figure stands whole on a photo card, under the sun by day or the moon at night, with the name on a sticker.
-- Under it is the name box. It starts empty, with a suggested name in lighter ink as its placeholder. A dice puts a name from the pool in it, and three of the pool's names sit under it to tap.
-- Begin never takes the placeholder: a box left empty sends the player back to it.
-- Below the box are the looks, as round face stickers. A look is a whole character model, never sliders, and it carries no stat.
-- "Make it yours", under the looks, opens a skin tone, a hair colour, a top colour and, on a printed top, the fabric (plain, ankara, adire, aso-oke).
-- Nothing stands behind the screen but the sky.
+### Who are you?
 
-**Your life so far.**
+The player's figure stands on a photo card with the name on a sticker. Under it:
 
-- The archetypes, as big sticker cards swiped sideways, with the first one chosen.
-- Each card shows the life's own thing, the player's face, a tag, its name, the life in a few words, what the years before were and the savings it starts with.
-- The picked life's ways out show as picture chips.
-- Under the cards is the age, set in steps.
+- **The name box.** It starts empty, with a suggested name in light ink. The dice fills it from the game's pool of names, or the player taps one of the names under it or types one. The suggestion is never taken as the name: Begin with an empty box comes back here.
+- **The looks**, as round face stickers. A look is a whole character, never sliders, and changes nothing in the life.
+- **Make it yours**, which opens a skin tone, a hair colour, a top colour and, on a printed top, the fabric.
 
-**Where you live.**
+### Your life so far
 
-- A strip with the face, the name, the path and the age. Tap the face to change the look and name, or the name to change the path and age.
-- The picked home as a postcard, its stamp showing the money to start, with the other homes fanned behind and a row of small home tiles to switch.
-- Begin, which starts the life.
+The lives the player can start from, called archetypes, sit as big sticker cards swiped sideways. Each card says what the years before were, what the life is like now and what it starts with, and the chosen life's ways out show as picture chips under the deck. The age is set in steps under the cards, and each step says what an older or younger start changes.
 
-Shuffle, at the top of the first two screens, picks a look and a tile at random, and a new name suggestion when the name box is empty. A name already typed stays. Skip goes straight to Where you live.
-
-::: info The data page is invented
-The data page is drawn on pale green security paper in the game's own style. Its country code is a made-up "JPC", and its machine-readable strip is built from the game's own data. It carries no real number, coat of arms or issuing authority, and no stamp until a visa is granted.
-:::
-
-## The archetypes
-
-An archetype is a preset of answers to the years from sixteen. The presets live in the game's content, which the client and the server both read; the simulation only sees the answers, one card at a time. Every tile opens at least one way out the player can reach by their own effort.
-
-| Tile | The years before | Ways out it opens |
-|---|---|---|
-| The developer | Science, then computer science | UK talent, UK skilled, the UK master's |
-| The nurse | Science, then nursing school | UK health care, the Gulf contract, Canada's points |
-| The accountant | Commercial, then accounting | Canada's points, UK skilled, the UK master's |
-| The writer | Arts, then mass communication | The UK master's, Canada's points |
-| The trader | Six years under a spare parts master | The Gulf contract, the road through the desert |
-| The shop worker | Straight from school to a shop counter | The Gulf contract, the road through the desert |
-| The child of the water | Grew up in Makoko, a canoe to school, then the fish racks | The Gulf contract, the road through the desert |
-
-The full table, with each tile's preset answers, is in [the prologue's rules](../../rules/prologue.md).
-
-## The age and the home
+### Where you live
 
 <img src="/pictures/door-where-you-live.webp" alt="Where you live: the family house in Surulere as the front postcard with the money to start on its stamp, the others behind, the three homes as tiles, and Begin" width="260" align="right" style="margin-left:16px">
 
-The age starts at the tile's own and goes up to three years older, never past 29. Each step says what it does: an older start has a little more saved and more papers in order; a younger one has more years before the routes that favour the young close.
+A strip at the top repeats the face, the name, the path and the age; tapping it goes back to change them. Below it, the chosen home stands as a postcard, its stamp showing the money the life will hold at Begin, with the other homes behind it and a row of small tiles to switch. A home the savings cannot pay for is shut with a lock and says what is short. A self-contain flat is shown locked, as something to aim for. The homes themselves are explained on [the home](./home.md) page.
 
-Where you live offers these homes, in this order:
-
-1. Your own room: a room in a compound in Ojuelegba.
-2. A hostel room in Yaba.
-3. The family house.
-4. Makoko, for the child of the water only, where it is the default.
-
-Each home has a line saying what it is and its costs as chips. Its stamp shows the money the life holds at Begin, after moving in is paid. A tile's own home is picked first: the family house, or Makoko for the child of the water. A self-contain flat is always shown locked, as a goal with its yearly rent, and says "reached" when the savings would already cover it. The homes themselves are on [the home](./home.md) page.
-
-::: details When a home cannot be paid
-The room in a compound asks for a year's rent plus the agent's and the agreement's fees at once. If the savings at the age picked do not cover that and a month of living there, its tile is shut with a lock and shows the sum still needed. When the tile or the age changes, the home already picked is kept while it can still be paid; otherwise the tile's own home is picked, or else the first home that can be paid.
-:::
+Begin, at the foot, starts the life.
 
 <div style="clear:both"></div>
 
+## The archetypes
+
+Each archetype is a ready set of answers to the years from sixteen, from school to a first trade, and each opens at least one way out the player can reach by their own effort.
+
+| Archetype | The years before |
+|---|---|
+| The developer | Science, then computer science |
+| The nurse | Science, then nursing school |
+| The accountant | Commercial, then accounting |
+| The writer | Arts, then mass communication |
+| The trader | Years under a spare parts master |
+| The shop worker | Straight from school to a shop counter |
+| The child of the water | Grew up in Makoko, a canoe to school, then the fish racks; starts in Makoko |
+
+The ways out each one opens, and its full set of answers, are in [the archetypes table](../../rules/prologue.md#the-archetypes).
+
 ## Begin and the page
 
-Begin runs the archetype's answers card by card while the page stands on the door's sky, under "Your page, printed" and "Over to you" with the character's name. No card is shown, but the draws still happen. Online, the whole preset goes to the server as one request, the server plays every card in turn, and the page's chips come in one after another over about two seconds (decision 0008, `docs/decisions/0008-the-prologues-preset-in-one-request.md`).
+After Begin, the archetype's answers play out year by year without showing a card for each, and a travel data page prints with the person on it. The page fills with:
 
-Then the page fills with:
-
-- the family the game drew, in two lines with small tags;
-- the years before, as chips with marks (the school certificate, the entrance exam, the course or the trade, the service year, any setback), each showing Not yet until it is lived;
-- the figure cheering on a sticker, beside a card with the home's picture that says where the life starts and when rent is next due;
+- the family the game drew;
+- the years before, as chips, each showing Not yet until it is lived;
+- the figure cheering beside a card of the home, saying where the life starts and when rent is next due;
 - the money and japacity as they stand;
 - the first step.
 
-The world opens only when Go is tapped. The page never closes on a timer.
+The world opens when the player taps Go; the page never closes by itself. Later, a tap on the name or the age in the band opens the same page again, kept up to date.
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
   <img src="/pictures/dev-04-your-page-filled.webp" alt="Your page, printed, for the developer: the travel data page, the figure cheering, the family house in Surulere, the family, and the first step" width="220">
   <img src="/pictures/water-04-your-page-filled.webp" alt="Your page, printed, for the child of the water: a house on stilts in Makoko, the years before, and a room on the water" width="220">
 </div>
 
-The page stays with the character. In the world, a tap on the name or the age in the band opens it again, with the age kept current and how ready the character is.
-
-::: details Exceptions
-- **A name that fails its checks.** A typed name passes the same checks as a username. One that fails sends the player back to the first screen, saying why.
-- **The family draw shuts the tile's path.** Locally, the door tries up to eight seeds until the draw allows the tile's first answer, so the tile's path is open from the first card. Online, the server makes one seed per life and retries none, so the tile's words say the years may go another way, and the page reads the life as it was lived, not the tile.
-- **A later draw shuts a preset answer.** The open answer that suits the archetype is sent instead.
-- **Online.** The account's age screen comes before the door (see [accounts](./accounts.md)). The date of birth asked there is only for the terms' age check and is never part of the character.
+::: info The data page is invented
+The page is drawn in the game's own style with a made-up country code. It carries no real passport number, coat of arms or issuing authority, and no stamp until a visa is granted.
 :::
 
-::: tip The ready lives
-The ready lives are not on the door. They sit behind Settings, as "Start from a ready life", where a life may be started over. See [the ready lives](./ready-lives.md).
+::: details Exceptions
+- **A name that fails its checks** sends the player back to the first screen, saying why.
+- **The family draw.** On the device, the game makes sure the archetype's path is open from the first year. Online, each life gets one draw, so the card warns that the years may go another way, and the page tells the life as it was lived.
+- **Online,** the account's age screen comes before the door (see [accounts](./accounts.md)). The date of birth asked there is only for the terms and is never part of the character.
+- **The ready lives** are not on the door; they sit behind Settings. See [the ready lives](./ready-lives.md).
 :::
 
 ## Rules it rests on
 
-- [The prologue](../../rules/prologue.md): prologue:front-door-builds-a-person (the door builds a person, the data page), prologue:archetype-presets-answers (archetypes as presets), prologue:tile-path-open-from-start (a tile's path open from the first card), prologue:makoko-start-never-a-trap (the Makoko start), prologue:front-door-three-screens (the three screens and Where you live), prologue:printed-page-hands-over (the page is the handover), prologue:player-colours-on-looks (your colours), prologue:nothing-behind-the-door (nothing stands behind the door).
-- [Home](../../rules/home.md): home:move-home-once-a-month (the hostel room by the month), home:compound-room-is-a-home (the room in a compound and its rent), home:living-by-hand (the family house: your share, nothing charged).
-- [Accounts](../../rules/account.md): account:age-screen-refuses-minors (the age screen online).
-- [The server](../../rules/server.md): server:server-plays-prologue-preset (the preset played by the server in one request).
+- [The prologue](../../rules/prologue.md): prologue:front-door-builds-a-person, prologue:front-door-three-screens, prologue:archetype-presets-answers, prologue:tile-path-open-from-start, prologue:makoko-start-never-a-trap, prologue:printed-page-hands-over, prologue:player-colours-on-looks, prologue:nothing-behind-the-door.
+- [Home](../../rules/home.md): home:compound-room-is-a-home, home:move-home-once-a-month, home:living-by-hand (what each home costs).
+- [Accounts](../../rules/account.md): account:age-screen-refuses-minors.
+- [The server](../../rules/server.md): server:server-plays-prologue-preset (online, the years are played by the server in one request; decision 0008).

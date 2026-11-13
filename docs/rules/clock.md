@@ -5,8 +5,8 @@
 
 Two clocks run online:
 
-- **A life's months** move when the player plays, one month at each sleep. The bank of turns fills on real time (`turn.md`).
-- **The world** moves on the server's clock, the same for everyone, one tick every 12 real hours.
+- **A life's months** move when the player plays, one month at each sleep (world:sleep-ends-the-month). The bank of turns fills on real time (`turn.md`).
+- **The world** moves on the server's clock, the same for everyone, one tick at a time (clock:world-tick-length-and-epoch).
 
 The client shows both clocks and keeps neither.
 

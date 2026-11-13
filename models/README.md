@@ -2,8 +2,9 @@
 
 This folder is never shipped. It holds the builders, specs, outlines and reviews of every model under `apps/client/public/assets/`, the stage they are shot on, and the register.
 
-- How a model is made, shot, reviewed and registered: `docs/decisions/0009-models-are-code.md`.
-- The rules: `docs/rules/assets.md`. Its Prefixes table says where each kind ships.
+- How a model is made, shot, reviewed and registered: [decision 0009](../docs/decisions/0009-models-are-code.md).
+- The rules every model follows: [the assets rules](../docs/rules/assets.md). Its Prefixes table says where each kind ships.
+- Why the models are made this way: [Assets and visuals](../docs/design/06-assets-and-visuals.md).
 
 ## The folders
 
@@ -30,18 +31,13 @@ A shipped asset `<prefix>_<slug>` has its source in `<folder>/<slug>/`:
 
 | File | Holds |
 |---|---|
-| `register.json` | One row per shipped file (the register in `docs/rules/assets.md`): every file the game ships, so the voice, the share pictures, the brand marks and the fonts as well as the models |
+| `register.json` | One row per shipped file (assets:register-matches-every-file): every file the game ships, so the voice, the share pictures, the brand marks and the fonts as well as the models |
 | `manifest.json` | The SHA-256 of every render and pattern the tools wrote (assets:no-reference-photos-kept) |
-| `budgets.json` | The budgets for one asset and for one place |
-| `review.config.json` | The review sheet's numbers |
+| `budgets.json` | The budgets for one asset and for one place, which the build check reads |
+| `review.config.json` | The review sheet's numbers and criteria |
 | `examples.json` | The examples every new piece is judged against |
 | `signs.json` | Where the sign words live |
 
 ## Commands
 
-Run from the repository root; the code is in `tools/assets/`:
-
-- `pnpm assets:export <name>`
-- `pnpm assets:shoot`
-- `pnpm assets:outline`
-- `pnpm check:assets`
+The asset commands (`assets:export`, `assets:shoot`, `assets:outline`, `assets:credits`, `assets:publish`, `check:assets`) run from the repository root, with their code in `tools/assets/`. They are listed in [Working on it](../docs/site/built/working.md#commands), and each script states its usage in its first lines.

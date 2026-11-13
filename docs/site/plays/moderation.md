@@ -1,6 +1,6 @@
 # Moderation and the legal pages
 
-Wherever a player meets another player, or anything the game did not write, there is a way to block and a way to report.
+Wherever a player meets another player, or anything the game did not write, there is a way to block and a way to report. This page shows those controls, what the team does with a report, and the legal pages beside the game; the rules are on [Block, report, the queue and the admin view](../../rules/moderation.md).
 
 - Players cannot type to each other: they speak in set phrases, so a report never carries typed text.
 - Every report is read by a person on the team, in one queue, and the reporter hears back when it is decided.
@@ -41,15 +41,15 @@ flowchart TD
   G -->|"No action"| I["The reporter is told: Decided. We took no action."]
 ```
 
-The reasons are a fixed list: a scam or asking for money, harassment or bullying, pretending to be someone, under 18, sexual content, hate, self-harm, something illegal, cheating, a bad advert (on an advert), something else. A player can send up to 20 reports a day.
+The reasons are a fixed list: a scam or asking for money, harassment or bullying, pretending to be someone, under 18, sexual content, hate, self-harm, something illegal, cheating, a bad advert (on an advert), something else. A player can send only so many reports a day.
 
 ::: info While a report is open
-What a report cites is kept as it was until the report is decided, for at most 90 days, even if either account is deleted meanwhile. A reported conversation is paused in the reported player's direction: nothing new reaches the reporter from them.
+What a report cites is kept as it was until the report is decided, up to a limit, even if either account is deleted meanwhile (the limits are in the [Numbers table](../../rules/moderation.md#numbers)). A reported conversation is paused in the reported player's direction: nothing new reaches the reporter from them.
 :::
 
 ## The queue and the team
 
-Every report, every advert sent in and every appeal enters one queue. Under 18, self-harm, sexual content and something illegal come first, then scams, then the rest, oldest first within each. The aim is a decision within a day.
+Every report, every advert sent in and every appeal enters one queue, the most serious reasons first and oldest first within each (moderation:one-queue-by-reason-weight). The aim is a decision within a day.
 
 The team works in an admin view reached only by accounts on the admin list, each from a session that has shown its passkey.
 
@@ -73,10 +73,10 @@ No action edits a balance, a state or a world value directly. Every action goes 
 
 A life is never lost to a change in the game's rules.
 
-- Before a version that changes the game's rules goes live, every life is saved whole as it stands (`pnpm snapshot:all`). The new rules carry it on from there and never replay its past.
+- Before a version that changes the game's rules goes live, every life is saved whole as it stands. The new rules carry it on from there and never replay its past.
 - A life that does not come out the same is left as it was and listed for the team.
 - If a life ever needs checking, the phone says "Your life needs checking on our side. Try again in a while." with a Retry that asks for it again.
-- The team checks and repairs that one life with the correction tool on the game's database (`pnpm rollback check|apply <character>`), one life at a time, while everyone else plays on.
+- The team checks and repairs that one life with the server's correction tool, one life at a time, while everyone else plays on.
 
 ::: warning Under 18
 An upheld report that an account is under 18 closes it and deletes its data, keeping only what the hold and the log need. A new date-of-birth answer from the same sign-in does not reopen it.
@@ -86,7 +86,7 @@ A player who is warned, muted, suspended or banned is told what was done, the re
 
 ## Feedback
 
-Online, a Feedback row sits in the phone's Settings. It opens a box for a short text, at most 500 characters, and a send button. Only the team reads it, it does not say who sent it, and it is never shown to another player. Together with the name on a dedication light (below), it is one of the two typed texts the game accepts.
+Online, a Feedback row sits in the phone's Settings. It opens a box for a short text and a send button. Only the team reads it, it does not say who sent it, and it is never shown to another player. Together with the name on a dedication light (below), it is one of the two typed texts the game accepts.
 
 ## Dedication lights
 
@@ -104,7 +104,7 @@ Two plain pages are served beside the game, readable with no game, no sign-in an
 - **Terms of play**: who runs the game, agreeing to the terms, adults only, your account, that it is a game, game money, other players, what you must not do, complaints, deleting your account, changes, licences, the game's responsibility, and the law the terms follow.
 - **Privacy notice**: who runs it, the law the notice follows, the short version, what is kept and why and for how long, who else handles it, adults only, your rights, deleting your account, and changes.
 
-They are linked from the start screen, the age screen, the invite page, the account settings and the guides menu. Who runs the game is written once, in the content, and filled into both pages when they are built. A complaint beyond the game goes to the address the terms give, with a reply within 14 days.
+They are linked from the start screen, the age screen, the invite page, the account settings and the guides menu. Who runs the game is written once, in the content, and filled into both pages when they are built. A complaint beyond the game goes to the address the terms give, and gets a reply (moderation:actioned-player-told-and-appeals).
 
 ::: details Exceptions
 - **Locally** there is no team and no server: the block and report controls do not show, and nothing is sent.
@@ -119,4 +119,4 @@ They are linked from the start screen, the age screen, the invite page, the acco
 - [Accounts](../../rules/account.md): account:age-screen-refuses-minors (the age screen), account:player-deletes-account (deletion).
 - [Who can play, and who runs the game](../../rules/region.md).
 - [Adverts](../../rules/advert.md): advert reports and the queue.
-- [The server](../../rules/server.md): every life saved whole before a change of rules goes live (server:snapshot-before-deploy, `pnpm snapshot:all`), and the correction tool for one life (server:rollback-check-finds-divergence, server:rollback-apply-one-account, `pnpm rollback check|apply <character>`).
+- [The server](../../rules/server.md): every life saved whole before a change of rules goes live (server:snapshot-before-deploy), and the correction tool for one life (server:rollback-check-finds-divergence, server:rollback-apply-one-account).

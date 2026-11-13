@@ -1,7 +1,7 @@
 # The car chain
 
 > The thresholds are the real UK ones; prices are working values. Sources at the end.
-> Kinds: `obligation` (type `car`), `activity`, `document`. Background: `../design/01-concept.md` section 12, `../research/04` section 4.
+> Kinds: `obligation` (type `car`), `activity`, `document`. Background: `../design/01-concept.md` section 12, `../research/04-debt-credit-and-car.md` section 4.
 
 A car abroad is a work tool. A home carer with a car can take the visits that pay; without one, only the shifts the bus can reach. Cars are bought on finance, and finance has thresholds with real consequences.
 
@@ -27,7 +27,7 @@ A car abroad is a work tool. A home carer with a car can take the visits that pa
 
 | Id | Values |
 |---|---|
-| `obligation.car` | type `car`; currency GBP; price £9,500 (`car.price` 950000 pence); deposit 10% (`car.depositBp` 1000); term 36 months; final payment 30% of the price (`car.finalBp` 3000); rate by credit: mark 70 or more 0.5% a month (about 9% APR), 50 to 69 0.9% (about 16% APR), 30 to 49 1.2% (about 22% APR), under 30 not offered; the rate is flat on the opening principal, so the APR is about one and a half times the monthly rate times twelve; sink `car-payment`, interest sink `loan-interest`; grace 2; reportsToCredit true |
+| `obligation.car` | type `car`; currency GBP; price, deposit, term, final payment and grace as in Numbers; rate by credit mark: 70 or more, 50 to 69 and 30 to 49 take the three rates in Numbers, under 30 not offered; the rate is flat on the opening principal, so the APR is about one and a half times the monthly rate times twelve; sink `car-payment`, interest sink `loan-interest`; reportsToCredit true |
 | `obligation.car-shortfall` | the loan for what is still owed after the car goes (`obligation.car.car.shortfall`): type `loan`, principal the shortfall, 12 months, 0% interest, sink `loan-repay`; opened with a judgment |
 | `activity.buy-car-finance` | abroad, UK; needs credit 30 and a licence in force; cost the deposit; effect opens the car |
 | `activity.driving-test` | abroad, UK; cost `tuning.car.testFee` and, the first time, `tuning.car.lessons`; effect the pass draw |
@@ -56,7 +56,6 @@ A car abroad is a work tool. A home carer with a car can take the visits that pa
 
 ## Why it is built this way
 
-- **A third and a half are the two thresholds.** Under a third paid, three missed payments in a row lose the car and leaves a debt with a judgment. Over half paid, you can hand it back owing nothing. In between, the court delay gives you time, but it costs.
 - **The car and the visa are linked.** If the sponsor loses its licence, the job goes, the 60-day clock starts, the payments stop, and the car follows. The grace, the hand-back and the notice soften this.
 
 ## Sources

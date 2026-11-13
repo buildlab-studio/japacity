@@ -47,7 +47,7 @@ Anyone can check the draw afterwards. The server publishes a fingerprint of its 
 
 ## Rules: limits on the draw
 
-**lottery:tickets-bought-with-earned-naira** A ticket is bought only with naira earned in the game (wallet:top-ups-are-marked: the balance less the marked, topped-up share), and a prize is paid into earned naira. Game naira is never sold, given to another player or taken out of the game. Real money may buy naira as a marked top-up, which pays for anything in the game except a ticket, so the draw stays a game of money earned by playing, at the published odds. A test proves that no command or effect turns a top-up, a paid item or another player's money into a `lottery/buy`.
+**lottery:tickets-bought-with-earned-naira** A ticket is bought only with naira earned in the game (wallet:top-ups-are-marked: the balance less the marked, topped-up share), and a prize is paid into earned naira. Game naira is never sold, given to another player or taken out of the game. A marked top-up bought with real money never pays for a ticket, so the draw stays a game of money earned by playing, at the published odds. A test proves that no command or effect turns a top-up, a paid item or another player's money into a `lottery/buy`.
 
 **lottery:prizes-never-leave-game** A prize is only game naira in the winner's own pocket. Nothing a draw pays can leave the game or be exchanged for anything outside it.
 

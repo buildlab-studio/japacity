@@ -4,12 +4,7 @@
 > Kinds: `person` (the sponsor's checks and the bar) and `obligation` (the undertaking, type `undertaking`). Builds on `person.md` (the partner gate, facts, person:partner-gate-needs, person:partner-application-decided, person:partner-status-renews and person:tied-status-clock-on-breakup), `obligation.md`, `abroad-money.md`, `credit.md`. Background: `../design/01-concept.md` section 6, `../research/05-real-people-family-and-safety.md` section 5.
 > For game design. Not immigration advice.
 
-Sponsoring a partner is a long promise, as in the real rules:
-- The sponsor must earn above a floor.
-- In Canada the sponsor signs an undertaking that runs for three years after the partner lands. A break-up or a divorce does not end it.
-- Someone who arrived in Canada through a partner cannot sponsor a new partner for five years.
-
-Each of these is checked in the sponsor's own life, and none of them moves money to the partner.
+What a sponsor must meet to sponsor a partner, and the undertaking a Canadian sponsor carries after the partner lands. Each check runs in the sponsor's own life, and none moves money to the partner.
 
 ## Agreeing to sponsor
 

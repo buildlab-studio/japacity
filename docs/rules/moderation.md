@@ -1,6 +1,6 @@
 # Block, report, the queue and the admin view
 
-> Rests on `../design/01-concept.md` section 6 (safety rule 7: block and report on every interaction), `../design/04-where-things-live.md` section 4 (a report cites message ids; a reported conversation is held until reviewed), server:rollback-check-finds-divergence, server:rollback-apply-one-account and server:no-mass-rollback (the rollback tool).
+> Rests on `../design/01-concept.md` section 6 (safety rule 7), `../design/04-where-things-live.md` section 4 (messages and their reports), server:rollback-check-finds-divergence, server:rollback-apply-one-account and server:no-mass-rollback (the rollback tool).
 > Kind: `moderation`, server only. The simulation holds no moderation state. Pair records, invites and preset phrases are defined in `pair.md` and `person.md`; the rollback tool and the money report in `server.md`. This page uses them and does not define them.
 
 Players meet each other through invites, preset phrases, characters in a place, pair records and shared cards. Each of these has a block and a report beside it. Reports go into one queue, a person decides each one, and every decision is logged.
@@ -99,7 +99,7 @@ No admin action edits a balance, a state or a world value directly. The terms of
 
 ## Rules: the rollback tool
 
-**moderation:rollback-through-admin-view** The rollback tool belongs to `server.md`: replay one account from its seed and commands, compare with what is stored, and correct only that account, never a mass freeze. The admin view is its only way in: it opens on one account from a queue item or a money report alarm, shows the comparison, and records its use in the log of moderation:admin-actions-logged-append-only.
+**moderation:rollback-through-admin-view** The rollback tool belongs to `server.md` (server:rollback-check-finds-divergence, server:rollback-apply-one-account, server:no-mass-rollback). In the admin view, the check opens on one character from a queue item or a money report alarm, shows the comparison, and records its use in the log of moderation:admin-actions-logged-append-only. Applying a rollback is not in the admin view: the operator runs `pnpm rollback check|apply <character>` from a checkout (server:rollback-apply-one-account).
 
 ## Rules: feedback and dedication lights
 

@@ -1,6 +1,6 @@
 # The character
 
-A character is one life: who they are, what they have, their papers, who they know and where they stand with every way out. In code it is one plain object, the state, made of twenty-one slices, one per kind. The player never sees the state. They see the view, which the engine builds from it on each request.
+A character is one life: who they are, what they have, their papers, who they know and where they stand with every way out. In code it is one plain object, the state (`docs/design/03-structure-and-conventions.md` section 1), made of twenty-one slices, one per kind. The player never sees the state. They see the view, which the engine builds from it on each request.
 
 This page covers how a life starts, what the state holds, and how the view is built.
 
@@ -41,8 +41,8 @@ flowchart TD
 The diagram leaves out side branches (a retake, a strike that drags on). Each step's answers and conditions are in content.
 
 - **The draw.** When the prologue opens, step 0 draws the family's means, city or town, the number of siblings, and whether the parents were schooled. It uses the `prologue` stream, so the life's seed fixes it (prologue:family-draw-on-first-answer).
-- **The answers.** Each later step offers two to four answers, sent as `prologue/choose`. An answer must be one whose requirements hold. Answers change qualities, add family money or earned cash, and may set flags. Some answers end in a draw on the same stream, whose outcome is the next card (prologue:steps-offer-legal-answers).
-- **Age.** Each step adds months to the character's age. Right after school, each path's age card sets the year the life starts, from 18 to 29, never younger than the path allows. The years from the path's end to that age are the `work` step, answered by the prologue kind itself, never shown as a card (prologue:age-advances-with-steps; decision 0023).
+- **The answers.** Each later step offers its answers, sent as `prologue/choose`. An answer must be one whose requirements hold. Answers change qualities, add family money or earned cash, and may set flags. Some answers end in a draw on the same stream, whose outcome is the next card (prologue:steps-offer-legal-answers).
+- **Age.** Each step adds months to the character's age. Right after school, each path's age card sets the age the life starts at, never younger than the path allows. The years from the path's end to that age are the `work` step, answered by the prologue kind itself, never shown as a card (prologue:age-advances-with-steps; decision 0023).
 - **The close.** When the last step is answered, the chosen home opens its charges, the turn bank is set from the tuning, and the state is a legal starting life (prologue:closing-opens-home-charges).
 - **While it is open,** every other command is refused with `prologue-open`.
 
@@ -171,18 +171,14 @@ flowchart LR
   Chk --> Out["to the screens"]
 ```
 
-- **Japacity** is the best figure among the routes that count, with the route it comes from ([japacity page](../../rules/japacity.md)).
+- **Japacity** is the best figure among the routes that count, with the route it comes from (japacity:best-open-route-is-japacity).
 - **The era** is the world's era read as this player's months.
 - **The card** is the share card due now, the rarest moment first: the send-off, the road, a grant, a status secured, the first pay abroad, December, a draw win, a chapter (share:cards-due-at-set-moments).
 - **Adverts** say whether an advert may show: only at home or abroad, never on the road or in a set piece (advert:no-adverts-on-protected-screens).
 
-Other details:
+A route only heard of carries its figure in the plan's `ways`, not in `routes` (japacity:heard-routes-have-no-figure). A checklist item shows whether it is met, its weight, what it has earned, and how far along it is when it fills slowly.
 
-- A route that is only heard of has no figure in `routes`. Its figure is in the plan's `ways`, so the Japa app can say what switching to it would do.
-- A checklist item shows whether it is met, its weight and what it has earned, and how far along it is when it fills slowly.
-
-- The view never holds the seed, the draw counts, a `secret` object or a result not yet announced.
-- Online, the server builds the view and sends it whole; the client predicts nothing.
+The view holds no hidden field (engine:view-holds-no-hidden-field). Online, the server builds it and sends it whole, and the client predicts nothing (server:client-never-predicts).
 
 ## Related rules
 

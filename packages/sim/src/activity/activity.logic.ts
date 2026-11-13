@@ -375,7 +375,7 @@ function sittingDay(state: State, entry: ActivityEntry): boolean {
   );
 }
 
-/** A price as the kind pays it. `cash` is paid from the cash pocket only (luck:kiosk-sells-lotto-tickets, luck:bet-slip-stake-and-odds). `earned`: paid from earned naira only (wallet:top-ups-are-marked). */
+/** A price as the kind pays it. `cash`: a street price, paid from either pocket by its size, cash first (wallet:money-lands-as-in-lagos, luck:bet-slip-stake-and-odds). `earned`: paid from earned naira only (wallet:top-ups-are-marked). */
 interface Price {
   currency: Currency;
   amount: number;

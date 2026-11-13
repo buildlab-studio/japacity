@@ -3,7 +3,7 @@
 > The start rates are real: the pound's official rate of 24 Sep 2026 and the dollar's of 7 Oct 2026 (`../research/09-uk-masters-numbers.md`, Exchange rates the game starts from), the Canadian dollar and the euro from the cross rates of 7 Oct 2026, and the dirham on the dollar's peg. After tick 0 the rates are simulated, with working values: the game never shows live street rates.
 > Scope: world. Code: `packages/sim/src/world/`. Background: `../design/01-concept.md` sections 7 and 13.
 
-At any one tick the world is the same for everyone: two naira rates (official and street) for each foreign currency, the world's variables, and the news. Online, the server builds it one tick at a time (`clock.md`). For the in-browser authority, a stand-in (`world/standIn.ts`) builds it from a world seed and a tick.
+This page covers the world's naira rates (official and street, for each foreign currency) and the variables they read. Who builds the world at each tick, online and in the browser, and how fast ticks pass in each: [`engine.md` section 7](engine.md).
 
 ## Rules
 
@@ -56,7 +56,3 @@ Where the premium settles:
 - supply 97: near 4.2%, close to the calm gap of 3% to 5% on 2 Oct 2026 (`../research/06-naira-rates-and-currency.md`);
 - supply 40: heading for about 45%, near the crisis gap of 47% in Dec 2023;
 - supply 90, after a float: about 9%.
-
-## Tick length in the stand-in world
-
-In the in-browser authority, one tick passes for each month played. Online, ticks follow real time. See `engine.md` section 7.

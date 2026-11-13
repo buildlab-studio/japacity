@@ -15,20 +15,12 @@ flowchart LR
   A -- view --> P
 ```
 
-| Word | Meaning |
-|---|---|
-| State | One character's whole life as plain data. It holds ids and whole numbers, never content |
-| Content | The data tables: routes, jobs, offers, text. Versioned, shipped with the code |
-| World | What is the same for everyone at one tick: rates, rule numbers, news. Passed in, never stored in the state |
-| Command | What a player asks for: `turn/end`, `offer/choose` |
-| Event | What happened, past tense: `wallet/credited`. Only events change state |
-| Authority | Whoever holds the full state and the seed, and runs `step`. For the public game it is the server; for development, tests and offline play it runs in the same browser tab (engine:browser-authority-for-dev-only) |
-| View | What one player may see of the state. The interface reads only this |
+The words this page uses (state, content, world, command, event, sender, authority, view) are defined in the project's terms (`docs/design/03-structure-and-conventions.md` section 1).
 
 One function does the work:
 
 ```ts
-step(state, command, world, content) -> { ok: true, state, events, lines } | { ok: false, code, detail }
+step(state, command, world, content, sender) -> { ok: true, state, events, lines } | { ok: false, code, detail }
 ```
 
 ## 2. Rules
@@ -164,7 +156,7 @@ Every command has `type`, `basedOn` (the state version) and its own fields. The 
 | `cannot-afford` | The money is not there |
 | `unknown-id` | An id names nothing |
 | `bad-amount` | An amount is out of range |
-| `not-yours` | A player sent an authority command |
+| `not-yours` | A player sent an authority command, or a stand-in sent one it may not send (person:stand-in-acts-narrowly) |
 | `ended` | The life is over: the road's `lost`, turn:finish-ends-the-life, road:lost-is-final |
 | `prologue-open` | The prologue is open: only `prologue/choose` and `turns/grant` are accepted (prologue:prologue-life-starts-empty) |
 
@@ -220,7 +212,7 @@ Each kind is one module of plain functions. A kind defines only the parts it nee
 | `view` | `(read) -> part of the view` | This kind's part of what the player sees |
 
 - **A kind may read any part of the state. It may change only its own**, and only in `evolve`.
-- **Kinds talk through effects.** An offer that pays money emits `{ type: "money/add", ... }`. The engine hands it to the wallet, which answers with `wallet/credited`.
+- **Kinds talk through effects.** The part of an effect's type before the slash says which kind carries it out (`EFFECT_OWNER` in `engine/draft.ts`; `money/*` goes to `wallet`). An offer that pays money emits `{ type: "money/add", ... }`. The engine hands it to the wallet, which answers with `wallet/credited`. The effect and requirement types are in `packages/sim/src/engine/types.ts`, and each kind's page lists the ones it handles.
 - **Requirements are data too**: `{ type: "quality/min", quality: "quality.tech", value: 60 }`. One function in the engine evaluates them all, so content never needs code. The part before the slash names the kind that judges it (`job/*` is judged by `activity`, `money/*` by `wallet`). The engine judges six types itself, because they read no kind's slice: `not` (the one requirement inside fails), `any` (at least one inside holds), `month/min` (at least this many months played), `var/min` and `var/max` (a world variable at least or at most this), and `era/is` (the running era is one of these). The kinds' pages name the rest.
 - **Text never lives in the state.** The simulation emits a line as a key and numbers. Content holds the words.
 
@@ -264,5 +256,5 @@ Online, the server produces the world in real time, one stored row per tick (`ap
 |---|---|
 | The client predicting results before the authority answers | The client predicts nothing: it shows the command as sent until the reply arrives (server:client-never-predicts) |
 | State shared by two players | None: each life keeps its own state, and what another life must know reaches it as an authority command (person:lives-meet-by-authority-command) |
-| Upgrading old saves | The state carries a `schema` number. `upgradeStateWith` in `engine/state.ts` carries a state from one content to the next and fills what grew in a newer schema |
-| The segmented save | Decision 0004 (`engine/replay.ts`, engine:state-is-plain-data): a list of segments, each with its own content and overlay version, and a base state after the first, so a life can cross a content change |
+| Upgrading old saves | The state carries a `schema` number. `upgradeState` in `engine/state.ts` carries a state from one content to the next and fills what grew in a newer schema |
+| The segmented save | engine:state-is-plain-data and decision 0004 (`engine/replay.ts`) |

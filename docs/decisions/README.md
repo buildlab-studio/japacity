@@ -15,13 +15,7 @@ A tuning number, a new entry of an existing kind, or a fix that brings code to w
 
 ## Words the records use
 
-The engine's own words (state, content, world, command, event, authority, view) are defined in the table at the head of `../rules/engine.md`. A few more:
-
-- **A kind** is one part of the game with its own rules page, code folder and content: `wallet`, `route`, `home`, `lottery`.
-- **A slice** is the part of a character's state that one kind owns and alone changes.
-- **An effect** is a typed change that content or a kind asks for, carried out by the kind it names: `route/look-into`, `obligation/relief`.
-- **The authority** is whoever runs the simulation for a life: the server online, or the in-browser authority offline.
-- **The golden replays** (the goldens) are stored saves replayed against a stored result; **the recorded lives** are simulated players' lives on the real content. Both prove a change leaves play as it is, or show where it moves.
+The records use the project's terms (a kind, a slice, an effect, the authority, the goldens, the recorded lives and the rest) as [the structure and conventions page, section 1](../design/03-structure-and-conventions.md#_1-terms) defines them.
 
 ## The template
 
@@ -59,7 +53,7 @@ An accepted record's decision is never edited. A record may have its wording, li
 
 | No. | Decision |
 |---|---|
-| [0001](0001-the-contract-carries-the-whole-life.md) | The engine contract carries the whole life |
+| [0001](0001-the-contract-carries-the-whole-life.md) | One engine contract holds the whole life, at home and abroad |
 | [0002](0002-the-view-carries-every-figure.md) | The view carries every figure the screens show |
 | [0003](0003-random-draws-by-position.md) | Random draws are counted by position |
 | [0004](0004-saves-are-segments-of-commands.md) | A save is a list of segments of commands |
@@ -71,7 +65,7 @@ An accepted record's decision is never edited. A record may have its wording, li
 |---|---|
 | [0006](0006-the-online-stack.md) | The online stack, the packages and the storage interfaces |
 | [0027](0027-one-contract-for-the-client-and-the-server.md) | One contract for the client and the server |
-| [0007](0007-mail-through-cloudflare-email-service.md) | Mail leaves through Cloudflare Email Service |
+| [0007](0007-mail-through-cloudflare-email-service.md) | Mail is sent through Cloudflare Email Service |
 | [0008](0008-the-prologues-preset-in-one-request.md) | The prologue's preset is played by the server in one request |
 | [0010](0010-the-first-download-has-a-budget.md) | What a first visit downloads has a budget |
 
@@ -79,36 +73,36 @@ An accepted record's decision is never edited. A record may have its wording, li
 
 | No. | Decision |
 |---|---|
-| [0009](0009-models-are-code.md) | The city's models are code, baked in Node and checked by a build step |
+| [0009](0009-models-are-code.md) | The city's models are code, built in Node and checked by a build step |
 
 ### The month
 
 | No. | Decision |
 |---|---|
-| [0011](0011-the-worlds-day-and-the-lifes-months.md) | The world's day and the life's months |
-| [0012](0012-acts-answer-when-they-are-done.md) | Acts answer when they are done |
-| [0013](0013-living-is-paid-as-it-is-lived.md) | Living is paid as it is lived |
+| [0011](0011-the-worlds-day-and-the-lifes-months.md) | Two clocks: a shared world day and each life's months |
+| [0012](0012-acts-answer-when-they-are-done.md) | An act takes effect when it is done, not when the month ends |
+| [0013](0013-living-is-paid-as-it-is-lived.md) | Living costs at home are paid act by act, not as a monthly charge |
 
 ### Money
 
 | No. | Decision |
 |---|---|
-| [0014](0014-naira-moves-as-it-would-in-lagos.md) | Naira is paid and lands as it would in Lagos |
-| [0015](0015-marked-money.md) | Marked money: a top-up is kept apart from money earned |
-| [0016](0016-the-friday-draw.md) | The Friday draw: a kind of its own, fixed odds and a rolling jackpot |
+| [0014](0014-naira-moves-as-it-would-in-lagos.md) | Naira is paid and received in cash or bank as it would be in Lagos |
+| [0015](0015-marked-money.md) | A top-up is marked and kept apart from money earned |
+| [0016](0016-the-friday-draw.md) | The Friday draw is a kind of its own, with fixed odds and a rolling jackpot |
 | [0030](0030-the-ledger-and-the-rejections-name-only-what-a-rule-uses.md) | The ledger and the rejections name only what a rule uses |
 
 ### The economy
 
 | No. | Decision |
 |---|---|
-| [0031](0031-each-trade-climbs-its-own-ladder.md) | Each trade climbs its own ladder |
-| [0032](0032-learning-in-bands.md) | Learning in bands |
-| [0033](0033-the-students-money-flow.md) | The student's money flow |
-| [0034](0034-certain-stories-start-first.md) | Certain stories start first |
+| [0031](0031-each-trade-climbs-its-own-ladder.md) | Each trade has its own job ladder and a yearly pay review |
+| [0032](0032-learning-in-bands.md) | Tech is learned in bands, and the day's coding class is capped |
+| [0033](0033-the-students-money-flow.md) | A student's tuition, work and Graduate visa |
+| [0034](0034-certain-stories-start-first.md) | News stories that are certain to start go before rolled ones |
 | [0035](0035-the-balance-test-reads-calm-and-crash-worlds.md) | The balance test reads calm and crash worlds |
-| [0036](0036-a-miss-moves-the-story.md) | A miss moves the story |
-| [0037](0037-the-catch-is-its-own-stream.md) | The catch is its own stream |
+| [0036](0036-a-miss-moves-the-story.md) | A missed first job hunt opens a lead, never a promised job |
+| [0037](0037-the-catch-is-its-own-stream.md) | The fishing catch is drawn on its own random stream |
 | [0038](0038-a-bank-remit-arrives-as-quoted.md) | A bank remit arrives as quoted |
 
 ### The city
@@ -116,16 +110,16 @@ An accepted record's decision is never edited. A record may have its wording, li
 | No. | Decision |
 |---|---|
 | [0017](0017-rides-are-priced-by-the-simulation.md) | Rides are commands, priced by the simulation |
-| [0018](0018-the-homes-and-what-they-cost.md) | The homes at home, and what each costs |
-| [0019](0019-the-things-a-life-owns-and-the-passbook.md) | The things a life owns, and the passbook |
-| [0026](0026-the-painted-map-that-folds.md) | The painted map that folds |
+| [0018](0018-the-homes-and-what-they-cost.md) | The four homes in Lagos, and what each costs |
+| [0019](0019-the-things-a-life-owns-and-the-passbook.md) | The things a life owns and the passbook belong to the simulation |
+| [0026](0026-the-painted-map-that-folds.md) | The map is a painted SVG city that folds away |
 
 ### People
 
 | No. | Decision |
 |---|---|
-| [0020](0020-people-across-two-lives.md) | People across two lives |
-| [0021](0021-one-game-for-every-country.md) | One game for every country, and players before residents |
+| [0020](0020-people-across-two-lives.md) | Two players' lives affect each other through commands, never shared state |
+| [0021](0021-one-game-for-every-country.md) | One game for every country, and real players before computer residents |
 
 ### Routes and status
 

@@ -6,7 +6,7 @@ export const activityWaterText: Record<string, string> = {
   "activity.job-fish-racks.act": "Work the fish racks",
   "activity.job-fish-racks.blurb": "Up before light at the racks on the water, where you grew up.",
   "activity.job-fish-racks.when": "Paid at month's end",
-  // The first chapter's nudge while a life in Makoko's room has no job (world:nudge-says-one-thing: under eight words).
+  // The first chapter's nudge while a life in Makoko's room has no job (world:nudge-says-one-thing: at most eight words).
   "chapter.find-your-feet.item.job.nudge.racks": "Work the fish racks beside your room",
   // The place's answer when the hunt is asked at the racks (activity:now-acts-and-month-acts): the hunt's own line,
   // chosen by the job asked for, in place of the manager who takes a CV.

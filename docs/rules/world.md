@@ -1,9 +1,9 @@
 # The world first
 
-> Rests on `../design/07-the-world-first.md` (sections 2, 3 and 6), `city.md`, `text.md` and `engine.md`. city:places-change-no-state, city:place-shows-only-the-view and city:overheard-talk-from-view hold: the world sends no command of its own and shows only the view.
-> Kind: none of its own. These are rules for the client's screens, the places' files and the content that ties the story to places. The simulation holds nothing for them.
+> Rests on `../design/07-the-world-first.md` (sections 2, 3 and 6), `city.md`, `text.md` and `engine.md`. city:places-change-no-state, city:place-shows-only-the-view and city:overheard-talk-from-view hold here.
+> Kind: none of its own. These are rules for the player's screen, the places' files and the content that ties the story to places. The game's rules code holds nothing for them.
 
-The place fills the screen. The player does everything by tapping something that is there. The support pages live in a phone, the map is the city, the story leads, and there are no forms.
+This page is for anyone building or testing what the player sees: the place fills the screen, the player does everything by tapping something that is there, the support pages live in a phone, the map is the city, the story leads, and there are no forms.
 
 On a desktop, the screens before the world (the door first, prologue:front-door-three-screens) use the room a wide window gives and never stretch the phone:
 
@@ -17,7 +17,7 @@ The world keeps its centred column (world:world-fills-the-screen), and the phone
 
 ## Rules: the screen, the top band and the nudge
 
-**world:world-fills-the-screen** The world fills the screen. Over it sit only a top band, two thumb buttons at the bottom corners (Map at the left, Phone at the right, round and white with a picture each, in the centred column on a laptop), and a rise of japacity passing up for a moment (world:japacity-bag-by-door). Nothing sits under the band by default (world:nudge-says-one-thing), and nothing else is on screen until the player taps something. A sheet, the phone, the map and the results each open over the world and close back to it; the world stays visible behind a sheet. A moment (a chapter's card, a share card) may take most of the screen while the world stays visible and moving behind it, dimmed. One tap dismisses it, and sharing is offered, never required. Before the first month of a life is played, the current chapter opens over the dimmed world as chapter:first-chapter-mission-card says: its mission card, handed over by its person, with Let's go.
+**world:world-fills-the-screen** The world fills the screen. Over it sit only a top band, two thumb buttons at the bottom corners (Map at the left, Phone at the right, round and white with a picture each, in the centred column on a laptop), and a rise of japacity passing up for a moment (world:japacity-bag-by-door). Nothing sits under the band by default (world:nudge-says-one-thing), and nothing else is on screen until the player taps something. A sheet, the phone, the map and the results each open over the world and close back to it; the world stays visible behind a sheet. A moment (a chapter's card, a share card) may take most of the screen while the world stays visible and moving behind it, dimmed. One tap dismisses it, and sharing is offered, never required. Before the first month of a life is played, the current chapter's mission card (chapter:first-chapter-mission-card) opens over the dimmed world.
 
 **world:top-band-is-a-pill** The top band is a rounded pill, white by day and navy at night (decision 0025). It carries no pages, no count and no Next month (decision 0011), and nothing on it ends the month (world:sleep-ends-the-month). It holds:
 
@@ -44,7 +44,7 @@ The second row and fitting words:
   - "Your hostel room, Yaba";
   - "The family house";
   - "The room on the water" for a life in Makoko, in a scene that does not name itself, and "Your room, Makoko" in the room on the water itself;
-  - abroad, the room by its country's short name (world:painted-maps-abroad): "The shared room, Peckham" in London (by its hub's short name), "The basement, Calgary", "The bed space, Dubai" and "The shared flat, Castel".
+  - abroad, the room's short name of world:painted-maps-abroad.
 - A place of several scenes shows each scene's own short name from its file (`stage.name`) instead of the place's or the home's: "Makoko" on its channel, "Viewing centre", "Net shed" and "Smoking deck" behind their doors (city:makoko-holds-five-scenes).
 - Nothing anywhere says "slots", "3 of 3 things planned" or "takes no slot".
 
@@ -61,7 +61,7 @@ The journey's step in the world:
 
 Showing and tapping the nudge:
 
-- The nudge hides while a sheet, the phone, the map or a thing's fan is open. It comes back by itself when that closes, by a tap anywhere outside it, its sheet's close or Back (Escape), never needing a tap on the floor. A tap on the player's own figure opens nothing, and the nudge stays.
+- The nudge hides while a sheet, the phone, the map or a thing's fan is open. It comes back by itself when that closes, by a tap anywhere outside it, its sheet's close or Back (Escape), never needing a tap on the floor.
 - A tap on the nudge opens the way to what it names:
   - the asks, when a question or an offer waits;
   - for the chapter's step: the acts of the thing that does it when that thing stands in this place, the map with its stop picked when it is elsewhere in the city, and the Calendar app when the step is the month's end. The step's places are the interface's table in `nudge.ts`. The thing the nudge points at pulses gently at its mark (world:things-are-tappable-models);
@@ -100,8 +100,8 @@ When there is no fare, the nudge names a free step instead of the step. This hap
 
 Papers, needs and calls:
 
-- A step whose act is a call or a message (the transcript, the degree assessment, the council's verification, the licence's renewal) says "on your phone" in its nudge words. A tap opens the phone's Papers app on that act's card, wherever the player stands.
-- The passport's step names the passport office in Ikoyi and goes there like any visit.
+- A step whose act is a call or a message (world:phone-holds-what-phones-hold) says "on your phone" in its nudge words. A tap opens the phone's Papers app on that act's card, wherever the player stands.
+- The passport's step names the passport office (world:phone-holds-what-phones-hold) and goes there like any visit.
 - A step shut by a need names that need's own act and opens it (`<step>.needs.<quality>`): the coding course at the hub's desk for tech, the portfolio's work there for the pieces, the hub's meetup for the people who will write. "Apply for the endorsement" opens the endorsement's own card at the desk, and the meetup's step opens the meetup's own card, in one tap.
 - A need whose act is already in the month's plan or carries on in it ("Ongoing") is passed over for the next need. With every need's act running, the step says the plan is set (`ui.needs.planned`), and its tap opens the Calendar.
 
@@ -115,7 +115,7 @@ The care file:
 The talent file's nudges follow the order in which its papers must be met and paid for:
 
 1. The passport comes first, at its office, in any step of the file, while it is neither held nor on its way. While it is on its way, the file's own work goes on (the portfolio, the endorsement's needs), and a step waits on the passport only when nothing else in the file can be done.
-2. The endorsement is named only once the passport is held and the naira held pays for the endorsement, the TB test and the application together, at the bank now with its charge, so both can follow within the endorsement's three months (route-gates:talent-visa-needs-endorsement). Short of that, the nudge names the gap ("Find ₦7,653,382 more before the endorsement", with the board as its way).
+2. The endorsement is named only once the passport is held and the naira held pays for the endorsement, the TB test and the application together, at the bank now with its charge, so both can follow while the endorsement is valid (route-gates:talent-visa-needs-endorsement). Short of that, the nudge names the gap ("Find ₦X more before the endorsement", with the board as its way).
 3. With the endorsement held: the TB test, then the application, and short of its fee, the gap.
 
 A step whose act the news has shut (the route's window closed, route:closed-window-blocks-applying) says so plainly, never "needs more": "Every route is closed for now" while every route with a window is closed (the pandemic), else that way's own words ("The talent route is closed for now"). Its tap opens Japa, whose locked chip says the same and to watch News, so no desk is pointed at for an act that cannot be taken.
@@ -147,15 +147,15 @@ Marks, names and the marker:
 - A person keeps a name over the dot only while holding an ask or as the nudge's target; otherwise a person shows the dot, like a thing.
 - The first time a place is entered in a life, every name shows for two seconds and fades. This happens once per place per life, kept on the device beside the save.
 - The step's thing or person carries the marker: a white pill with two words and an arrow, a soft bounce and a yellow ring at the feet. The marker never stands on the joint, the barber, the suya man or the club.
-- A month-act started at a thing carries on (world:month-acts-carry-on): the planned act's Ongoing and its Stop, and the spent words, sit on the fan's buttons, and the thing's name says "Ongoing" whenever the name shows.
-- A tap on the player's own figure opens nothing, no card (the data page is on the band's name, world:top-band-is-a-pill).
+- A month-act (`docs/design/03-structure-and-conventions.md` section 1) started at a thing carries on (world:month-acts-carry-on): its fan shows it (world:fan-of-sticker-buttons), and the thing's name says "Ongoing" whenever the name shows.
+- A tap on the player's own figure opens nothing, no card, and the nudge stays (the data page is on the band's name, world:top-band-is-a-pill).
 - A person's or a shopfront's card closes on a tap anywhere outside it or on Back (Escape), and the nudge comes back by itself. The card sits at the foot of the screen as the sheets do, never under the band.
 
 Speech, told lines and toasts. People speak where they stand, and nothing narrates over the world. No card stands across the middle of the world to tell what happened or what someone said.
 
 - A person's words float in a bubble over that person in the scene, off-white with their name small above the words (Mama's "You have eaten? Sit small.", the agent's "Not today.", the visa officer's "Nothing for you today.", Mama's "God bless you. Light is back." when the light bill is paid at home). The bubble follows the camera, is held inside the screen and under the band, hides while the person is behind the camera, shows one speaker at a time for about four seconds (world:street-talk-budget), and goes on a tap.
-- What an act does to the world is told in the bottom corner (world:street-talk-budget) in one short line in the third person about the world ("Mama presses a bag of oranges on you.", "In the box: the passport.", "The parcel is yours."), never narrating the player's own act. A told line stays about 7 seconds, so a line of two sentences can be read.
-- An act the scene shows (sit, rest, cook, fetch water) gets no line at all. A planned act is its thing's state, never a line.
+- What an act does to the world is told in the bottom corner (world:street-talk-budget) in one short line in the third person about the world ("Mama presses a bag of oranges on you.", "In the box: the passport.", "The parcel is yours."), never narrating the player's own act.
+- An act the scene shows (sit, rest, cook, fetch water) gets no line at all (text:show-then-tell). A planned act is its thing's state, never a line.
 - A toast slides in under the band and out again, on transform and opacity (world:motions-under-half-second). It stands long enough to read: at least four seconds, plus a second for every twelve letters past forty, and it holds while a finger or the pointer rests on it. What a toast tells is also in News. The toasts are:
   - money in from the player's own act: its picture, the act and the figure on a green pill, with a coin flying to the band's counter (`MoneyToast`);
   - the interview's close (`SaidToast`);
@@ -176,10 +176,10 @@ The room's acts:
 **world:fan-of-sticker-buttons** The fan (decision 0025, `../design/09-the-games-look.md` section 3). A tap on a thing opens no chip: every thing fans its acts out of the thing itself.
 
 - The acts are round sticker buttons along a curve that sweeps sideways and down from the thing into the larger free side of the screen (a radius of 170 px on a phone and 200 on a laptop). Up to six show, with a seventh peeking and a drag along the curve. The buttons follow the thing every frame and spring in 40 ms apart. A refusal shakes the button and plays the low double note.
-- The simulation's now-acts are priced buttons: the act's picture as a tile inside a sticker, a name pill outside the curve and the price pill alone (no balance pair, no legend). A sheet act whose entries are all now-acts splits into one button each. While a button is pressed, the band's counter shows what would be left, and settles back when released.
+- Now-acts (`docs/design/03-structure-and-conventions.md` section 1) are priced buttons: the act's picture as a tile inside a sticker, a name pill outside the curve and the price pill alone (no balance pair, no legend). A sheet act whose entries are all now-acts splits into one button each. While a button is pressed, the band's counter shows what would be left, and settles back when released.
 - Any other act (a pose, the bed's Sleep, a sheet that opens a card, a command, out, enter, ride, an app, a word with someone) is a button with the act's own label and its tile or a glyph drawn for its kind (`shared/tiles/Glyph.tsx`: sit, lie, sleep, pay, papers, pack, out, in, talk, look, ride, home, stop, shut), with no price and no Free.
 - The thing's name stands in a pill over it, with the person's mark where the game plays them. A thing with no act shows its name alone.
-- A planned act is a shut Ongoing button with a Stop beside it (world:month-acts-carry-on). A spent act's button is shut, with You are spent. Sleep.
+- A planned act is a shut Ongoing button with a Stop beside it (world:month-acts-carry-on). A spent act's button is shut and carries the words of activity:spent-body-refuses-acts.
 - With no room beside the thing, or more than eight buttons, the tap opens the activity sheet (all now-acts) or a small sheet of the same buttons (`FanSheet`).
 - A tap follows the act's own way: a now-act is sent on arrival; a pose poses; Sleep opens the first-night card or sleeps; a card opens after the walk; a command sends; out opens the map.
 - The fan is the same in every build; no address turns it off.
@@ -189,7 +189,7 @@ The room's acts:
 Rows and chips:
 
 - A row in a list says its name and one figure, on a line that never wraps. Anything else to know folds behind a tap on the row (the needs of a job out of reach, the details of a bill).
-- Every act's facts are chips, never a sentence (text:show-then-tell), in this order: its pay, its chance, its time, when it pays or answers, a bill over months, a fee, a rate and where it counts. What it changes shows as arrow tags and what it needs as marks, so its line holds none of them.
+- Every act's facts are chips, never a sentence, in the order of text:show-then-tell, with its changes as arrow tags and its needs as marks, so its line holds none of them.
 - A picker of several acts is rows with one button in the foot. Each row shows an act's picture, name and facts. A tap picks a row, and only the picked row shows its line, what it still needs and any choice inside it (a route, a university). The one button does the picked act, with its price and the balance before and after under it.
 - What a job still asks is said as chips, never a sentence: months in a trade as a progress chip ("2 / 18 months") with the jobs that count behind a tap, and each other need as a chip with its mark, a cross while unmet and a tick once met. This covers Jobs' next rung and side job, and the Bank's roads, whose tap is the road's and which show the chips without the fold.
 
@@ -210,7 +210,7 @@ Buttons:
 - A button with no title over it keeps the act's full name: a round button of the fan and its name pill, a row in a list, the small sheet of a thing's acts.
 - A button's name for a screen reader holds its visible words.
 - The sheet rises from the bottom; the top of the scene stays in view. The words come from content.
-- The month itself is not a sheet: it lives in the phone's Calendar app (world:top-band-is-a-pill, world:month-acts-carry-on).
+- The month itself is not a sheet (world:month-acts-carry-on).
 
 **world:back-closes-topmost** The browser's Back (a phone's back button or gesture) and the Escape key close the topmost thing the player opened, one at a time: a sheet, an app on the phone and then the phone, the map, a ride's sheet before the ride starts, and a step of the start screen, the age screen or the door. Each opening adds one entry to the browser's history and each close by the game's own control removes it again, so Back never steps through things already closed. With nothing open in the world, Back leaves the game as it leaves any site. Back does not close a ride under way, the cut into a place or the send-off's beats: there it waits until the beat ends.
 
@@ -262,12 +262,12 @@ Priced acts:
 
 Bands and counts:
 
-- The English band a sheet or a result names is the plan's route's own, read from that route's content (its file's English item: 5.5 for health care and the skilled worker, which the degree's English statement also meets, and 6.0 for Canada). So the file, the centre's "Sit the test" sheet and the result ("That meets the route's 5.5.") say one figure. With no plan, or a plan that asks no band (the master's, whose English is the degree, route:degree-meets-masters-english), the sheet and the result say the band alone and name no route's figure.
+- The English band a sheet or a result names is the plan's route's own, read from that route's content (its file's English item, whose figure each route's page gives). So the file, the centre's "Sit the test" sheet and the result ("That meets the route's 5.5.") say one figure. With no plan, or a plan that asks no band (the master's, whose English is the degree, route:degree-meets-masters-english), the sheet and the result say the band alone and name no route's figure.
 - The asks sheet's count is the asks still waiting, "1 of 3" over three; with one left there is no count. Over a set piece (the exam, the visa interview) the asks sheet's header holds no count and says where the player stands: the set piece counts its own questions ("Question 1 of 3"), so only one counter stands.
 
 **world:month-acts-carry-on** The month plan has no page and no sheet. A month-act the player starts from its thing (a course, study, the portfolio, practice) carries on every month until the player stops it, from the Stop on its thing's fan or from the Calendar app, or until it ends itself: the view no longer allows it, it can no longer be paid for (a course finished, a way shut), or it was the search for a job now held.
 
-- The client keeps these commitments across the month's end (every pick still allowed and paid for that is not a now-act) and sends them with each month's `turn/end`. The simulation keeps no plan of its own.
+- The client keeps these commitments across the month's end (every pick still allowed and paid for that is not a now-act) and sends them with each month's `turn/end`. The game's rules code keeps no plan of its own.
 - An exam of one sitting (the nurse's certification) leaves the plan in the month it runs, pass or fail, so it never carries on. A failed exam is sat again, and paid for again, only by a new tap on its card.
 - An exam of several sittings (the chartered exams, document:trade-papers) is studied between its sittings and carries on until it is stopped or its paper is earned.
 - Every other act, `once` or not, carries on. `once` means at most once a month (activity:waiting-months-build-profile): the master's at home runs twelve months of one slot.
@@ -302,12 +302,11 @@ Also:
 
 Changes of money:
 
-- Kept counts every money that moved. A change of money counts for nothing either way (decision 0024): the kept figure leaves out the change's two sides, and the bank's charge stays money out.
+- Kept is the month's net of wallet:months-kept-counted, so a change of money counts for nothing either way and the bank's charge stays money out.
 - Each change of money in the month has its own line under Kept, in the order made, both sides as they were, saying what went at the rate, without the charge ("Changed ₦1,022,058 into £561": naira into pounds or dollars, or back; with the FX man, what was handed over). It is quiet and plain, never like a bank alert (`text.md`), and it replaces the plain "changed" tag, so the change is said once (text:show-then-tell).
-- The bank's charge is counted once, as its own money line, money out, in the results' words ("The bank's charge for the change: ₦15,331."). So Kept plus each change is the band's move (for example Kept +₦69,336, a change of ₦1,022,058, the band down ₦952,722). A charge too small to show as a figure has no line, and Kept still counts it.
-- The wallet's month net (wallet:months-kept-counted) counts the charge once, and so does the client's telling of a change (`shared/words/money.ts`).
+- The bank's charge is counted once, as its own money line, money out, in the results' words ("The bank's charge for the change: ₦15,331."). So Kept plus each change is the band's move (for example Kept +₦69,336, a change of ₦1,022,058, the band down ₦952,722). A charge too small to show as a figure has no line, and Kept still counts it. The client's telling of a change (`shared/words/money.ts`) counts the charge once too.
 - A purchase whose foreign side waits in the bank's queue is told by its own line in the month it is paid in, with no changed-into line, since only one side is on that month's lines.
-- All of this is read from the report lines; the simulation and the view hold nothing more for it.
+- All of this is read from the report lines; the game's rules code and the view hold nothing more for it.
 
 Papers, draws and offers:
 
@@ -332,12 +331,12 @@ News afterwards:
 - A place file whose turn limit is 360 turns the full circle and rests on quarters (the wide homes). There a vertical drag is a second one-finger gesture, tilting toward the view from above, still raised and never straight down.
 - Entering a place always shows the whole of it.
 
-**world:nothing-roams** Nothing roams. A tap on a thing walks the character to it in a straight line, and the act follows. The walk takes about one second whatever the distance, a second tap ends it at once, and nothing between a tap and its result takes longer than about a second and a half. A fan button's act follows once the character has walked to the thing, whatever its kind. A tap on the ground walks there only inside the place's walkable polygon, with no route round obstacles. Route-finding and strolling sit behind `tuning.city.roam`, which is false (city:tap-to-walk).
+**world:nothing-roams** Nothing roams: the character moves only by the walk of city:tap-to-walk, and route-finding and strolling stay off. Nothing between a tap and its result takes longer than about a second and a half. A fan button's act follows once the character has walked to the thing, whatever its kind.
 
 **world:place-is-one-screen** A place is one screen.
 
 - An outdoor place is a frontage of about 24 metres. An indoor place is a room of about 16 by 9 metres seen down its length (world:room-seen-down-its-length), so it fills a portrait screen, with its two far walls and no roof.
-- That size does not bind a home. A wide home is an exterior place of about 13 by 13 metres (the family house, with its yard and carport) or an interior of about 9 by 8 (the compound room's house, the hostel), seen whole as world:room-seen-down-its-length says. A wide home's near walls stand knee-high (0.6 m) and its yard fences 2.1 m; each outer side is a full and a low wall, of which one shows (world:room-seen-down-its-length).
+- That size does not bind a home. A wide home is an exterior place of about 13 by 13 metres (the family house, with its yard and carport) or an interior (the compound room's house, sized in home:compound-room-is-a-home, and the hostel, about 9 by 8), seen whole and walled as world:room-seen-down-its-length says. Its yard fences stand 2.1 m.
 - Makoko's small scenes (city:makoko-holds-five-scenes) are seen whole as a wide home is. The room on the water (about 5 by 4 metres with its porch) and the viewing centre (about 6 by 4.4 with its porch) are interiors with their near walls at the knee. The net shed's deck (about 6 by 4.4) and the smoking deck (about 7.2 by 5) are half-open exteriors.
 - People: at most 6 outdoors and 4 indoors in low mode, 10 and 6 in high. The send-off party keeps its ten and its dancers.
 - Moving sheets: at most one per place, none in low mode.
@@ -351,11 +350,10 @@ News afterwards:
 
 - A place may hold several scenes, each its own file under the one place (Makoko's channel, room on the water, viewing centre, net shed and smoking deck, city:makoko-holds-five-scenes).
 - A door names the scene it opens (`inside` on its act, else the file's own `stage.inside`) and lists the things that stand behind it (`leads`). So a nudge that points at one of them from outside points at the door instead, and the night's nudge points at the door of the room where the bed is.
-- A reload made inside opens in the same scene.
 
 **world:opens-where-last-stopped** The game opens where the player last stopped, or at home.
 
-- Where the player last stopped includes a room: a reload made inside opens inside, not outside. Only a move to another place steps back outside.
+- Where the player last stopped includes a room and a scene: a reload made inside opens in the same scene, not outside. Only a move to another place steps back outside.
 - Home is per country: the family house in Nigeria, and the room abroad once the character lands.
 - The family house is a place on the map with a position. It has no inside: it is one wide house seen whole from above, and a reload at home opens on the house whole.
 - The people of the story (the partner, a friend, the family) have homes that are places the player can visit.
@@ -403,11 +401,11 @@ The city from the air:
 
 **world:ride-sheet-shows-fares** Picking a stop opens the ride sheet: the place's picture with its name and a state chip; the ways as picture tiles with the fare and the time under each (a way out of reach greyed, with its reason); the balance before, struck through, and the balance after; and one Go naming the way and the fare.
 
-- The ways are the danfo, the keke, the okada and on foot, at the fares `rideFare` gives for the distance (place:rides-between-city-places, from content's positions of the two places) and the pace `tuning.city.ride` gives.
-- On foot costs nothing and is the slowest. It is open only to a stop within `tuning.city.ride.walkMetres`; farther stops say "Too far to walk". The ride's minutes are display only and its scene can be skipped, so a free walk everywhere would make every fare pointless.
-- A life with no fare walks home, or out of home, however far. While the money held pays for no other way, Walk to or from home past the limit stays open and plays long, and the simulation accepts it (place:rides-between-city-places). With a fare in hand, that Walk is greyed, saying "Too far. You have the fare", and the sheet opens on a ride.
+- The ways and their fares are those of place:rides-between-city-places, at the pace `tuning.city.ride` gives.
+- On foot is the slowest way. Past the walking limit of place:rides-between-city-places, a stop says "Too far to walk". The ride's minutes are display only and its scene can be skipped, so a free walk everywhere would make every fare pointless.
+- Where that rule lets a life with no fare walk home or out of home past the limit, Walk stays open and plays long. With a fare in hand, that Walk is greyed, saying "Too far. You have the fare", and the sheet opens on a ride.
 - While the car stands at home, Drive comes first on the sheet, with the car's tile, "Drive there" and the fuel as the fare.
-- The fare leaves the naira, cash first, through the command `place/ride` (place:rides-between-city-places), and the ride plays only once it is accepted.
+- The fare is paid through the command `place/ride` (place:rides-between-city-places), and the ride plays only once it is accepted.
 - At the stop where the character stands, the button says "Stay here" and closes the map with the sheet, back to the place.
 - A danfo, a keke or an okada standing in a place is a thing whose act opens the same ride sheet.
 
@@ -427,7 +425,7 @@ The ride:
 - On a keke the view is out of its open side from the bench; on an okada, the rider ahead and the open street.
 - The cuts are the cut of world:entering-is-a-cut (a short dark, never a slide across the screen), and no setting changes the angles.
 - The card's where-you-are lines follow the ride's clock. Once the danfo's ride cuts from the window to the seat, the card's road line moves on to the next, so the two angles never carry the same caption.
-- Skip ends it all at once, and Turn back gets the character down at the next stop.
+- Skip and Turn back act as on any ride (world:ride-sheet-shows-fares).
 - A slow frame never jumps the ride ahead (the step is clamped). A frame up to a second long counts whole, so a slow but steady device keeps the ride's pace and still shows every angle (no frame is longer than the shortest angle). Only a frame past a second (`STALL_MS`) is a stall, and it moves the clock one step.
 - The ride still ends once the wall clock has run its length plus three and a half seconds (`RIDE_SLACK_MS`), so a slow phone never holds the player in the ride.
 
@@ -466,11 +464,15 @@ The ride:
 
 The apps:
 
-- The Calendar holds the month (world:top-band-is-a-pill, world:month-acts-carry-on).
+- The Calendar holds the month (world:month-acts-carry-on).
 - The boards (city:boards-switch-when-and-who) sit on Chats' people page in the game's look.
-- Where no offer waits, the Jobs screen says the board's count ("No offer yet. 8 jobs are open on the board: ask there."), never "No job offers right now" under "8 open".
-- Offline, where the street kiosk runs its own draw, the Lotto app shows the month's tickets held, the last draw's result from the last month's results when it had one, and one line that tickets are sold at the street kiosk, with the street's name ("Bode Thomas Street"). So it is never a bare one-line screen.
+- Where no offer waits, the Jobs screen says the board's count ("No offer yet. 8 jobs are open on the board: ask there."), never "No job offers right now" under "8 open", and shows the board at the hub where jobs go up, with the way to it on the map.
+- The hunt's list at the board and the offers are picture cards, with the pay as a green chip and the chance as a word in a pill.
+- Offline, where the street kiosk runs its own draw, the Lotto app shows the month's tickets held, the last draw's result from the last month's results when it had one, and one line that tickets are sold at the street kiosk, with the street's name ("Bode Thomas Street") and the way to the kiosk on the map. So it is never a bare one-line screen.
 - The Market app (`market`) is a two-column grid of sticker tiles of the very models, each with one line of what it does and its price on the yellow pill, and a running cost as a chip. It lists what can be bought first, then what is owned, then what needs something first, then what has no place here. A pick shows the balance before and after, and Buy. After buying come the coin cue and the toast Delivered, at once: a rider at the gate, a slip, and the thing standing in the room when the phone closes. An owned thing offers Sell (home:things-a-life-owns).
+- Bills carries the car on finance and the undertaking's months.
+- News carries the era's months and the Friday draw line.
+- Chats' slots end with the sponsoring card, and a thread has read and new marks, phrase chips and refusals in words.
 
 **world:phone-holds-what-phones-hold** The phone carries what a phone carries: texts and the family group, bill notices, the visa appointment and its reminder, the plan's steps, the bank. The papers themselves (the passport, the file) are a thing at home, a box under the bed. On the day of an appointment the character takes the file from under the bed before the ride. Every date on the phone's surfaces is said as months ago or away, never a month number (world:top-band-is-a-pill).
 
@@ -503,16 +505,6 @@ The Bank:
 - The Bank's "Saved for the move" is the results' own figure. It is read from the plan's lean as the chapters follow it, from the month the plan is set, not from the month its official page is read. A way with funds to show counts what its decision day asks for plus the fees still ahead (the route's acts with a cost in its money, less those done). The money counted toward it is all the bank and cash hold, at the official rate.
 - A plan with nothing to count yet (a way only heard of, whose page is unread and which asks no fee ahead) and no plan at all both say there is no plan yet, as the results show no figure.
 - The employer paying for the way is said only for a way whose employer pays.
-
-Other apps:
-
-- With no offer waiting, Jobs shows the board at the hub where jobs go up, with the way to it on the map.
-- Lotto offers the way to the kiosk on the map.
-- The hunt's list at the board and the offers are picture cards, with the pay as a green chip and the chance as a word in a pill.
-- Bills carries the car on finance and the undertaking's months.
-- News carries the era's months and the Friday draw line.
-- Settings carries the feedback box and From the team.
-- Chats' slots end with the sponsoring card, and a thread has read and new marks, phrase chips and refusals in words.
 
 **world:nobody-picked-from-list** Nobody is picked from a list. A person the character could meet shows up in a place the player already spends time in (the hub, or the family house, where the people met after church and a friend of the family visiting are found), and a friend's message in Chats can point there; it is never a hunt. Courting starts by tapping them there. Everything after the meeting follows `person.md` and `pair.md` as written, and the invite path for real friends stays. Their calls and messages arrive in Chats.
 
@@ -547,7 +539,7 @@ Their room:
 Round things:
 
 - Things drawn round are few: a dot, a person's avatar, and the look's round parts (the thumbs, the fan's buttons, the stickers' pins, the marker's ring). The look's own pills (`.pill`, `.sticker-chip`, the face mark) are round by design and are not counted against them, and the front door's round header buttons, its colour swatches and the page's round stamp are the exception.
-- A thing's mark is one of the few round things: a 6 px dot in the signal colour at about 60%, with a hairline. What it opens keeps its role colours.
+- A thing's mark (world:things-are-tappable-models) is one of the few round things, with a hairline. What it opens keeps its role colours.
 
 Pictures that keep their own colours, as the 3D world does:
 
@@ -559,7 +551,7 @@ Pictures that keep their own colours, as the 3D world does:
 
 **world:interface-sounds-made-live** Interface sounds are small cues made on the fly, with no files: a tap, a coin, a confirm, a whoosh, the cues of world:motions-under-half-second, and a `pop` for a thing lifted in buy mode. Mute in Settings silences them; muted, nothing is fetched.
 
-**world:officer-voice-drawn-per-interview** Each credibility interview is held by one officer, a man or a woman, drawn once for that interview from a value the interview already carries. So the same interview always speaks in the same voice, a reload changes nothing, and across interviews both are heard. The officer is never named or described as a man or a woman in words; only the voice says it. The draw lives in the client (sound is presentation; the simulation stays as it is), and it never reads a score.
+**world:officer-voice-drawn-per-interview** Each credibility interview is held by one officer, a man or a woman, drawn once for that interview from a value the interview already carries. So the same interview always speaks in the same voice, a reload changes nothing, and across interviews both are heard. The officer is never named or described as a man or a woman in words; only the voice says it. The draw lives in the client (sound is presentation; the game's rules code is untouched), and it never reads a score.
 
 **world:motions-under-half-second** Every motion of the interface takes under half a second: sheets rise, chips pop, the phone rises tilted, the money counts. The one motion allowed over half a second is the plane's lift of world:plane-cut-at-send-off, about three seconds. Reduced-motion settings cut them to a fade.
 
@@ -576,20 +568,19 @@ Pictures that keep their own colours, as the 3D world does:
 - Words over a person come only when that person is near the player's figure (within about 7 m, `NEAR_M`, as for every voice): at most one bubble, at most eight words, for about four seconds, then a quiet of thirty seconds between overheard lines (`QUIET_MS`). A long line shows its words too, clipped to two lines in the bubble, and a tap opens it whole in a sheet with the name.
 - At most three callouts stand over the scene (the fan, the chip and the marker first; the bubble waits).
 - Nothing speaks in the first three seconds in a new place, nor over a sheet, the phone or the map.
-- There is no corner chatter tied to nobody: the bottom corner holds only the answer to the player's own act, one line at a time, a told line staying about 7 seconds (world:things-are-tappable-models).
+- There is no corner chatter tied to nobody: the bottom corner holds only the answer to the player's own act (world:things-are-tappable-models), one line at a time, a told line staying about 7 seconds so a line of two sentences can be read.
 
 Lines and bubbles on screen:
 
 - Lines and the speech bubble are off-white with dark text by day and by night, lighter than the band, with a soft shadow and a hairline.
 - While a sheet, the phone, the map, a card or the results cover the world, the corner and the bubble hide.
 - Over the phone, a told line ("You quit", "Money changed") stands in a lane of its own just above the handset, below the band, never inside the glass on an app's icon or button. Grown, the handset leaves room for that lane above it.
-- The bubble divides the words from the corner: a person's own words go over their head; what happens goes in the corner.
 - The corner keeps out of the thumbs' columns, so the turn button never stands on its line.
 
 Who says an overheard line:
 
 - A line overheard that one person plainly says names them. Content gives the speaker beside the line, `<place>.overheard.<n>.by` in `place.text.ts`: a person's name of at most two words ("Mama", "Your brother", "Conductor", "Trader"), never an engine word. `overheard.ts` reads it, and the bubble says that name instead of Someone nearby or Someone in the house.
-- Where that person stands in the place as a thing (Mama at the family house), the words float over them when near, only while that thing is within about 7 m of the player's figure; otherwise the line is held.
+- Where that person stands in the place as a thing (Mama at the family house), the words float over them only while that thing is near the player's figure (`NEAR_M`); otherwise the line is held.
 - A line with no `.by` keeps the house's or the street's voice, over the resident nearest. At home the overheard voice is Someone in the house, not a stranger's.
 - The named lines are the family house's three (the gate line a brother's, the uncle line Mama's, the pot line a sister's), the hostel's corridor where one person speaks, and the street's conductors calling a stop and sellers calling their goods.
 - A place's own lines name what only that place has, so none reads as another kind of home or place. The room in a compound hears the compound's sweeping rota, next door, its one tap for ten rooms and the landlord. The family house hears the father, Mama and the uncle, in lines short enough to float whole. The room abroad hears its shared kitchen.
@@ -605,21 +596,20 @@ Where a bubble stands:
 
 ## Rules: sleep, months, the room and its things
 
-**world:sleep-ends-the-month** The bed is a thing, and its Sleep is how the month turns, at any hour. There is no automatic turn (decision 0011), and the simulation has no command and no rule of its own for it.
+**world:sleep-ends-the-month** The bed is a thing, and its Sleep is how the month turns, at any hour. There is no automatic turn (decision 0011), and the game's rules code has no command and no rule of its own for it.
 
-- The bed's fan buttons are Nap (`activity.nap`, a sheet) or Lie down, and Sleep. Lie down is done at once with the lying pose and no slot, since an empty slot already rests (turn:free-slots-per-month). While no nap can be had, Lie down stands in Nap's place (the contract's `otherwise`). Sleep carries the sleep glyph and no price.
-- Night falls on the world's clock. When the body is tired (energy under thirty, the band's "Tired", quality:body-belly-and-energy), the nudge says "Night. Go to bed" unless a question or a person asking waits. A night the body can still take keeps the nudge as it was.
+- The bed's fan buttons are Nap (`activity.nap`, a sheet) or Lie down (a pose, world:things-are-tappable-models), and Sleep. While no nap can be had, Lie down stands in Nap's place (the contract's `otherwise`). Sleep carries the sleep glyph and no price.
+- Night falls on the world's clock. When the body is tired (the band's "Tired", world:top-band-is-a-pill), the nudge says "Night. Go to bed" unless a question or a person asking waits. A night the body can still take keeps the nudge as it was.
 - Sleep is a timed act of about thirty-six seconds (`SLEEP_MS`; `?sleep=<seconds>` in development): the figure lies down, the room takes a soft dark wash, the moon chip under the band says "Asleep · tap to wake" with a thin bar running down, a large Wake up sits above the Phone thumb, and a small mark floats over the bed.
 - While the sleep runs, the others in the place are not seen under the wash (the crowd, the dancers and those standing at a thing of their own); the sleeper alone stays. Waking, or the sleep running out, brings them back.
 - When the sleep runs out, the month turns (`turn/end` once, with the commitments as they stand; the time left is rested, as an empty slot rests) and the results sheet opens in the room (world:month-end-results-sheet).
 - Waking early, from the chip or the button, turns no month and is a nap (`activity.nap` when allowed), with "Up again. The night is still yours." in the corner in the evening and at night, and "Up again." by day.
 - The first time a life sleeps, one small card, the first-night card, says "Each night you sleep is a month of your life." before the first sleep, with Sleep and Not yet. It shows once per life.
-- An act whose body is spent says "You are spent. Sleep." where its button was (activity:spent-body-refuses-acts).
 - A sleep never moves the world's clock.
 
 **world:no-months-left-count** Nothing on screen counts the months left or the months held (decision 0011). The month turns only at the bed's Sleep (world:sleep-ends-the-month), and the bank of turns behind it never holds a month back (turn:month-turns-on-empty-bank). The player never reads "turn" or "banked". A card's button says the act ("Buy a ticket", "Study"), never "Add to month" or "Add to this month", and a small line under it says it uses this month's free time when it does. Nothing lectures before play (world:no-walkthrough-before-play).
 
-**world:no-auto-run-months** Nothing runs months in a row for the player (decision 0011). A quiet month is lived in minutes by hand, with the room's free acts, and turns when the player sleeps (world:sleep-ends-the-month), whatever time is left. The same holds abroad. The simulation has no batch command.
+**world:no-auto-run-months** Nothing runs months in a row for the player (decision 0011). A quiet month is lived in minutes by hand, with the room's free acts, and turns when the player sleeps (world:sleep-ends-the-month), whatever time is left. The same holds abroad. The game's rules code has no batch command.
 
 **world:room-seen-down-its-length** The room, at home and abroad, is seen down its length: the camera is turned so the long side runs up a portrait screen, fitted to the room's width with nothing cut off, so the room looks about twice as large as from the front. From straight above, a standing figure is a dot in a room this long, so such a room's whole view looks in from no higher than 50 degrees, at the file's distance and width, with every corner of the floor still on screen.
 
@@ -631,7 +621,7 @@ Wide homes:
 - A home is one wide house of walled rooms (decision 0018), each named in its place file (`rooms`: the floor it covers and the view eased in on it). It is seen whole, straight down its length, on a longer lens (`Shot.fov`, 30 degrees), with the near walls cut low.
 - A tap on a room, a pinch or the wheel eases the camera in on that room in under 400 ms. A thing tapped from the whole house eases in first, so its fan opens close. A tap outside the room, on another room or past the walls, a pinch out, or the whole-place chip eases back out. The view does not reset when the same place is shown anew after an act.
 - The things of a home carry its acts wherever they stand: the family's pledges and the send-off at the centre table (`family`), the way out on the slippers by each door (`out`, which opens the map), and the family's bed as `mattress` and the hostel's as `bunk`, since the picture table allows one model per id.
-- The things a life owns stand at the home's `stage.owned` spots (world:room-things-and-buy-mode). The car stands at the home's car spot (`stage.car`) only while the life has one, whether the market's or one on finance.
+- The things a life owns and the car stand where world:room-things-and-buy-mode puts them.
 
 Turning a wide home:
 
@@ -640,11 +630,11 @@ Turning a wide home:
 - Rooms ease in at every quarter, the view fitted across the turned floor between 2.4 and 7 metres; past 7 the room's middle shows and its ends run off the sides.
 - A vertical drag tilts between the normal view and a 65 degree view from above, and snaps to one. The tilt is not kept.
 
-**world:month-passes-as-lived** The month passes as the player lives it. The days of the month are the simulation's: the view's `halfDays` (turn:month-lived-in-half-days, decision 0011) says how much of the month's free time is spent, and the interface keeps no count of its own. The simulation's outcomes come at the month's end, and nothing runs on real time.
+**world:month-passes-as-lived** The month passes as the player lives it. The days of the month are the rules code's: the view's `halfDays` (turn:month-lived-in-half-days, decision 0011) says how much of the month's free time is spent, and the interface keeps no count of its own. The rules code's outcomes come at the month's end, and nothing runs on real time.
 
 - Each month-act planned tells of itself as the month passes, in a line of its own ("Module 1 done. Two to go.", "Your first shift ran late. You came home at eleven."), one or two a month, from content. Its day is read from the share of the free time spent.
 - These lines arrive as phone notifications once the character is home (the house or the room), never on the street. The phone's dot shows them waiting, and at home they stand on its wallpaper ("This month so far"). Away from home the wallpaper says only how many wait ("Something to read at home.").
-- The Calendar app says when the plan stretches the character (work, a class and a side job together: "Work, then class, then the tutoring. You will be tired."). The cost itself is the simulation's, as it is.
+- The Calendar app says when the plan stretches the character (work, a class and a side job together: "Work, then class, then the tutoring. You will be tired."). The cost itself is the rules code's.
 - The results keep their place as the month's telling.
 - A paper that comes or moves at the month's end (issued, run out, made void, a copy on its way or brought forward, from the report's paper lines) is told on the wallpaper above the month's lines, at home or away, as a message from the office. It uses the paper's own words where it has them ("Your transcript is ready to collect.", "The council has verified your licence."), else the kind's ("Your {paper} is ready."). A tap on it opens Papers; it and the app's dot stay until Papers is opened.
 - Nothing opens by itself: the phone opens on its home screen.
@@ -661,10 +651,10 @@ Turning a wide home:
 
 **world:room-things-and-buy-mode** The things in the room, and buy mode.
 
-- Each home's place file has `stage.owned`, a set spot for each thing it may hold. A spot may name a model it replaces (`hides`: the foam mattress replaces the old bed) and carry the `acts` the thing brings (the TV's watch, the laptop's portfolio and tech, the gas cooker's cooking). `showOwned` adds each owned model where it stands, and the car stands at `stage.car` through `parkCar`, for the market's car or one on finance.
+- Each home's place file has `stage.owned`, a set spot for each thing it may hold. A spot may name a model it replaces (`hides`: the foam mattress replaces the old bed) and carry the `acts` the thing brings (the TV's watch, the laptop's portfolio and tech, the gas cooker's cooking). `showOwned` adds each owned model where it stands, and the car stands at the home's car spot, `stage.car`, through `parkCar`, only while the life has one, the market's car or one on finance.
 - Buy mode is on only in the home lived in, when it is a home of your own (the compound room, the hostel, Makoko, the room abroad) and something owned stands there. Never at the family house, a street, an office or someone else's room.
 - A hold of 420 ms on a thing you own lifts it (a ring, a shadow, the `pop` cue, the hint Drag to move, tap to turn). A drag sets it down where it fits: its footprint's corners on the walkable floor, no overlap with any other footprint, and 0.2 m from the door's spot, people's spots and the spots things are walked to. Otherwise it shakes back to the last spot that fitted, with the `no` cue. A tap while lifted turns it a quarter; a tap anywhere else sets it down.
-- Where things stand belongs to the device, kept beside the save by life and home (`japacity.arranged`) and cleared when a new life starts; it is never the simulation's. Moving home puts things at the new home's set spots.
+- Where things stand belongs to the device, kept beside the save by life and home (`japacity.arranged`) and cleared when a new life starts; it is never the rules code's. Moving home puts things at the new home's set spots.
 - The lifted copy moves by its transform alone; the room is rebuilt once, when the thing is set down.
 - A test holds each home's budgets with everything it may hold owned and the car parked.
 
@@ -679,15 +669,15 @@ Turning a wide home:
 - Dubai's is the creek, the metro line, the airport south-east, the camp east and the site south across the creek (cards: Deira, the airport, the camp, the site).
 - Castel Volturno's is the sea along the west, the Domitiana the length of the paper, the river and the fields, with Naples airport on an inset (cards: the town, the Domitiana, the fields).
 - The country menu and the ways back are as at home, and there is no lantern canoe (world:lantern-canoe-on-map). The stops list stays, for a screen reader alone.
-- The room abroad is named per country in content (`place.the-room.name.<country>`: the basement room, the bed space at the camp, the room in a shared flat), with the full name on the place's own card. On the band and on the map's sticker it wears a short name of the client's ("The basement, Calgary", "The bed space, Dubai", "The shared flat, Castel", and London's by its hub), since content's full name runs past the band's width and off the paper.
+- The room abroad is named per country in content (`place.the-room.name.<country>`: the basement room, the bed space at the camp, the room in a shared flat), with the full name on the place's own card. On the band and on the map's sticker it wears a short name of the client's ("The shared room, Peckham" in London, by its hub's short name, "The basement, Calgary", "The bed space, Dubai", "The shared flat, Castel"), since content's full name runs past the band's width and off the paper.
 
 **world:ride-abroad-and-workplace** The ride abroad, and the workplace with a door (`../design/10-london.md` sections 3 and 4, `../design/11-calgary-dubai-and-castel-volturno.md` sections 4 and 6).
 
 The ride abroad:
 
-- Picking a stop abroad opens the ride sheet with the country's ways from the view's `place.ways` (in the UK the bus at its flat fare, the train by distance, and on foot within walking distance), priced by `rideFare` as at home. The fare pill names the country's pass in a month the pass is bought ("£0, bus pass", place:country-pass-covers-ways).
+- Picking a stop abroad opens the ride sheet with the country's ways from the view's `place.ways` (in the UK the bus at its flat fare, the train by distance, and on foot within walking distance), priced by `rideFare` as at home. The fare pill names the country's pass in a month the pass is bought (place:country-pass-covers-ways).
 - The ride plays as the danfo's does (world:ride-cuts-between-angles) inside the country's own vehicle: London's red bus from a top-deck seat and its window, and the train from its carriage; Calgary's bus and the CTrain car; Dubai's metro car, the labour bus and the taxi; Castel Volturno's bus and the white van. The cuts and the clock are the ride's.
-- The labour bus and the van are the shuttle's (place:employer-shuttle-rides-free), and their pill says the ride asks nothing.
+- The labour bus and the van are the shuttle's, priced and labelled as place:employer-shuttle-rides-free says.
 - Dubai's city bus rides in Calgary's bus model, and Calgary's taxi in Dubai's.
 
 The workplace:

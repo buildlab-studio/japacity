@@ -1,13 +1,12 @@
 # Rehearsal: the second stageshow cut
 
-The three scenes of `StageshowBPortrait`, recorded in the form the stageshow skill's verify.md asks for: the reference scenes they started from, what each scene holds, what was filmed, what the film found and what was not checked.
+The record of the three scenes of `StageshowBPortrait`, for whoever changes them. It has the same form as [the first cut's record](../REHEARSAL.md); its look, clocks, gate and what was not checked are as there.
 
 ## Reference scenes
 
-- `phone-touch`: a phone app shown as one continuous object, a touch cursor, a few beats to a payoff that holds.
-  - Kept: the kit's `Phone` drawn large (452 wide in the 540 by 960 frame, doubled to 1080 by 1920); a touch cursor that shows only where it taps; taps that open or close a surface in place.
-  - Changed: the app is the game on the water at Makoko, and each scene plays once into the next.
-- `payout-flow`, for the month's results: the savings bar fills on its own clock beside its figure, rolling with `Count`, and the result holds.
+The same `phone-touch` and `payout-flow` as [the first cut](../REHEARSAL.md#reference-scenes), with these differences:
+
+- `phone-touch`: the kit's `Phone` is doubled with the frame, to 1080 by 1920; taps open or close a surface in place; the app is the game on the water at Makoko.
 - The move down the Japa app is the kit's `Scroll`, driven by `a.scroll`, with the finger resting on the app while it moves.
 
 ## Scenes
@@ -18,15 +17,9 @@ The three scenes of `StageshowBPortrait`, recorded in the form the stageshow ski
 | `b-payday` | 6.3 s | The month's results rise over the water and lead with "Salary, the fish racks" and its figure, then what was kept. The money held for the move fills its bar once the sheet has landed. Back to Makoko is pressed and the sheet sinks. The brief's chip and Lanre's toast slide in and the month's dot turns green. |
 | `b-road` | 6.4 s | The brief's chip is tapped and the phone rises on Japa at the brief it carries: the way out first heard at a send-off, ticked. The finger moves the app down to the ways out, four in the game's order, and they hold. |
 
-## What was filmed
+## Filming
 
-- Widths: each scene at its shown width (1080) and at 390.
-- Look: the day paint only.
-- Clocks: the composition steps each scene's virtual clock to the frame; the film's runs use the browser's own clocks.
-
-## Gate
-
-Each scene is checked at each width with `film.mjs --gate`.
+Each scene at its shown width (1080) and at 390. Everything else is as in [the first cut](../REHEARSAL.md#filming-and-the-gate).
 
 ## Review findings
 
@@ -41,8 +34,3 @@ Each finding from a review of the filmed and rendered frames, and what was done:
 - The brief's chip and the name pill keep the game's own padding, with the round mark on the left.
 - The Map and Phone thumbs and the band's sky draw the game's own pictures.
 - The scenes cut with the same fades as the first cut.
-
-## Not checked
-
-- Reduced motion, beyond the poster states each stage sets.
-- Hover and keyboard: the scenes are filmed, not used.

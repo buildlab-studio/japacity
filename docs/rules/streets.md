@@ -1,6 +1,6 @@
 # The streets' life
 
-> What a character can do in the city's other places: Computer Village, Third Mainland Bridge, the National Stadium, the streets of Lagos and the streets abroad. Builds on `world.md` (things and acts), city:places-stage-their-acts (staging), luck:luck-never-reads-money (chance never reads money), health:low-wellbeing-warns-first (the run-down months), `quality.md`, `activity.md` and `offer.md`. The numbers are working values.
+> What a character can do in the city's other places: Computer Village, Third Mainland Bridge, the National Stadium, the streets of Lagos and the streets abroad. Builds on `world.md` (things and acts), city:places-stage-their-acts (staging), luck:luck-never-reads-money (chance never reads money), health:low-wellbeing-warns-first (the run-down months), `quality.md`, `activity.md` and `offer.md`.
 > Kinds: `activity` and `offer` entries, its own tuning block `tuning.street`, and `sex` on the scenario. No kind of its own.
 
 Every act on this page is a thing in its place (world:things-are-tappable-models), is played through the activity and offer kinds, and is told plainly: never graphic, never a joke.
@@ -41,8 +41,8 @@ Each has one choice, to carry on. The lines are plain.
 **streets:peckham-talks-like-lagos** People in Peckham talk to the character as people in Lagos do: the place has at least six overheard lines in content, in Nigerian voices (world:street-talk-budget).
 
 **streets:london-life-by-hand** London's street and the room, played by hand (`../design/10-london.md` section 6): a glimpse of the life abroad the player is aiming for. Each is a priced now-act in pounds that spends its time (turn:month-lived-in-half-days), can be repeated unless marked once a month, and moves the body as quality:body-belly-and-energy says. Content is in `activity.london.data.ts`. Each is `where: "abroad"`, `country: "country.uk"`, and requires the character to be in the UK.
-- At `place.big-shop-uk`: `activity.weekly-shop-uk` (the weekly shop, £45, a morning, reason `food`: belly +40, a little less than a pot of your own gives at home, belly +45, `activity.cook-own-pot`).
-- In the room (`place.the-room` in the UK): `activity.cook-own-uk` (a meal of your own, £6, a morning, reason `food`: belly +25, the same as a meal of your own at home, `activity.cook-own`). `activity.cook-own` is `where: "home"`, so it charges no naira abroad.
+- At `place.big-shop-uk`: `activity.weekly-shop-uk` (the weekly shop, £45, a morning, reason `food`: belly +40, a little less than a pot of your own at home, `activity.cook-own-pot`).
+- In the room (`place.the-room` in the UK): `activity.cook-own-uk` (a meal of your own, £6, a morning, reason `food`: belly +25, as a meal of your own at home, `activity.cook-own`, which charges no naira abroad: home:living-by-hand).
 - At `place.rye-lane`:
   - `activity.chicken-shop` (the chicken shop, £7, a morning, reason `food`: belly +20, wellbeing +4);
   - `activity.naija-shop-uk` (the Nigerian shop, £25, a morning, reason `food`: belly +30, wellbeing +8);

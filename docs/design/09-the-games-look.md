@@ -32,101 +32,51 @@ One light, friendly system over the world:
 - a thing's acts fanned out of the thing itself, in the scene;
 - the same shapes in navy at night in the world.
 
-Lagos lives in the world and the words; the interface stays out of the way.
+The rules that carry the look are on [the world rules](../rules/world.md) and [the text rules](../rules/text.md); this page says why it looks as it does.
 
 ## 2. The system
 
-**Surfaces.**
+**Surfaces and night.** A pale sky sheet, white cards with a thin navy edge and a soft shadow, navy ink, tinted pills for chips, and one danfo yellow action whose navy underside flattens on press. At night in the world the same shapes repaint in navy with cream ink, the yellow unchanged: one system with two paints, driven by what already drives the sky (world:colours-are-role-tokens; the values are the role tokens in `apps/client/src/index.css`). There is no sand or beige, and the adire pattern stays on the few surfaces that rule names, so it keeps its weight where it appears.
 
-- The sheet is pale sky (`--sheet`, #eaf3fb).
-- Cards are white, with a 20 px radius, a thin navy edge and a soft shadow.
-- The ink is navy.
-- Chips (the small labels for a cost, a time or an effect) are tinted pills.
-- The one action is danfo yellow, with a 4 px navy underside that flattens on press.
-- No sand or beige anywhere, and no pattern on everyday surfaces. The adire circle pattern appears only on the travel data page, the moment card's header and the account door's band.
+**Type.** Rubik, self-hosted, in three sizes set in `index.css`: titles and money, body text, and chips, with nothing smaller than a chip (text:show-then-tell). Sentence case, and tabular figures for money so sums line up. The Danfo display face is kept for the seal and the share cards, and the wordmark is drawn as paths. No tracked capitals, handwriting or chalk, and no monospace outside the data page and a slip: each of those reads as a document, not a game.
 
-**Night.** When the world's clock (clock:game-day-on-real-time) says it is night, the same shapes repaint: navy surfaces, cream ink and edges, and the yellow action unchanged. One system with two paints, driven by what already drives the sky.
+**Pictures.** Every choice, thing, place and reward carries a picture: a render of the game's own model where one exists (`tools/assets/shoot.ts`, the `tile` view), cut as a sticker with a white edge and a slight tilt. Where no model exists, an emoji stands in; `apps/client/src/shared/tiles/missing.ts` lists those stand-ins. People are shown by a name pill with a flat mark, never by a face render (see the last alternative below).
 
-**Type.**
+**Tints by kind.** A round act button and a tile are tinted by what the act is: food peach, study blue, money green, body lilac, people rose. Everything else keeps the sheet's tint. The tints speak for themselves, so no colour key is shown.
 
-- Rubik, self-hosted, in three sizes: 22 px for titles and money, 16 px for body text, 12 px for chips.
-- Sentence case, with tabular figures for money.
-- The Danfo display face appears on the share cards only. The wordmark is drawn as paths.
-- No tracked capitals, handwriting or chalk, and no monospace outside the data page and a slip.
+**Words.** A title of at most four words, with one line under it in the speaker's voice ([the text rules](../rules/text.md)), never the rule's words. A locked act says why in three words. Cost, time and effect go in chips ("₦1,500", "A week", "+Belly"), and a chip says only what is not obvious (the "Chips earn their place" line of world:costly-acts-confirmed). An act's facts stand as chips in one fixed order, its changes as arrow tags and its needs as marks, so the eye learns where to look (text:show-then-tell). A chance is a word with a small three-bar gauge beside it (`ChanceGauge`), and a check against a target is a bar with both figures and a stamp (`CheckMeter`). A field the player types into says its state in one line under its box (world:field-says-its-state). Colour never carries a meaning alone.
 
-**Pictures.** Every choice, thing, place and reward carries a picture: a render of the game's own model where one exists (`tools/assets/shoot.ts`, the `tile` view), cut as a sticker with a white edge and a slight tilt. Where no model exists, an emoji stands in; `apps/client/src/shared/tiles/missing.ts` lists those stand-ins. People are shown by a name pill with a flat mark, never by a face render.
+**One action.** One main button per surface: the verb in one or two words, with its price where it has one ("Sit exam · ₦120,000"), never repeating the title above it. Where every card is a tap (the fan, the market), the card is the tap and carries its price on a yellow pill; the balance before and after belong on a sheet with room for them (world:fan-of-sticker-buttons, world:costly-acts-confirmed).
 
-**Tints by kind.** A round act button and a tile are tinted by what the act is: food peach, study blue, money green, body lilac, people rose. Everything else keeps the sheet's tint.
+**The laptop.** The band, the chips, the sheets, the toasts and the phone sit in a centred column of phone width, and the world fills the screen around it (world:world-fills-the-screen). One layout rule, measured from the screen, so the laptop needs no second design.
 
-**Words.** A title of at most four words, with one line under it in the speaker's voice (`../rules/text.md`), never the rule's words. Cost, time and effect go in chips ("₦1,500", "A morning", "+Belly"). A locked act says why in three words.
-
-**Chips earn their place.** A chip says only what is not obvious.
-
-- A price shows only where there is one.
-- "Free" shows only on an act a player would expect to pay for (a meal, a ride), never on sleep, a bath or water, and never beside a "No cost" that says the same.
-- The time shows only when it is longer than a morning (a day, a weekend, a week), never "a morning" on every card.
-- At most two effect chips per card, and none that repeats the one line.
-- The fan carries the price pill alone. The balance before (struck through) and the balance after belong on a sheet with room for them (the ride sheet, a purchase), not on a round button in the scene. The band's money counter is the balance: while a fan button is pressed, the counter shows what would be left, and it settles back if the press is released.
-- No colour key on screen: the tints speak for themselves or they are not needed.
-
-**Facts, in one order.**
-
-- An act's facts are tilted sticker chips, each an icon and two or three words, always in the order of `FACT_ORDER` (`apps/client/src/shared/words/facts.ts`): pay (a coin), chance, time (a clock), when it pays or answers (a calendar), a bill over months (a receipt), a fee (a tag), a rate (two arrows), where it counts (a plane), and a catch (a warning sign).
-- The chance is a word with a small three-bar gauge beside it (`ChanceGauge`). The bars carry the shape, the word is always there, and colour never carries meaning alone.
-- What an act changes is an arrow tag (`ToneTag`): a gain with an up arrow, a cost to the body or the mood with a down arrow, in a person's words ("tires you", "wears you").
-- What an act needs is a mark: a tick when met, a cross when not.
-- A field the player types into states its condition the same way, in one line directly under its box (world:field-says-its-state). A problem shows in the out colour, with a small circle-and-mark icon and the box's edge in the same colour. A good state shows the tick in the money-in green. What the field is for goes under its label in the quiet ink, never bold and with no icon.
-- The one line above the chips holds only what no chip says.
-- A choice of ways (the ride sheet, Send money home) is a row of picture tiles, with the picked one in the pick colour and the picked way's facts as chips under the row.
-- Where a chip does not work (a long fact that cannot fit in two or three words, or the dense lines inside a card that lists several things), the same facts appear as icon rows, each a small icon on a soft square with its words (`Facts`' rows).
-- A check against a target is a bar with both figures under it and a stamp with the verdict (`CheckMeter`).
-
-**One action.** One main button per surface: the verb in one or two words, and its price where it has one ("Apply" under the named job, "Sit exam · ₦120,000", "Let's go"), never repeating the title above it. A button with no title over it (the fan's, a row's) keeps the full name. Where every card is a tap (the fan, the market), there is no button: the card is the tap, and the price is a yellow pill on it with the balance before struck through and the balance after beside it, never "left".
-
-**The laptop.** The band (the pill across the top of the screen), the chips, the sheets, the toasts and the phone sit in a centred column of phone width. The world fills the screen around it, and the fan opens at a larger radius. One layout rule, measured from the screen.
-
-**The desktop door.** Before the world, a wide window is used in full, never as a stretched phone. The figure stands large on a stage with the travel data page filling in beside it. The choices sit in a panel docked on the right, with the one yellow action at its foot, and the steps are tabs in a band across the top. Nothing scrolls the page, every look and every life shows at once, and the action stays in one place. The arrow keys, Enter and R work, and a line listing the keys shows on a fine pointer. The phone's door is unchanged below the break point (`tuning.city.desktopMinWidth` wide and 640 px tall).
+**The desktop door.** Before the world, a wide window is used in full, never as a stretched phone: the figure large on a stage with the travel data page beside it, the choices in a panel docked on the right with the one yellow action at its foot, and the steps as tabs across the top. Nothing scrolls, every choice shows at once, and the action stays in one place (prologue:front-door-three-screens).
 
 ## 3. The fan
 
-Tapping a thing in the world opens no sheet. Its acts fan out of the thing itself:
+Tapping a thing in the world opens no sheet. Its acts fan out of the thing itself, as round sticker buttons along a curve into the free side of the screen, and follow the thing as the camera eases. When there is no room, or too many acts, the same buttons open as a sheet. A list stays a list: jobs, routes, the market and any worded choice are sheets or phone apps, never a fan. The rule, with its counts, is world:fan-of-sticker-buttons.
 
-- The thing is the hinge. A curve sweeps sideways and down from it into the larger free side of the screen.
-- The acts sit along the curve as round sticker buttons, each with a name pill outside the curve and the price pill.
-- Up to six show, with a seventh peeking below the fold. A drag moves them along the curve.
-- The buttons follow the thing as the camera eases, as the marks do.
-- When the free space cannot hold the fan, or a thing has more than eight acts, the same acts open as a sheet of the same buttons.
-- A list stays a list: jobs, routes, the market and any worded choice (an ask, an agent) are sheets or phone apps, never a fan (world:fan-of-sticker-buttons).
+The fan keeps the thing and its acts together, so the player's eye stays in the scene (see "A sheet for every tap" below).
 
 ## 4. The brief and the marker
 
-**The brief.** A brief is a step of the journey, handed over as a mission card by the person who sets it, in their voice, floating out of where they stand. It shows:
+**The brief.** A step of the journey is handed over as a mission card by the person who sets it, in their voice, floating out of where they stand: their words first with the title as a wink ("Papers, abeg"), a picture of what you are after, the things to do as sticker tiles with a two-word place under each, the reward as picture chips, the next brief faint, and one button, "Let's go" (chapter:first-chapter-mission-card). A mission from a person reads as a game; a checklist reads as a form.
 
-- their words first, with the title as a wink ("Papers, abeg");
-- a picture of what you are after;
-- the three things as sticker tiles, each with its two-word place underneath;
-- one look for each state: a thing done recedes, with a tick and "Done" in place of its place; the current thing is filled and ringed; the rest are plain; a thing met before the brief stands first, saying where it happened;
-- the reward as picture chips;
-- the next brief, faint;
-- one button, "Let's go".
+**The marker.** At the place, the step's person or thing carries a marker: a white pill with two words and an arrow, a soft bounce, and a yellow ring at the feet. A thing done ticks with a pop and a toast in the giver's voice, and the close brings the card back with the stamp, confetti and the next briefs (world:things-are-tappable-models, chapter:first-chapter-mission-card).
 
-**The marker.** At the place, the step's person or thing carries a marker: a white pill with two words and an arrow, a soft bounce, and a yellow ring at the person's feet. A thing done ticks with a pop and a toast in the giver's voice. The close brings the card back with the stamp, confetti and the next briefs as picture cards.
+**The fun stays free.** The beer joint, the barber, the suya man and the club never get a brief, marker or toast, so play there never feels like a task.
 
-**The fun stays free.** The beer joint, the barber, the suya man and the club never get a brief, marker or toast.
-
-**Only in the moment.** Nothing sits under the band by default. The chip appears for about two seconds after a brief is handed over, then slides into the Phone thumb button, whose Japa icon takes a dot. It appears again while you are at the step's place or beside its person, and goes when you walk away (world:nudge-says-one-thing). The chip says which brief; the marker says what to do. The Japa app is the log, and the map's strip shows the step's place. Nothing in the world is a checklist.
+**Only in the moment.** Nothing sits under the band by default. The step shows in the world only for a moment after a brief is handed over, and again while the player is at its place (world:nudge-says-one-thing). The chip says which brief; the marker says what to do. The Japa app is the log, and the map's strip shows the step's place. Nothing in the world is a checklist.
 
 ## 5. The talk budget
 
-There are two channels and no more (world:street-talk-budget).
+A street full of people could fill the screen with reading. The talk budget keeps it a scene to look at, with two channels and no more (world:street-talk-budget holds the counts and times):
 
-- **Pictures over people** (a plate, a naira sign, a danfo, a face) carry the ambient life and need no reading. At most two residents show a picture at a time, changing every few seconds.
-- **Words over a person** appear only when that person is near the player's figure (about 7 m). At most one such bubble is on screen, of at most eight words, for about four seconds, followed by thirty seconds of quiet between overheard lines. The bottom corner is for lines about the player alone.
-- A long line is clipped to two lines; a tap opens it whole in a sheet with the speaker's name.
-- At most three callouts are over the scene at once. The callouts are the nudge's chip (the one line under the band that says what to notice next), a word bubble, the marker, and an open fan.
-- Nothing speaks over a sheet, the phone or the map, or in the first three seconds in a new place.
-- A crowd raises the pictures, never the words.
-- A place's overheard lines are sorted into the two channels by length.
+- **Pictures over people** (a plate, a naira sign, a danfo) carry the ambient life and need no reading. A crowd raises the pictures, never the words.
+- **Words over a person** appear only when that person is near the player's figure, one short bubble at a time, with quiet between overheard lines. A long line opens whole in a sheet on a tap. A place's overheard lines are sorted into the two channels by length.
+- **Few callouts at once.** The nudge's chip, a word bubble, the marker and an open fan are the callouts, and only a few stand over the scene together.
+- **Nothing speaks over a sheet**, the phone or the map, or just as the player arrives in a place.
+- **The bottom corner** is for lines about the player's own act alone.
 
 ## 6. What the look covers
 
@@ -136,13 +86,13 @@ These are drawn on their own terms: the two lights over the start screen (accoun
 
 ## 7. Motion and sound
 
-Things move in ways people already like, and nothing moves for long (world:motions-under-half-second): every motion is under half a second, uses transform and opacity only, and becomes a fade under reduced motion.
+Things move in ways people already like from phone games, and nothing moves for long, so the game feels quick on a slow phone (world:motions-under-half-second holds the timings and the reduced-motion fade).
 
-- **Press.** Every tappable thing squashes a little on press (scale 0.96) and springs back on release. The yellow action's navy underside flattens.
-- **Appear.** A sticker wobbles in (a small rotation that settles, 260 ms). The fan's buttons spring out along the curve one after another, 40 ms apart. A chip pops (260 ms). A sheet rises. A toast slides in from the top and out again.
+- **Press.** Every tappable thing squashes a little on press and springs back on release. The yellow action's navy underside flattens.
+- **Appear.** A sticker wobbles in. The fan's buttons spring out along the curve one after another. A chip pops. A sheet rises. A toast slides in from the top and out again.
 - **Answer.** A tick pops with a short overshoot. A coin flies from the money toast to the band's counter, and the counter counts. A brief's close brings confetti and a stamp that lands with weight. The marker bounces softly and its ring breathes.
-- **Refuse.** A locked card or a short balance shakes sideways three times each way in 280 ms, and nothing else happens.
-- **Sound.** The game's own cue set (`apps/client/src/shared/sound/cues.ts`: short tones made in the browser, under the mute switch; `05-audio.md` section 2). A `tap` on a main button, a bright `ding` for a thing done, a `coin` for money, a `thud` for a stamp, a low double note (`no`) for a refusal, and a `whoosh` for the fan opening. Every sound has a visible cause. `ding`, `thud` and `no` are each under 300 ms, and every cue ends within half a second. No cue needs a recording.
+- **Refuse.** A locked card or a short balance shakes sideways, and nothing else happens.
+- **Sound.** Short tones made in the browser (world:interface-sounds-made-live; the cue set is in [Audio](05-audio.md) section 2): a `tap` on a main button, a bright `ding` for a thing done, a `coin` for money, a `thud` for a stamp, a low double note (`no`) for a refusal, and a `whoosh` for the fan opening. Every sound has a visible cause, and no cue needs a recording.
 
 ## 8. Alternatives considered
 

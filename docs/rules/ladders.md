@@ -11,7 +11,7 @@ Abroad, as at home, a month has a main activity and two or three free slots. Wha
 
 **ladders:local-tenure-counted** Tenure abroad is counted per job, as at home, plus a `local` total: months in any job in the current country. Entries read it with the requirement `activity/local-tenure`. This is how a survival job leads to a professional one.
 
-**ladders:cash-jobs-paid-in-hand** A job marked `cash` is paid in hand: naira by its size (wallet:money-lands-as-in-lagos: cash at or under `tuning.wallet.cashUpTo`, the bank above it), foreign cash work in cash. It reports no tax. Each month it carries a `withheldBp` chance, on stream `status`, that the pay is not paid at all (wage theft). Cash work while holding an overstayer status raises that status's detection chance by `tuning.ladder.cashDetectBp` that month.
+**ladders:cash-jobs-paid-in-hand** A job marked `cash` is paid in hand: naira by its size (wallet:money-lands-as-in-lagos), foreign cash work in cash. It reports no tax. Each month it carries a `withheldBp` chance, on stream `status`, that the pay is not paid at all (wage theft). Cash work while holding an overstayer status raises that status's detection chance by `tuning.ladder.cashDetectBp` that month.
 
 **ladders:car-bonus-needs-car** A job marked `carBonus` pays its bonus only while the character has the car (car:open-finance-gives-the-car). An activity marked `needsCar` is not legal without it.
 

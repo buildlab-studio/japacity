@@ -55,20 +55,11 @@ From the UAE on `status.uae-irregular`, the fare is the fare plus the fine (stat
 - `assisted`, by the assisted return or the returns service: the entry's `assistedBanMonths`;
 - `removed`: the entry's `banMonths` (place:removal-bans-the-country).
 
-A ban of 0 records nothing. A return from any other status records no ban. The UAE records no ban at all while the amnesty holds (status:uae-amnesty). In months:
-
-| Country | Own fare, within the grace | Own fare, after it | Assisted | Removed |
-|---|---|---|---|---|
-| UK | none | 12 | 24 | 120 |
-| Canada | none | none | 12 | 120 |
-| UAE | none | 12 | 12 | 60 |
-| Italy | none | none | none | 36 |
-
-Real: the UK's refusal periods of Part Suitability SUI 11.5 and 12.1, Canada's departure, exclusion and deportation orders, the UAE's one-year labour ban and Italy's expulsion (`status.md`, Numbers).
+A ban of 0 records nothing. A return from any other status records no ban. The UAE records no ban at all while the amnesty holds (status:uae-amnesty). The months for each country are its overstayer status's fields, in [status.md, "Entries: overstaying, country by country"](status.md#entries-overstaying-country-by-country), with the real bans they follow in that page's Numbers.
 
 **place:returns-service-takes-you-home** The returns service is the UK's Voluntary Returns Service, for a country whose overstayer entry carries a `returnGrant`. On that status, `return/home` with `scheme: true` is accepted whatever money the character holds:
 - the scheme pays the fare (no `money/take`);
-- the shape is `assisted`, and the ban is `assistedBanMonths` (24, place:leaving-an-overstay-bans);
+- the shape is `assisted`, and the ban is `assistedBanMonths` (place:leaving-an-overstay-bans);
 - on arrival home, the `returnGrant` (£1,500) is credited to the naira bank at the day's official rate with the reason `gift`, not flagged, because the scheme's money is documented. A line says where the money came from.
 
 An assisted return in the UK with no fare is the same service, grant included. Real: the service books the ticket for someone who cannot pay and may give up to £3,000 to restart. The game books it for anyone who asks and gives half the maximum.
@@ -87,14 +78,14 @@ At home:
 - The ways are the danfo, the keke, the okada, `drive` and on foot.
 - A ride is accepted when both places are at home and differ, and the naira in cash and bank together hold the way's fare. The fare is taken with the reason `fare`, from cash first and the bank for the rest.
 - On foot is accepted whenever the two positions are within `tuning.city.ride.walkMetres` of each other. A place with no position is always walkable.
-- Past that distance a walk is refused, with one exception: a walk to or from the character's own home (`home.place`, or the family house when there is none) while the naira in cash and bank together cannot pay the cheapest fare of the same ride by any other way (the danfo, the keke, the okada, and `drive` while the car stands at home, at the month's fares). The long walk is a way out for a life that cannot pay a ride, never a way to save a fare. A life with no fare walks home, or out from home, however far; a life with the fare takes a ride (world:ride-sheet-shows-fares).
-- The fare grows with distance. `rideFare` is the way's flag-down figure (`tuning.city.ride.fareKobo`) plus its figure per kilometre (`tuning.city.ride.farePerKmKobo`) times the straight-line distance between the two places' positions (`metresApart`, whole metres, city:positions-rough-on-purpose), rounded up to fifty naira, then multiplied by the month's factor. A place with no position (their room) costs the flag-down figure. On foot costs nothing, so a character with no naira can always move. The ride sheet prices rides with the same function and content's positions, so it shows exactly what the ride takes, to the kobo.
+- Past that distance a walk is refused, with one exception: a walk to or from the character's own home (`home.place`, or the family house when there is none) while the naira in cash and bank together cannot pay the cheapest fare of the same ride by any other way (the danfo, the keke, the okada, and `drive` while the car stands at home, at the month's fares). The long walk is a way out for a life that cannot pay a ride, never a way to save a fare (world:ride-sheet-shows-fares).
+- The fare grows with distance. `rideFare` is the way's flag-down figure (`tuning.city.ride.fareKobo`) plus its figure per kilometre (`tuning.city.ride.farePerKmKobo`) times the straight-line distance between the two places' positions (`metresApart`, whole metres, city:positions-rough-on-purpose), rounded up to fifty naira, then multiplied by the month's factor. A place with no position (their room) costs the flag-down figure. On foot costs nothing, so a character with no naira can always move.
 - In the month the fuel scarcity's ask opens (`offer.fuel-scarcity`, answered or not), every fare is `tuning.city.ride.scarcityBp` of its normal figure. The view's `place.fareBp` carries the month's factor so the ride sheet shows the same fares.
 - `drive` is accepted only while the life's car stands at home (home:things-a-life-owns). The hostel has no car space, so a car is stored while the character lives there and Drive is not offered. Its fare is `tuning.thing.drive`: ₦300 plus ₦100 a kilometre, rounded up to ₦50, with the scarcity factor applied. A drive costs more than a danfo and less than an okada.
 
 Abroad (decision 0017, `../design/10-london.md`):
 - A ride is accepted between two places of the character's country: a place with `where: "abroad"` and that country, or an abroad place with no country, such as the room.
-- The ways are those the country lists in `tuning.city.ride.abroad[country].ways` (`bus`, `train`, `taxi`, each with its flag-down figure, its figure per kilometre and its pace, in the country's smallest unit), plus on foot under the same walking rule as at home. The country's `lonMetresPerE3` measures longitude.
+- The ways are those the country lists in `tuning.city.ride.abroad[country].ways` (`bus`, `train`, `taxi`, each with its flag-down figure, its figure per kilometre and its pace, in the country's smallest unit), plus on foot under the same walking rule as at home.
 - The room is the home abroad. It has no position of its own, so the distance of a walk to or from it is read from the country's `homeSpot` (`walkPosition`, world:painted-maps-abroad). Its fares stay at the flag-down figure.
 - A walk to or from the room past the walking limit is accepted only while the country's money in cash and bank together cannot pay the cheapest fare of the same ride by the country's ways. A way the month's pass covers, or the shuttle serves, counts as a fare of nothing. With the fare in hand, the walk is refused like any walk past the limit.
 - The fare is `rideFare` with the country's figures, rounded up to the country's `step` (five pence, five cents, twenty-five fils), taken from the country's currency with the reason `fare`, cash first and the bank for the rest. The scarcity factor is Lagos's and does not apply abroad.
@@ -103,7 +94,7 @@ Abroad (decision 0017, `../design/10-london.md`):
 Everywhere:
 - Short of the fare is `cannot-afford`. The same place twice, or a place elsewhere, is `not-legal`.
 - The event `place/rode` records the ride, with `currency` beside `fare`.
-- The view's `place.ways` lists the ways of the country the character is in, with their figures (at home, the five ways), so the ride sheet prices from the same function.
+- The view's `place.ways` lists the ways of the country the character is in, with their figures (at home, the five ways), so the ride sheet prices with the same function and content's positions and shows exactly what the ride takes, to the smallest unit.
 - The simulation keeps no position in the city. The client holds where the character stands and moves the character only once the ride is accepted (decision 0017).
 - `metresApart` and `withinMetres` read how many metres a thousandth of a degree of longitude is worth from the country: `tuning.city.ride.lonMetresPerE3` at home (111), `tuning.city.ride.abroad[country].lonMetresPerE3` abroad (the UK 69). A degree of longitude shrinks towards the poles; at 51.5 degrees north it is about 0.62 of a degree of latitude. Latitude stays at 111 everywhere. So the train from Peckham to Heathrow costs about £5.50, and the ward is within walking distance of Peckham, as it is in reality.
 
@@ -124,7 +115,7 @@ Everywhere:
 
 From the UAE on `status.uae-irregular` the fare includes the fine, and `fine` says how much of it is the fine (status:uae-fine-accrues). Beside it, `scheme` is the returns service's way where the status has one (place:returns-service-takes-you-home): the grant in naira at the day's rate, and its ban; null elsewhere. Where the command would refuse, the shape is null. From the road's far shore it is the assisted return with no fare (road:sea-arrival-in-italy). `wayHome` is null at home and on the road.
 
-It is a forecast for today, not the record: the record of returns still holds no shape before a return happens (place:view-shows-place-and-returns). The client reads it and keeps no copy. The Go home card on the bag in the room abroad reads everything it shows from `wayHome` (return:standing-by-return-shape).
+It is a forecast for today, not the record (place:view-shows-place-and-returns). The client reads it and keeps no copy. The Go home card on the bag in the room abroad reads everything it shows from `wayHome` (return:standing-by-return-shape).
 
 ## Entries: countries
 

@@ -90,10 +90,10 @@ export const AFTERNOON_HOUR = 12;
 export const EVENING_HOUR = 18;
 export const NIGHT_HOUR = 22;
 
-/** One new turn every two real hours. docs/design/01-concept.md section 9, docs/rules/turn.md "Outside the simulation". */
+/** One new turn every two real hours (clock:turns-earned-from-refill-time; why: docs/design/01-concept.md section 9). */
 export const TURN_REFILL_MS = 2 * HOUR_MS;
 
-/** Twelve new turns a real day. docs/design/01-concept.md section 9. */
+/** Twelve new turns a real day, from TURN_REFILL_MS (clock:turns-earned-from-refill-time). */
 export const TURNS_PER_REAL_DAY = 12;
 
 /**

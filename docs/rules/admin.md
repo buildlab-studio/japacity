@@ -35,7 +35,7 @@ The rail carries two counts: the checks in alarm and the items waiting for a per
 
 ## Rules: the checks
 
-**admin:checks-have-three-states** The server keeps one list of checks, each with a name, what it measures and its limit, all run on the five-minute cron (clock:cron-stores-missing-ticks):
+**admin:checks-have-three-states** The server keeps one list of checks, each with a name, what it measures and its limit, all run on the five-minute cron (clock:cron-stores-missing-ticks), or on a deployment's slower tick cron where it has one (server:production-and-staging):
 
 | Check | Measures |
 |---|---|
@@ -58,8 +58,6 @@ A check is always in one of three states: OK, In alarm (its value is over its li
 
 - One mail per check per change.
 - None while the state holds, none for a change into No data or from No data to OK, and none to an admin with no verified email.
-
-The checks are evaluated inside the server's existing five-minute cron (clock:cron-stores-missing-ticks); a deployment on a slower tick cron evaluates them at its own pace.
 
 ## Numbers
 

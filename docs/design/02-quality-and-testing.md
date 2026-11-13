@@ -2,7 +2,7 @@
 
 ## Context and scope
 
-How the game keeps bugs out, and how each feature's intent is written down where people and coding agents can find it. The commands are in `../../AGENTS.md`; this page says why the checks are the ones they are. The facts behind the tool choices, and the evidence on agents and tests, are in [research note 10](../research/10-testing-tools-and-agents.md).
+How the game keeps bugs out, and how each feature's intent is written down where people and coding agents can find it. The commands, the check's steps and CI's tiers are in [Working on it](../site/built/working.md#the-check); this page says why the checks are the ones they are. The facts behind the tool choices, and the evidence on agents and tests, are in [research note 10](../research/10-testing-tools-and-agents.md).
 
 ## Goals and non-goals
 
@@ -41,7 +41,7 @@ Every rule on a rule page has a name: the page, a colon, and a short slug of wha
 
 On the rule page (`../rules/status.md`, shortened):
 
-> **status:lost-job-starts-clock** On a `one-employer` status, losing the job (the effect `activity/end-job`, whatever its cause) starts the clock: `clock` is set to the entry's `clockMonths`.
+> **status:lost-job-starts-clock** On a `one-employer` status, losing the job (the effect `activity/end-job`, whatever the cause) starts the clock: `clock` is set to the entry's `clockMonths`.
 
 In the test (`packages/sim/src/activity/activity.abroad.test.ts`):
 
@@ -56,10 +56,7 @@ test("[ladders:sponsor-job-ties-status] [status:lost-job-starts-clock] given a s
 });
 ```
 
-`pnpm check:rules` fails if:
-
-- a rule in the docs has no test and is not on the pending list (`tools/rules-pending.json`), or
-- a test cites a name that does not exist.
+`pnpm check:rules` fails a rule with no test and a test that cites a name that does not exist ([Rules and tests](../site/built/working.md#rules-and-tests) has every case).
 
 To find out what a feature was meant to do, find the rule's name, read its sentence, and read its test.
 
@@ -79,10 +76,10 @@ Cheapest first. Each layer catches what the one before cannot.
 | 5 | Simulated players | Many lives played by simple strategies with different habits (careful, borrower, risky, honest at home), with assertions on single runs and on all runs together | Some strategy reaches a grant from every fixed life. A clean file faces a refusal chance between 3% and 15% (route:visa-refusal-chance). No strategy is ever stuck (engine:player-never-stuck) | `pnpm check` (its `test:play` step) |
 | 6 | Server replay | Each log row carries the state's hash. The server rebuilds a life from the commands it accepted and reports the first version that differs (server:log-rows-hash-state, server:rollback-check-finds-divergence) | A stored life whose hashes all match shows no difference | `pnpm check` |
 | 7 | Screens | Key screens show what the view says | A route's page shows one step for each item on its checklist | `pnpm check` |
-| 8 | Browser | The 43 specs in `apps/client/e2e`, on a phone and a laptop. Also the `real` project, against the whole local stack, and the `catalog` project, which shoots every screen | Start at the front door, live a month, close and resume, reach the send-off | `pnpm test:browser`, `pnpm test:browser:real`, `pnpm catalog`. The suite also runs nightly and by hand in CI (`.github/workflows/browser.yml`) |
+| 8 | Browser | The specs in `apps/client/e2e`, on a phone and a laptop. Also the `real` project, against the whole local stack, and the `catalog` project, which shoots every screen | Start at the front door, live a month, close and resume, reach the send-off | `pnpm test:browser`, `pnpm test:browser:real`, `pnpm catalog`. The suite also runs nightly and by hand in CI (`.github/workflows/browser.yml`) |
 | 9 | Mutation | Break the simulation on purpose. The number of breaks no test notices must not rise | | Not set up |
 
-`pnpm check` (`tools/check/all.ts`) runs these steps in order and stops at the first failure: `check:types`, `typecheck`, `lint`, `test`, `test:play`, `check:rules`, `check:version`, `check:assets`, `check:size`, `check:scrub`. The browser tests are not part of it.
+Layers 0 to 7 run in `pnpm check`, whose steps are listed in [The check](../site/built/working.md#the-check). The browser tests are not part of it.
 
 **Every bug gets a test before its fix**: first the failing test that shows the bug, then the fix.
 

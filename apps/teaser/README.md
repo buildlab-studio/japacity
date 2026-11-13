@@ -1,6 +1,6 @@
 # Teaser tooling
 
-This package makes the game's teaser, so it can be made again whenever the game changes. It is its own workspace package (`@japacity/teaser`). Nothing else imports it and it ships nothing to players. The colours, face and wordmark letters come from `@japacity/brand` (`packages/brand/`).
+This package makes the game's teaser, so it can be made again whenever the game changes. This page is for whoever records, renders or changes it; the rendered files and what they show are in [`docs/teaser/`](../../docs/teaser/README.md). It is its own workspace package (`@japacity/teaser`). Nothing else imports it and it ships nothing to players. The colours, face and wordmark letters come from `@japacity/brand` (`packages/brand/`).
 
 ## Commands
 
@@ -10,7 +10,7 @@ Run them from the repository's root.
 |---|---|
 | `pnpm teaser:record` | Plays the real game on a development server (it starts one if none answers) and records the clips the cut shows as WebM files under `apps/teaser/clips/`, through Chromium's screencast. See [Recording](#recording). |
 | `pnpm --filter @japacity/teaser sound` | Makes the thirteen sounds from code into `apps/teaser/public/sound/`, so they are our own: the bed (pad, thumb piano and shaker), the danfo's horn and engine, the crowd, the pops, the swish, the coins, the stamp, the chime, the night, the jet, the switch and the swell. |
-| `pnpm teaser:render` | Renders the teaser in both frames as H.264 with sound: `Lead` to `docs/teaser/japacity-teaser.mp4` (1920 by 1080) and `LeadPortrait` to `docs/teaser/japacity-teaser-portrait.mp4` (1080 by 1920). Stops if a file reaches 10 MB. See [Rendering](#rendering). |
+| `pnpm teaser:render` | Renders the teaser in both frames as H.264 with sound: `Lead` to `docs/teaser/japacity-teaser.mp4` and `LeadPortrait` to `docs/teaser/japacity-teaser-portrait.mp4`. Stops if a file reaches 10 MB. See [Rendering](#rendering). |
 | `pnpm --filter @japacity/teaser studio` | Opens Remotion's studio to scrub any composition frame by frame. |
 | `pnpm --filter @japacity/teaser stage -- [flags]` | Builds and renders the stageshow cuts (`Stageshow`, `StageshowPortrait`, `StageshowBPortrait`), the game's own screens as product shots. The flags are listed at the top of `render/stage.ts`. |
 | `npx remotion still src/index.ts Poster out.png` (from `apps/teaser`) | Renders one frame of the cut with a play button over it, for anywhere a still has to stand for the video. `--props='{"frame":250}'` picks the frame. |
@@ -39,16 +39,14 @@ GitHub plays a video inline only from an asset uploaded through its own editor, 
 2. Signed in to GitHub, open `README.md` in the web editor (or any issue's comment box) and drag in `docs/teaser/japacity-teaser.mp4`. GitHub answers with a line like `https://github.com/user-attachments/assets/<id>`.
 3. Replace the line under the teaser comment at the top of `README.md` with it, on a line of its own with a blank line on each side.
 4. Drag in `docs/teaser/japacity-teaser-portrait.mp4` too, for a second asset link.
-5. Under the player stand two pictures at one height, each a link to its uploaded asset (landscape and portrait), so a tap plays it in the browser, including where GitHub's app shows no player. The pictures are `docs/teaser/japacity-teaser-end.webp` (the landscape's end card) and `docs/teaser/japacity-teaser-portrait-open.webp` (the portrait's opening). Make them from the `landscape-end` and `portrait-open` stills of `pnpm teaser:render --stills <folder>`, resized to 600 pixels high and saved as WebP (`cwebp -q 82 -resize 0 600`). The caption under them links the files in `docs/teaser/`.
-
-The files in the repository stay the source; the uploaded assets are copies GitHub keeps.
+5. Under the player stand two pictures at one height, each a link to its uploaded asset (landscape and portrait), so a tap plays it in the browser, including where GitHub's app shows no player. The pictures are `docs/teaser/japacity-teaser-end.webp` and `docs/teaser/japacity-teaser-portrait-open.webp`. Make them from the `landscape-end` and `portrait-open` stills of `pnpm teaser:render --stills <folder>`, resized to 600 pixels high and saved as WebP (`cwebp -q 82 -resize 0 600`). The caption under them links the files in `docs/teaser/`.
 
 ## Compositions in `src/`
 
 - `lead/Lead.tsx`: the teaser as shipped, in two frames built from one list of shots: `Lead` (1920 by 1080) and `LeadPortrait` (1080 by 1920, for a phone's feed).
-  - It shows the world's recordings with the game's pieces inside them: a word bubble in each place's voice, the band whose age carries the months, Makoko on the lagoon before the house (Bisi's band and the fish seller's call), the brief's chip, the passbook over the house, the four ways out (a master's in the UK, a tech job abroad, health care in the UK, the Gulf), the night falling, the flight with the lights joke, and the seal's bulbs clicking off and on. Sounds are laid on each shot.
-  - The portrait teaser is the game in the hand from the first shot. It opens on the same card, stacked. Every shot of the world is then the phone's own recording, full frame, with each piece where the game puts it on a phone and inside its zone of a feed's frame (`parts/zones.tsx`): the band at 220 to 320, bubbles over heads in the picture, the beat's words as one centred chip at 1180 to 1360, the cards at 1000 to 1540 (the four ways out 120 pixels high, from 1006 to 1534), and nothing of ours above 220 or below 1540, where a feed draws its own bars.
-  - Both end cards show the wordmark, a "Play it" button over the game's address, and "Japa is not by force. How ready are you?", and close on GitHub's mark and "Free. Open source on GitHub." (`END_LINE`).
+  - [What it shows](../../docs/teaser/README.md#what-the-teaser-shows) is the world's recordings with the game's pieces inside them, and sounds laid on each shot. Makoko comes before the house, with Bisi's band and the fish seller's call; the passbook stands over the house.
+  - The portrait teaser opens on the same card, stacked. Every later shot is the phone's own recording, with each piece inside its zone of a feed's frame (`parts/zones.tsx`): the band at 220 to 320, bubbles over heads in the picture, the beat's words as one centred chip at 1180 to 1360, the cards at 1000 to 1540 (the four ways out 120 pixels high, from 1006 to 1534), and nothing of ours above 220 or below 1540, where a feed draws its own bars.
+  - The end cards' closing line is `END_LINE`.
 - `lead/Poster.tsx`: one frame of the cut with a play button, a still to stand for the video.
 - `lead/stills.ts`: the named stills that `--stills` renders.
 - `teaser/`: the thirty second `Teaser` composition (title cards, map push, night fall, flight, end card). `lead/Lead.tsx` uses its scenes `Flight`, `MapShot` and `NightFalls`.
@@ -57,7 +55,7 @@ The files in the repository stay the source; the uploaded assets are copies GitH
 - `clips.ts`: the list of clips, read by both the recorder and the compositions.
 - `parts/`:
   - the dress at a trailer's scale: the card, the chip, the sticker, the pressed button, the pill, the title, the phone, the plane;
-  - the seal, the wordmark and GitHub's mark (`GitHub_Invertocat_White.svg`, kept as GitHub hands it out at https://github.com/logos; the drawn mark uses the same path with only its fill set);
+  - the seal, the wordmark and GitHub's mark (`GitHub_Invertocat_White.svg`, kept as GitHub hands it out on [its logos page](https://github.com/logos); the drawn mark uses the same path with only its fill set);
   - the motion springs;
   - `frame.ts`: the frame a cut is drawn in (wide or tall) with the two compositions' sizes, which the pieces read to lay themselves out;
   - `zones.tsx`: the feed's zones every tall piece stands in.
@@ -78,4 +76,4 @@ The game's word rules hold here too: never slots, turn, banked, pages, days left
 
 ## Licence
 
-Remotion is free for individuals and for companies of up to three people, commercial use included (https://www.remotion.dev/docs/license/faq). It runs only at build time.
+Remotion is free for individuals and for companies of up to three people, commercial use included ([Remotion's licence questions](https://www.remotion.dev/docs/license/faq)). It runs only at build time.

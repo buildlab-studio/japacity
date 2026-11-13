@@ -1,10 +1,10 @@
 # Rehearsal: the stageshow teaser
 
-The four scenes of `Stageshow` and `StageshowPortrait`, recorded in the form the stageshow skill's verify.md asks for: the reference scenes they started from, what each scene holds, what was filmed, what the film found and what was not checked.
+The record of the four scenes of `Stageshow` and `StageshowPortrait`, for whoever changes them: the reference scenes they started from, what each scene holds, how they were filmed and checked, what review found and what was not checked. It follows the form the stageshow skill's `verify.md` asks for. The second cut keeps [its own record](b/REHEARSAL.md), which says only what differs from this one.
 
 ## Reference scenes
 
-- `phone-touch`, for the phone in the hand: a phone app shown as one continuous object, a touch cursor, a few beats to a payoff.
+- `phone-touch`, for the phone in the hand: a phone app shown as one continuous object, a touch cursor, a few beats to a payoff that holds.
   - Kept: the kit's `Phone` at a size that reads (452 wide in the 540 by 960 frame, with a gutter above and on either side, its foot past the bottom); a touch cursor that shows only where it taps; taps that open a surface in place; a payoff that holds.
   - Changed: the app is the game (its band, sheets, handset and apps in the game's tokens), and each scene plays once into the next instead of looping.
 - `payout-flow`, for the month's results: a value that fills on its own clock and a payoff that holds.
@@ -23,15 +23,12 @@ The four scenes of `Stageshow` and `StageshowPortrait`, recorded in the form the
 
 Each scene plays once (`play="once"`). The cut fades from one scene to the next, so no scene loops back on screen.
 
-## What was filmed
+## Filming and the gate
 
 - Widths: each scene at its shown width (1920 for the laptop, 1080 for the phone) and at 390, where the laptop's stage draws the phone's design (its compact layout).
 - Look: the day paint only.
-- Clocks: the compositions step each scene's virtual clock to the frame; the film's runs use the browser's own clocks.
-
-## Gate
-
-Each scene is checked at each width with `film.mjs --gate`.
+- Clocks: the compositions step each scene's virtual clock to the frame; the filmed runs use the browser's own clocks.
+- Gate: each scene is checked at each width with `film.mjs --gate`.
 
 ## Review findings
 

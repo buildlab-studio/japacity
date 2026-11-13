@@ -1,6 +1,6 @@
 # Settings and a new life
 
-Settings is the last app on the phone. It holds the few choices a player makes about the game itself:
+Settings is the last app on the phone. This page shows the few choices a player makes there about the game itself:
 
 - whether it makes sounds;
 - how hard the city works the phone's graphics;
@@ -74,7 +74,7 @@ flowchart TD
   ROW["Settings: Start a new life"] --> SHEET["One sheet: the character's name and age, and that this life ends for good"]
   SHEET --> KEEP["Keep this life"]
   KEEP --> BACK["Back to Settings, nothing changed"]
-  SHEET --> HOLD["Hold to end this life, for a second and a half"]
+  SHEET --> HOLD["Hold to end this life, for a moment"]
   HOLD -- "let go sooner" --> SHEET
   HOLD -- "held" --> END{"Where is the life?"}
   END -- "on this device" --> LOCAL["The save and the kept person are cleared"]

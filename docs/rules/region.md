@@ -3,7 +3,7 @@
 > Rests on `../design/01-concept.md` sections 16 to 18.
 > Kind: `region`, server behaviour. The region is only the country a request comes from. It is used to count play by country and to choose an advert region; nothing a player may do depends on it. `account.md` holds the age screen and sign-up, and `pair.md` how two players meet. This page holds who may play, what contact every player has, and who runs the game.
 
-Every player, from any country, plays the same game. Sign-up is open everywhere and the date-of-birth screen is the same for everyone. Contact between players is the same for everyone: preset phrases and pair records between accounts connected by an invite, with block and report.
+Every player, from any country, plays the same game, with the same age line and the same contact with other players.
 
 ## Rules
 

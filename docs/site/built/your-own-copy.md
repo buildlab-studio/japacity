@@ -22,7 +22,7 @@ To play on your own machine you need none of this: `pnpm dev` runs the offline g
 
 ## 3. The domain and the routes
 
-- `apps/server/wrangler.jsonc`: the game's Worker. `routes` (a Custom Domain) and `vars.SITE_URL` at the top level are production's; `env.staging` has its own of each. `SITE_URL` must be a bare https origin. Its host becomes the passkeys' relying party, which can never change once a real passkey exists ([From the browser to Postgres](./infrastructure.md)).
+- `apps/server/wrangler.jsonc`: the game's Worker. `routes` (a Custom Domain) and `vars.SITE_URL` at the top level are production's; `env.staging` has its own of each. `SITE_URL` must be a bare https origin. Its host becomes the passkeys' relying party, which can never change once a real passkey exists ([Production and staging](./infrastructure.md#production-and-staging)).
 - `packages/content/src/share/share.text.ts`: the address the share cards print.
 - `tools/check/scrub.ts`: `OWN_DOMAINS`, the domain whose published addresses the scrub check allows.
 - Tests pin the shipped addresses (`apps/server/src/wrangler.test.ts` and others: search for the domain), so change them in the same pull request as the routes.
@@ -30,7 +30,7 @@ To play on your own machine you need none of this: `pnpm dev` runs the offline g
 ## 4. The database: Neon and Hyperdrive
 
 - Make a Postgres 18 database with a branch (or a database) per environment. This project uses Neon; any Postgres that Hyperdrive can reach works. Its connection strings go only in a git-ignored `.env.local` and into Hyperdrive, never into a committed file.
-- Apply the migrations in `packages/db/migrations/` to each with `db:migrate` in `packages/db`, with `DATABASE_URL_UNPOOLED` set to the branch's direct connection string for the migrator role, the role that owns the schema. (The role the Worker connects as through Hyperdrive cannot write the schema or drizzle's journal.) Each deploy does this first (section 10). By hand, run `pnpm --filter @japacity/db db:migrate` from the root with that variable set, before you build and deploy.
+- Each deploy applies the migrations in `packages/db/migrations/` with `DATABASE_URL_UNPOOLED`, the branch's direct connection string for the migrator role, the role that owns the schema; the role the Worker connects as cannot write it (server:migration-before-deploy). For a first deploy by hand, `apps/server/README.md` has the command.
 - Make two Hyperdrive configurations per environment with `wrangler hyperdrive create`: one with caching off (`GAME_DB`) and one with caching on (`CACHED_DB`). Write their ids into `hyperdrive` in `apps/server/wrangler.jsonc`: the top level for production, `env.staging` for staging. The production deploy refuses to run while a `REPLACE_WITH_` placeholder is left in the file. The ids are not secret: without your account's API token they open nothing.
 - Set `placement.region` in `apps/server/wrangler.jsonc`, at the top level and in `env.staging`, to your database's cloud region in the form `aws:eu-west-2` (Neon's London region, which this project uses), so the Worker runs near the database (server:worker-placed-near-database). For a database outside AWS, GCP and Azure, Cloudflare's placement page offers `placement.host` instead.
 - `neon.ts` at the root is the config Neon's own tooling reads. `.neon` (git-ignored) links one machine to one Neon project.
@@ -83,34 +83,17 @@ Each environment has its own set, made once and set with `wrangler secret put <N
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google sign-in | Section 6 |
 | `TURNSTILE_SECRET_KEY` | The bot check's secret half | Section 5 |
 | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | The bank-full notice's web push pair and your `mailto:` address. Without all three no notice is sent | Any web push tool makes the pair |
+| `ADMIN_ACCOUNTS` | The accounts the admin page opens for | Section 8 |
 
 Before the first deploy, set spending alerts in your Cloudflare account (server:spending-alerts). The bill has no cap.
 
 ## 10. GitHub: the environments and the deploys
 
-The workflows deploy from GitHub once you have set them up. Until then they deploy nothing and fail nothing.
+The workflows deploy from GitHub once you have set them up. `deploy-staging.yml` deploys staging after the check passes on a push to `main`, and waits for that check rather than running beside it; `deploy-production.yml` deploys production from a release tag `v*` or by hand, and only the commit staging serves. The exact conditions are server:production-and-staging, and the order of a deploy (migrate, snapshot, build, deploy, check) is server:migration-before-deploy.
 
-| Workflow | When it runs | What it does |
-|---|---|---|
-| `.github/workflows/check.yml` | Every push to a pull request; the merge queue; every push to `main`; by hand | With no secrets. On a pull request, the quick tier: generated types, typecheck, lint, content version, size budget, dependency audit, protected files, secret scan, and only the unit tests the change can reach. In the merge queue, on `main` and by hand, the full tier: every unit test and simulated play (decision 0040) |
-| `.github/workflows/deploy-staging.yml` | When `check.yml` completes on a push to `main` (a `workflow_run` trigger) | Deploys staging, and deploys the commit the check passed. Does nothing when the check failed or was cancelled |
-| `.github/workflows/deploy-production.yml` | A release tag `v*`, or by hand from `main` | Deploys production, but only a commit on `main` that staging serves: it first reads staging's `japacity-build` meta at `STAGING_URL` and stops when the commit differs |
-| `.github/workflows/browser.yml` | Each night, and by hand | The whole browser suite, with no secrets |
-
-In `main`'s ruleset, turn on the merge queue and require the checks `check`, `unit`, `play` and `secrets`, so a pull request merges only after the full tier has passed on `main` with the change on top.
-
-Each deploy runs in this order:
-
-1. Install.
-2. Migrate the environment's database (`pnpm --filter @japacity/db db:migrate` with its `DATABASE_URL_UNPOOLED`).
-3. Snapshot every character from the commit the environment is running, read from its page's `japacity-build` meta (`pnpm snapshot:all` in a worktree of that commit, server:snapshot-before-deploy).
-4. Build the client.
-5. Deploy the Worker.
-6. Check that the root answers 200, `/api/health` answers ok and the meta carries the commit deployed.
+In `main`'s ruleset, turn on the merge queue and require the checks [The check in CI](./working.md#the-check-in-ci) names, so a pull request merges only after the full tier has passed on `main` with the change on top.
 
 A first deploy has no page to read the live commit from, so the snapshot step stops it: make the first deploy of each environment by hand (`apps/server/README.md`).
-
-Steps 3 to 6 run only if the migration succeeded, so a Worker never runs against a schema behind it (server:migration-before-deploy). A migration therefore only adds: the old Worker keeps serving beside the new schema until the new Worker is up, so a column or table is removed only in a later migration, once no deployed Worker reads it.
 
 Each deploy job runs only in the repository its guard names, in a GitHub environment of the same name (`staging`, `production`). Make both environments in the repository's settings, and give each:
 
@@ -131,7 +114,7 @@ Also:
 
 - Give `production` a required reviewer, so no production deploy starts without approval.
 - Limit each environment's deployment branches: `staging` to `main`; `production` to `main` and the tags `v*`.
-- A deploy job whose environment has no Cloudflare token or account id stops at its first step with a notice and skips the rest. Once the Cloudflare pair is set, a missing `DATABASE_URL_UNPOOLED` fails the migrate step, and nothing is built or deployed.
+- Until an environment has its Cloudflare token and account id, its deploy job stops at its first step with a notice and deploys nothing. Once the pair is set, a missing `DATABASE_URL_UNPOOLED` fails the deploy (server:migration-before-deploy).
 - Both deploys run the wrangler version `apps/server/package.json` pins (`wranglerVersion` in each workflow; `tests/workflows.test.ts` keeps them equal).
 
 ### The API token
@@ -153,9 +136,4 @@ A fork of this repository cannot deploy this project: the guard skips its jobs, 
 
 ## 11. The page's content policy
 
-`apps/client/public/_headers` gives the page two content policies (server:csp-reports-to-own-origin):
-
-- `Content-Security-Policy` is enforced: the browser refuses anything it does not allow.
-- `Content-Security-Policy-Report-Only` is the same policy made stricter (Trusted Types, and inline styles only by the hashes the build writes in). It refuses nothing and reports what it would have refused.
-
-Both report to `/api/csp-report` on your own host, which logs one line per report and counts it. The report addresses are paths, so the file needs no change for your domain. If your copy loads anything from another host, add that host to the directive that needs it in both policies. To stop enforcing, rename `Content-Security-Policy` to `Content-Security-Policy-Report-Only`; both then only report.
+`apps/client/public/_headers` gives the page two content policies, one enforced and one stricter that only reports (server:csp-reports-to-own-origin). Both report to a path on the page's own host, so the file needs no change for your domain. If your copy loads anything from another host, add that host to the directive that needs it in both policies. Reading the reports, rolling back and promoting the stricter policy are in `apps/server/README.md`.

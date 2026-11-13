@@ -1,6 +1,6 @@
 # News
 
-> The world's news stories, how they move through their stages and how a character is told of them. The director (`director.md`) starts every story in the pool from the state of the world. This page holds the five stories of the UK master's route and the naira; `director.md` holds the rest of the pool and the eras.
+> The world's news stories, how they move through their stages and how a character is told of them, with the five stories of the UK master's route and the naira. `director.md` starts every story and holds the rest of the pool and the eras.
 > Kind: `news`. Scope: world, with a small record for each character of what they have been shown. Background: `../design/01-concept.md` sections 7 and 8. Sources: `../research/09-uk-masters-numbers.md` (living money) and `../research/06-naira-rates-and-currency.md` (the bank and the float).
 
 ## Rules
@@ -19,7 +19,7 @@
 
 ## Stories
 
-The five stories below are in the director's pool. Each tick the director rolls each story whose needs hold (director:stories-start-by-roll), with the chance multiplied by the running era's weight for the story's group. A story with no director fields would run on the seeded schedule of news:story-fate-drawn-from-seed instead, but every story in content has them. The rest of the pool, with its stages, is in `director.md`, "The story pool". Every story is in `packages/content/src/news/news.data.ts`.
+The five stories below are in the director's pool, started by director:stories-start-by-roll. Every story in content has director fields, so none runs on the seeded schedule of news:story-fate-drawn-from-seed. Every story is in `packages/content/src/news/news.data.ts`.
 
 | Id | Group | Needs (`director.md`) | Chance a tick | Rumour first | In force after | Ends | While in force |
 |---|---|---|---|---|---|---|---|

@@ -24,7 +24,7 @@ The Postgres implementation of the store interfaces (`docs/decisions/0006-the-on
 
 ## Migrations
 
-- To add one: change `src/schema/`, run `pnpm --filter @japacity/db db:generate --name <what-changed>`, and commit the new files in `migrations/`. Never edit a committed migration.
+- To add one: change `src/schema/`, run `pnpm --filter @japacity/db db:generate --name <what-changed>`, and commit the new files in `migrations/`. It needs no database. Never edit a committed migration.
+- To apply them to a real database: `pnpm --filter @japacity/db db:migrate` from the root, with `DATABASE_URL_UNPOOLED` set to the branch's direct connection string for the migrator role. On the local stack, `pnpm db:migrate:local` applies them to its Postgres (`LOCAL_DATABASE_URL`, on this machine only).
 - The first file, `migrations/0000_japacity.sql`, holds every table generated from `src/schema/` and, written by hand at its end, the functions and triggers the schema cannot express (the insert-only triggers on the moderation log and the switch log).
-- Every migration after it only adds (server:migration-before-deploy). A migration runs before the Worker that needs it is deployed, while the old Worker is still running, so a column or table is removed in a migration of its own, once no deployed Worker reads it.
-- Deploys apply the migrations themselves, before the build and the Worker (`.github/workflows/deploy-*.yml`, with the environment's `DATABASE_URL_UNPOOLED`, the migrator role's direct string).
+- Every deploy applies the migrations before the new Worker is up, so every migration after the first only adds, and a column or table is removed in a later migration of its own (server:migration-before-deploy).

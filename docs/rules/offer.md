@@ -72,7 +72,7 @@ Group `money`.
 | `offer.family-pledge-small` | Standing 30 to 49. Opened only by the family meeting. Once | | | 3 | `show` family means times ₦150,000. `gift` family means times ₦30,000 |
 | `offer.family-gift-canada` | `route.canada-points` known, `document.eca` held, standing 40, family stake 0. Opened only by the family meeting. Once | | | 3 | `gift` family means times ₦100,000 (route-gates:family-gift-counts-with-deed) |
 | `offer.education-loan` | `route.uk-masters` deposit paid, no visa granted or flown on it, credit mark 0, no education loan taken on the route | 100% | 3 | 2 | `max` the tuition left (the school's tuition less its discount and the deposit), in pence; `min` £1,000 (route:education-loan-pays-the-school) |
-| `offer.fee-payment-plan` | Opened only by tuition left unpaid a second month (abroad-money:missed-tuition-runs-in-stages). Group `money` | | | 1 | the arrears and the rest of the tuition, spread evenly to course month 12; the plan's fee £50 |
+| `offer.fee-payment-plan` | Opened only by tuition left unpaid a second month | | | 1 | as abroad-money:missed-tuition-runs-in-stages |
 | `offer.job` | Opened only by job hunting. Group `job`, not `money` | | | 2 | `job`, the job's id |
 | `offer.job-lead` | Opened only by a starting life's first missed hunt, for another job than the one missed (activity:missed-hunt-opens-a-lead). Group `job`; once in a life | | | 2 | `job`, the lead's job; `missed`, the job missed; `lead`, the words of the place; `cost`, the words of what it costs the trade missed |
 | `offer.job-word` | Opened only by a starting life's first missed hunt, for the job just missed (activity:missed-hunt-opens-a-lead). Group `job`; once in a life | | | 2 | `job`, the job missed; `lead`, the words of the place |
@@ -91,7 +91,7 @@ A pay term for a job paid in dollars is valued in naira at the official rate.
 | `offer.family-pledge-small` | The family meeting | "Your mother speaks for them: 'It is not much. {show} in the account can carry your name, and take {gift}. Things are tight, you know how it is.'" | The same two choices |
 | `offer.family-gift-canada` | The family meeting | "Your father: 'Canada wants to see the money is yours. We will give you {gift}. Not a loan, a gift. Get the paper from the notary so they believe it.'" | `accept`: `gift` to the bank, reason `gift`, flagged; recorded on the route as the family's gift; family stake +1. `decline`: standing -2 |
 | `offer.education-loan` | A study lender | "A lender that funds master's students from Nigeria: 'We pay your fees straight to the university. About 13.5% a year, a 4.2% fee added to the loan, $500 to process. Repay over fifteen years, starting after your course.'" | `take`, pick an amount: pay the processing fee, reason `fee-agent`, and open `obligation.education-loan` for the amount plus the 4.2% fee, paid to the school (route:education-loan-pays-the-school). `no` |
-| `offer.fee-payment-plan` | The university's fees office | "'You can clear the arrears on a plan: {instalment} a month until the end of the course, and a £50 fee. Miss a plan payment and we will write to you before we withdraw you.'" | `agree`: pay £50, reason `fee-school`, and spread the tuition owed over the months left (abroad-money:missed-tuition-runs-in-stages). `no` |
+| `offer.fee-payment-plan` | The university's fees office | "'You can clear the arrears on a plan: {instalment} a month until the end of the course, and a £50 fee. Miss a plan payment and we will write to you before we withdraw you.'" | `agree`: the plan and its fee (abroad-money:missed-tuition-runs-in-stages). `no` |
 | `offer.job` | A job offer | "'We would like you to start on the first.'" | `accept`: start the job. `decline` |
 | `offer.job-lead` | Them dey hire | Lanre: "'I know {lead}: it pays, but {cost}.'" | `accept` ("Take it"): start the job. `decline` ("Keep looking") |
 | `offer.canoe-place` | Join my canoe | Sewanu: "'You want learn the water? Third in my canoe, you sort fish, I share the catch.'" | `accept` ("Take it"): start the job. `decline` ("Not now") |
@@ -118,7 +118,7 @@ Signs for `offer.held-funds-agent`, each shown or not when the offer opens (offe
 
 ## Effects and requirements this kind handles
 
-The part before the slash names the kind that carries out an effect or judges a requirement (`engine.md` section 5). The types are in `packages/sim/src/engine/types.ts`.
+How these types are named and judged: [`engine.md` section 5](engine.md#_5-kinds).
 
 | Type | | What it does |
 |---|---|---|

@@ -86,7 +86,7 @@ Read on 24 Oct 2026.
 
 ## Effects and requirements this kind handles
 
-The part before the slash names the kind that carries out an effect or judges a requirement (`engine.md` section 5). The types are in `packages/sim/src/engine/types.ts`.
+How these types are named and judged: [`engine.md` section 5](engine.md#_5-kinds).
 
 | Type | | What it does |
 |---|---|---|

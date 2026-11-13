@@ -3,7 +3,7 @@
 > Rests on `person.md`, `engine.md` and `../design/04-where-things-live.md` section 4. All numbers here are working values except where a source is named.
 > Kind: `pair`, held by the server, one record per pair of characters, with the content table `phrase`. Background: `../design/01-concept.md` sections 6 and 16, `../design/03-structure-and-conventions.md` section 5, `../research/05-real-people-family-and-safety.md`.
 
-Everything between two players lives in one record, never in a copy on each side. The record holds what the two have done together: when they met, what they said, what they agreed and how it ended. Each life sees it only through the authority commands of `person.md`.
+Everything between two players lives in one record, never in a copy on each side. The record holds what the two have done together: when they met, what they said, what they agreed and how it ended. Each life sees it only through authority commands (person:lives-meet-by-authority-command).
 
 This page also covers the invite card that starts a pair, the preset phrases a pair talks in, and the block and report on every interaction. The block's reach and the report queue belong to `moderation.md`.
 
@@ -102,7 +102,7 @@ A failure stores nothing and delivers nothing. The sender is told which check fa
 
 **pair:no-records-between-strangers** While `tuning.people.matchmaker` is false, no record is ever made between two players who did not invite each other.
 
-**pair:everyone-meets-by-invite** Every player meets others the same way, wherever they are (region:same-contact-everywhere). A record is made between two accounts only when an invite connects them (pair:invite-link-single-use), and never between two who did not invite each other while the matchmaker is off (pair:no-records-between-strangers). Nothing in a pair depends on where either player signed up (`../design/01-concept.md` sections 16 and 17).
+**pair:everyone-meets-by-invite** Every player meets others the same way, wherever they are (region:same-contact-everywhere). A record is made between two accounts only when an invite connects them (pair:invite-link-single-use, pair:no-records-between-strangers). Nothing in a pair depends on where either player signed up (`../design/01-concept.md` sections 16 and 17).
 
 ## Entries: phrases
 
@@ -134,7 +134,7 @@ The words below are a guide; `packages/content/src/phrase/phrase.text.ts` holds 
 | `phrase.sorry` | "I am sorry." | | conversation |
 | `phrase.goodnight` | "Sleep well." | | conversation |
 
-Spots are `person.md`'s shared list: `beach`, `suya-spot`, `church`, `cinema`, `mall`, `friends-wedding`, `campus`, `bus-stop`.
+Spots are the shared spot list in [`person.md`, Entries: computer partners](person.md#entries-computer-partners).
 
 ## Numbers
 

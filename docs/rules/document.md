@@ -19,7 +19,7 @@ A document is something the character can show: a passport, a test result, a cer
 
 **document:degree-english-statement** The degree's English statement, `document.degree-english`, is requested by `activity.degree-english`, a now-act made from the Papers app (document:paper-on-its-way). It needs a bachelor's degree and the statement neither held nor being made, and costs ₦150,000 with the reason `fee-document`. It is issued after 1 month, never expires and carries no value: it always passes. It meets the English of the UK work routes (route-gates:sponsor-application-needs) and of the partner route (person:partner-gate-needs). Real: Ecctis confirms that a degree from abroad was taught in English for £210 plus £42 VAT (£252, about ₦458,800 at ₦1,820.79 to the pound on 23 Oct 2026) in 20 working days, with no fast track. The game charges about a third of the real fee and keeps the real wait (factor 1.0).
 
-**document:who-sits-the-english-test** The English test is for the routes that ask for a band: Canada's pool at band 60 (route-gates:entering-the-pool), the UK work routes at band 55 for an applicant without the degree statement, and the partner route at band 30 for an applicant without a degree. A graduate needs it for none of the UK routes (route:degree-meets-masters-english, document:degree-english-statement, person:partner-gate-needs). `activity.sit-english-test` costs ₦295,000, the fee for IELTS for UKVI from 15 Jul 2025. One test stands for every test each country accepts.
+**document:who-sits-the-english-test** The English test is for the routes that ask for a band: Canada's pool (route-gates:entering-the-pool), the UK work routes for an applicant without the degree statement (route-gates:sponsor-application-needs), and the partner route for an applicant without a degree (person:partner-gate-needs). A graduate needs it for none of the UK routes (route:degree-meets-masters-english, document:degree-english-statement). `activity.sit-english-test` costs ₦295,000, the fee for IELTS for UKVI from 15 Jul 2025. One test stands for every test each country accepts.
 
 **document:grant-and-void-commands** `document/grant` issues a document at once. `document/void` removes it, held or pending.
 
@@ -73,7 +73,7 @@ English 60 gives band 6.0 on an even draw, English 72 gives 6.5 and English 86 g
 
 ## Effects and requirements this kind handles
 
-The part before the slash names the kind that carries an effect out or judges a requirement (`engine.md` section 5). The types are in `packages/sim/src/engine/types.ts`.
+How these types are named and judged: [`engine.md` section 5](engine.md#_5-kinds).
 
 | Type | | What it does |
 |---|---|---|

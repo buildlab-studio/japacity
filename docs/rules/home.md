@@ -1,10 +1,10 @@
 # Home: where the character lives in Lagos
 
-> Where the character lives at home: the family house, a room of your own, and a place on the lagoon the player can live in, cheaper than the family house, with the risk that the settlement is cleared. Nothing here moves money between lives (person:money-counted-never-moved).
+> Where the character lives at home and what the life owns there: the family house, a room in a compound, the hostel room and a room on the water in Makoko.
 
 ## Purpose
 
-The game is about saving to leave. A cheaper room makes saving faster and the risk real: some months the settlement is cleared, and the character then needs somewhere to go. Eviction is part of life there, so it is part of the game. Bad news is told straight, never as a joke (`text.md`).
+The game is about saving to leave. A cheaper room makes saving faster, and Makoko, the cheapest, makes the risk real: some months the settlement is cleared, and the character then needs somewhere to go. Eviction is part of life there, so it is part of the game, told straight, never as a joke (`text.md`).
 
 ## Rules
 
@@ -49,11 +49,11 @@ A new character lives at the family house. Abroad, the slice is kept as it was a
 
 **home:home-is-the-home-point** The home is the home point (world:opens-where-last-stopped): the game opens where the character lives.
 
-- **Makoko.** `place.makoko` is a place of the city (`city.md`: district Makoko, on the lagoon beside the bridge) with five scenes (city:makoko-holds-five-scenes). Its room on the water, behind the rented house's door on the channel, is the character's home while they live there:
+- **Makoko.** `place.makoko` is a place of the city ([city.md, "Entries: Lagos"](city.md#entries-lagos)) with five scenes (city:makoko-holds-five-scenes). Its room on the water, behind the rented house's door on the channel, is the character's home while they live there:
   - a life that lives there opens on the channel outside its door, and the door opens for that life alone;
   - to anyone else the house is a neighbour's, with no name over it and nothing to tap;
   - a life that stops living there while inside steps back out to the walk.
-- **What Makoko stages.** On its smoking deck: the fish trade's ladder (`activity.job-fish-racks`, the kiln's `activity.buy-kiln` and the fish trade's `activity.start-fish-trade`, activity:capital-opens-own-work) and its side job, the canoe deliveries (`activity.canoe-deliveries`, for a life living there). At the net shed: the boat work (activity:boat-work-at-the-net-shed). At the viewing centre: the match (activity:watch-the-match).
+- **What Makoko stages** is its row's Stages in city.md: the fish trade's ladder (activity:capital-opens-own-work) and the canoe deliveries (for a life living there) on the smoking deck, the boat work at the net shed (activity:boat-work-at-the-net-shed) and the match at the viewing centre (activity:watch-the-match).
 - **The room's things.** The mattress, the small pot on three stones, the drum and the papers box carry the same acts as the parlour's, for the home's own entries. obligation:cooking-and-fetching-water's relief applies to whichever upkeep is open.
 - **Home acts.** The month lives in the phone's Calendar app (world:top-band-is-a-pill). The bed's Sleep, the papers box, cooking and the water drum stand at home.
 
@@ -64,7 +64,7 @@ A new character lives at the family house. Abroad, the slice is kept as it was a
 - the choice to move, shut with its reason when the rent is short or a move was made this month;
 - while a guest, who took them in and for how long.
 
-Words come from content. The card states the risk once, plainly: "Some months the settlement is cleared."
+The card states the risk once, plainly: "Some months the settlement is cleared."
 
 **home:moves-carry-cost-and-reason** The home view carries the card's moves.
 
@@ -83,13 +83,13 @@ Words come from content. The card states the risk once, plainly: "Some months th
 - **Support abroad.** The family's support abroad opens from it at the remit share (place:departure-moves-abroad, abroad-money:arrival-opens-upkeep-and-room). For a life from sixteen this is `obligation.home-support` at `tuning.prologue.homeSupport` (₦40,000 a month before the share, between the fixed lives' ₦25,000 and ₦60,000), because the home card's effects open at home, where no support is sent.
 - So a life from sixteen that comes home pays the family house's upkeep that the card names from the next month, as any life does.
 
-**home:compound-room-is-a-home** `place.compound-room` is a home place: one rented room in a shared compound in Ojuelegba (`city.md` has its row as neutral scenery under city:sponsor-shows-name-only). The room is the character's home while they live there, seen down its length as world:room-seen-down-its-length. The bed, the cooking corner, the water drum at the compound's tap, the papers box and the bag by the door carry the home's acts (home:home-is-the-home-point). Meals there are your own: `activity.cook-own` and `activity.cook-own-pot` (home:living-by-hand).
+**home:compound-room-is-a-home** `place.compound-room` is a home place: one rented room in a shared compound in Ojuelegba (its row is in [city.md, "Entries: Lagos"](city.md#entries-lagos)). The room is the character's home while they live there. The bed, the cooking corner, the water drum at the compound's tap, the papers box and the bag by the door carry the home's acts (home:home-is-the-home-point). Meals there are your own: `activity.cook-own` and `activity.cook-own-pot` (home:living-by-hand).
 
-- **Rent, the Lagos way.** A year upfront, `tuning.home.compound.rentYear` (₦350,000, so a life from sixteen with ₦500,000 saved can take the room at the age it starts, prologue:front-door-three-screens; decision 0018), plus the agent's and the agreement's fees at `tuning.home.compound.feesBp` (2,000: a tenth each, the Lagos cap). Both are taken at once as `money/take` with `pocket: "any"` under the reason `rent`.
+- **Rent, the Lagos way.** A year upfront, `tuning.home.compound.rentYear` (₦350,000, decision 0018; Numbers gives the reason for the figure), plus the agent's and the agreement's fees at `tuning.home.compound.feesBp` (2,000: a tenth each, the Lagos cap). Both are taken at once as `money/take` with `pocket: "any"` under the reason `rent`.
 - **Obligations.** `obligation.rent-compound` (type `rent`, `everyMonths` 12, `prepaid`, obligation:prepaid-entries-skip-first-charge) then charges the year's rent again twelve months on. `obligation.upkeep-compound` (type `upkeep`, `tuning.home.compound.upkeep`, ₦50,000 a month: food, light, the waste and the compound's small charges) replaces `obligation.upkeep`, which closes. It has no water share: the drum is filled free from the yard's tap or well, and the room has no water bill (obligation:cooking-and-fetching-water).
-- **Moving in.** Through `home/move`, as for Makoko (home:move-home-once-a-month): at home, once a month, with the rent and fees held, otherwise shut `short`. The home card shows it with its monthly cost, what it takes now and why it is shut (home:moves-carry-cost-and-reason).
-- **Moving back** to the family house works as from Makoko: the upkeep reopens, `tuning.home.returnStanding` is paid, the rent obligation closes and the year paid is lost.
-- **On a flight** the room is let go: place:departure-moves-abroad closes `rent` with `upkeep` and `support`. The return goes to the family house (place:family-takes-you-back).
+- **Moving in.** Through `home/move` (home:move-home-once-a-month), with the rent and fees held, otherwise shut `short` (home:moves-carry-cost-and-reason).
+- **Moving back** to the family house works as home:move-home-once-a-month says; the rent obligation also closes and the year paid is lost.
+- **On a flight** the room is let go (place:departure-moves-abroad).
 - **In the view.** The home view carries the room's rent while it is open: `roomRent: { year, fees, dueIn }` (the year's figure, the fees paid on it at the move, and the months until the next year is taken, 0 at this month's end), or null when none is open.
 - **On screen.**
   - The home card says "Rent ₦350,000 a year, next in N months", with the living costs on their own line.
@@ -111,7 +111,7 @@ Words come from content. The card states the risk once, plainly: "Some months th
 - **Abroad,** upkeep is in the country's money and is untouched. The relief of obligation:cooking-and-fetching-water applies to whatever is charged.
 - **The family house** (decision 0018). Nobody pays to cook in a house with family. `activity.cook-at-home` is free (Food from the pot: Mama's pot is the house's). `activity.cook-jollof` is A big pot for the house: ₦7,500 under the reason `foodstuff` (food bought for everyone, with Mama's thanks over her head). Anyone visiting the family house may eat from the pot for free; it is a repeat act there, true to life.
 - **A home of your own in Lagos** (the compound room, the hostel and Makoko's room). The meal is `activity.cook-own` (₦1,500) or `activity.cook-own-pot` (₦7,500) under `food`, so cooking is never free away from the family.
-- **The room abroad** cooks in the country's money: `activity.cook-own-uk` in the UK (streets:london-life-by-hand), `activity.cook-own-canada` (C$8), `activity.cook-own-uae` (AED 8) and `activity.cook-own-italy` (€4) (streets:calgary-life-by-hand, streets:dubai-life-by-hand and streets:castel-volturno-by-hand). `activity.cook-own` is `where: "home"`, so no naira is charged abroad.
+- **The room abroad** cooks in the country's money, by each country's own meal (streets:london-life-by-hand, streets:calgary-life-by-hand, streets:dubai-life-by-hand, streets:castel-volturno-by-hand). `activity.cook-own` is `where: "home"`, so no naira is charged abroad.
 - **Where acts are named.** Each corner's acts are named by id in its place file, never by a cost-by-place rule in the simulation.
 - **How the family's figure is told.** The family's monthly figure is told as your share for the house, with Papa paying the rest: on the home card, in the move lines and in the bill notice.
 
@@ -131,18 +131,18 @@ Words come from content. The card states the risk once, plainly: "Some months th
 - **Each month.** In the `due` phase each thing that works takes its running cost under `running`, then gives its monthly lift. Short of money, it stands idle that month (`things/stood`) and gives nothing.
 - **Stored.** A thing owned in a home that cannot hold it is kept but `stored`, and does nothing.
 - **The view** carries `things`: `owned` with `stored` and `resale`; `market`, with each thing's price, resale, running cost and why it is `shut` (owned, home, needs, short or away); `drive`; and `running`.
-- **Figures.** Every figure is content's; the prices are working figures from 2025 and 2026 Lagos listings.
+- **Figures.** The prices are working figures from 2025 and 2026 Lagos listings.
 - **The Market app** (world:phone-rises-over-scene) sells only at home. Elsewhere in Lagos it says the rider brings it to your gate; abroad, that the market is a Lagos thing.
 
 ## Entries
+
+The home places themselves (`place.family-house`, `place.compound-room`, `place.hostel-room`, `place.makoko`) are rows of [city.md, "Entries: Lagos"](city.md#entries-lagos), with what each stages.
 
 | Id | Kind | Notes |
 |---|---|---|
 | `obligation.upkeep-makoko` | upkeep, NGN, `tuning.home.makokoUpkeep` a month | sink `upkeep`; onMiss as `obligation.upkeep`; obligation:charges-paid-whole-or-missed's short pay applies |
 | `offer.taken-in` | offer, opens on `home/evicted` | answers `friend`, `someone`, `family`; expires at the month's end as `family` |
 | `offer.where-next` | offer, opens when a guest's `until` comes | answers `makoko`, `family` |
-| `place.makoko` | place, home, lagos, district makoko | scope exterior, assets `makoko` (the channel), with its scenes `makoko-room`, `makoko-viewing-centre`, `makoko-net-shed` and `makoko-smoking-deck` behind the channel's doors (city:makoko-holds-five-scenes); stages `activity.job-fish-racks`, `activity.buy-kiln`, `activity.start-fish-trade` and `activity.canoe-deliveries` on the smoking deck, `activity.ask-fisherman`, `activity.take-net-work`, `activity.buy-canoe` and `activity.start-canoe-taxi` at the net shed, and `activity.watch-match` at the viewing centre; the room on the water's things carry the home's own acts while lived in, and its door opens only then |
-| `place.compound-room` | place, home, lagos, stylised, no area or position | scope interior, assets `compound-room`; stages nothing of its own: its things carry the home's own acts, staged at the family house, while lived in (home:compound-room-is-a-home) |
 | `obligation.rent-compound` | rent, NGN, `tuning.home.compound.rentYear` a year | `everyMonths` 12, `prepaid` (obligation:prepaid-entries-skip-first-charge); sink `rent`; grace 2, onMiss as `obligation.upkeep`; onDefault closes it (home:rent-default-returns-to-family); reports to no credit file |
 | `obligation.upkeep-compound` | upkeep, NGN, `tuning.home.compound.upkeep` a month | sink `upkeep`; onMiss as `obligation.upkeep`; obligation:charges-paid-whole-or-missed's short pay applies |
 | `obligation.upkeep-hostel` | rent, NGN, `tuning.home.hostelRentKobo` a month | the hostel's rent by the month (home:move-home-once-a-month); sink `rent`; grace 2, onMiss as `obligation.upkeep`; onDefault closes it (home:rent-default-returns-to-family); reports to no credit file |

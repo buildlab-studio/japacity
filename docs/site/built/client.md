@@ -1,6 +1,6 @@
 # The client
 
-The client is the game the player sees: a React app in `apps/client`. It draws a Lagos place in 3D, lets the player walk it and tap the things in it, and keeps the month, the money and the papers on a phone in the character's hand. It decides nothing. Every change to a life is sent as a command to an authority (the simulation in the tab, or the server online), and the screens read the view that comes back.
+The client is the game the player sees: a React app in `apps/client`. This page is for a contributor finding their way around its code. It draws a place in 3D, lets the player walk it and tap the things in it, and keeps the month, the money and the papers on a phone in the character's hand. It decides nothing. Every change to a life is sent as a command to the authority (the game's rules running in the tab, or the server online), and the screens read the view of the life that comes back. The rules for what the player sees are on [the world rules](../../rules/world.md); why it looks as it does is `docs/design/09-the-games-look.md`.
 
 ## The stack
 
@@ -90,7 +90,7 @@ There is no month button: the month turns when the character sleeps (world:sleep
 `src/features/city/` draws a place from its `place.json` under `public/assets/places/<folder>/`: the ground and roads, the models at their spots, the crowd, the light, what moves, and the camera's raised shot. A place with no file is drawn as open ground with its crowd, so every place can be entered. The place file is read and built in `src/shared/scene/`, which the front door also uses. The city keeps its own scene (camera, labels, marks) in `scene/`, what things do in `acts/`, and the nudge in `nudge/`. The 3D scene loads only where WebGL exists, so the panels never wait for it.
 
 - **Tap to walk.** A tap on a thing walks the character to it in a straight line. A tap on the ground walks there only inside the place's walkable ground. This is screen state only: no command, no turn (city:places-change-no-state and city:tap-to-walk in [the city rules](../../rules/city.md)).
-- **Things.** A thing is a model copy declared in the place file's `stage.things`, with a label and its acts. Tapping it walks the character there and opens its fan: the acts as round sticker buttons on a curve out of the thing, each with its picture and its price where it has one. When there is no room beside the thing, or it has more than eight acts, the acts open as a sheet instead (`fan/`, world:things-are-tappable-models, world:fan-of-sticker-buttons).
+- **Things.** A thing is a model copy declared in the place file's `stage.things`, with a label and its acts. Tapping it walks the character there and opens its fan: the acts as round sticker buttons on a curve out of the thing, or a sheet of the same buttons where the fan does not fit (`fan/`, world:things-are-tappable-models, world:fan-of-sticker-buttons).
 - **Acts.** An act's kind says what it does (types in `src/shared/world/contract.ts`):
 
   | Kind | Does |
@@ -104,18 +104,13 @@ There is no month button: the month turns when the character sleeps (world:sleep
   | `command` | Opens a card for a command, such as paying a deposit |
   | `app` | Opens the phone on an app (the papers box opens Papers) |
 
-- **Marks.** Things show no label by default. Each carries a small still dot; the one the nudge points at pulses. Names show over the dots for two seconds the first time a place is entered (`scene/mark.ts`).
-- **The nudge.** One line of at most eight words, shown only when something waits on the player: an ask, a due abroad, the night's bed. The journey's step shows only in the moment: as a chip under the band for about two seconds after a brief is handed, and again while the player is at the step's place, with a marker over the thing or person to go to. A tap opens the way to it (`nudge/nudge.ts`, `brief/`, world:nudge-says-one-thing).
-- **The crowd.** Who stands in a place today is a hash of the place, the real date and the slot, so the same screenshot taken twice matches. It never uses `Math.random` or a simulation stream (`src/shared/scene/crowd.ts`). Residents keep the spots that need them with no one online (a spot whose `prefer` names a role, a spot an act poses). Other players take every other slot, the last first.
+- **Marks.** Things show no label by default, only a small dot, and names show briefly the first time a place is entered (`scene/mark.ts`, world:things-are-tappable-models).
+- **The nudge.** One short line, shown only when something waits on the player, and the journey's step shown only in the moment, with a marker over the thing or person to go to. A tap opens the way to it (`nudge/nudge.ts`, `brief/`, world:nudge-says-one-thing).
+- **The crowd.** Who stands in a place today is drawn from the place, the real date and the slot, never from `Math.random`, so the same screenshot taken twice matches (`src/shared/scene/crowd.ts`, city:sample-seeded-by-date). Residents keep the spots that need them, and other players fill the rest (city:players-fill-the-crowd).
 
 ### Speech and lines
 
-The world talks in two channels (`src/shared/world/Lines.tsx`):
-
-- **Pictures over people** carry the street's life and need no reading.
-- **Words over a person** appear only when that person is near the player's figure: one bubble at a time, at most eight words, for about four seconds, then a pause. A longer line opens in a sheet with the speaker's name on a tap.
-
-The bottom corner holds only the answer to the player's own act, one line at a time. Nothing is narrated in a card across the middle of the world. An act the scene shows (sit, lie down, cook, fetch water) says nothing (`actLines.ts`, world:street-talk-budget and text:show-then-tell).
+The world talks in two channels, pictures over people and words over a person near the player's figure, and the bottom corner answers the player's own act (`src/shared/world/Lines.tsx`, `actLines.ts`). The limits are world:street-talk-budget and text:show-then-tell; why there are two channels is section 5 of `docs/design/09-the-games-look.md`.
 
 ### The map and the rides
 
@@ -123,32 +118,32 @@ The bottom corner holds only the answer to the player's own act, one line at a t
 
 - **The map** is one painted Lagos drawn as SVG (`map/paper/`, decision 0026). It folds into a strip at the top over a card for each neighbourhood, swipes sideways, and unfolds to the whole city on a tap or a drag on the strip.
 - **Pins.** Every built place stands on it as a sticker of its own picture; the sticker is the pin. A place tied to a chapter shows as not yet until that chapter is current, so the first map holds only the places that matter now (`features/city/nudge/stops.ts`, world:map-is-painted-lagos, world:one-country-at-a-time and world:ride-sheet-shows-fares).
-- **Cities.** The paper draws one city from a descriptor (`map/paper/city.ts`). Lagos is the default. London (`map/paper/london.tsx`, world:painted-maps-abroad) is a separate chunk, loaded only once the map shows the UK: the Thames across its top, the railway through Peckham Rye, five neighbourhood cards and Heathrow on an inset in its corner. London's words for its places and rides are also a separate chunk (`shared/words/late.ts`), so a first visit at home loads none of them.
-- **The ride sheet** reads the ways out of the character's place from the view (`place.ways`). London offers the bus, the train and on foot in pounds, and the bus shows "£0, bus pass" in a month the pass is bought (world:ride-abroad-and-workplace, place:country-pass-covers-ways).
+- **Cities.** The paper draws one city from a descriptor (`map/paper/city.ts`). Lagos is the default. London (`map/paper/london.tsx`, world:painted-maps-abroad) is a separate chunk, loaded only once the map shows the UK. London's words for its places and rides are also a separate chunk (`shared/words/late.ts`), so a first visit at home loads none of them.
+- **The ride sheet** reads the ways out of the character's place from the view (`place.ways`), at home and abroad (world:ride-sheet-shows-fares, world:ride-abroad-and-workplace).
 
 ## The phone
 
-The phone (`src/features/phone/`) rises over the scene: a plain navy lock screen with the big clock, the day in words and the place as a pill, and eleven apps, four across, each a card in the game's light style. Each app has one job and one short screen, and shows a dot when it holds something the player has not seen (`seen.ts`, kept on the device). The shell hands the phone what it needs from other features, so the phone imports none of them (world:phone-rises-over-scene and world:phone-holds-what-phones-hold).
+The phone (`src/features/phone/`, the apps in `apps/`) rises over the scene: a lock screen, then a grid of apps, each with one job and one short screen, and a dot when it holds something the player has not seen (`seen.ts`, kept on the device). The shell hands the phone what it needs from other features, so the phone imports none of them. What each app holds is world:phone-rises-over-scene and world:phone-holds-what-phones-hold.
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
-<img src="/pictures/dev-26-phone.webp" alt="The phone's lock screen with eleven apps: Calendar, Bank, Chats, Japa, Papers, Jobs, Market, Lotto, Bills, News, Settings" width="220">
+<img src="/pictures/dev-26-phone.webp" alt="The phone's lock screen with its apps: Calendar, Bank, Chats, Japa, Papers, Jobs, Market, Lotto, Bills, News, Settings" width="220">
 <img src="/pictures/dev-27-phone-calendar.webp" alt="The Calendar app: the job held, what carries on, and what is coming up" width="220">
 <img src="/pictures/dev-31-phone-papers.webp" alt="The Papers app: the box under the bed, each paper with its state and the way to it" width="220">
 </div>
 
-| App | Does |
+| App | Holds |
 |---|---|
-| Calendar | The month in order: the job held, what carries on until stopped, the chores done, and what is coming and how many months away. Nothing in it ends the month. It lives in `features/turn/Calendar.tsx` and the shell hands it to the phone |
-| Bank | At home it opens on the passbook: the money held for the road against its whole cost, the stamps, the pace line and the roads to the money. Behind it: what is saved toward the move and the last money lines, with Change money and Move money at the foot. Abroad, the balance comes first |
-| Chats | The family group, the month's people lines, and a partner's or friend's messages, sent as preset phrases from chips. Nobody types |
-| Japa | The road's log: the way's card with readiness as a bar; the briefs handed so far (the current one first, then those done, the next faint); a file for each way looked into; the goals; each other way heard of, with the switch to make it the plan |
-| Papers | The box under the bed: every paper the life has or waits on, its state, what it counts toward and the act that moves it. A call or a message opens its card here; a visit says where and opens the map on it |
-| Jobs | The job held and the offers, each taken or quit on its own card |
-| Market | Things for the home as picture tiles, each with what it does and its price. Bought and delivered at once, sold back once owned. Home only (world:phone-rises-over-scene, home:things-a-life-owns) |
-| Lotto | The next draw, the tickets held, the last result. Tickets are bought at the kiosk in the street |
-| Bills | The bill notices and what is due this month, with the home card on top |
-| News | The era, last month's report lines and the stories that have reached the character |
-| Settings | Sound, the city's graphics, the account, the feedback box, and "Start a new life" |
+| Calendar | The month: the job, what carries on, what is coming. Its code is `features/turn/Calendar.tsx`, handed to the phone by the shell |
+| Bank | At home the passbook toward the move; abroad the balance first |
+| Chats | The family group and people's messages, sent as preset phrases |
+| Japa | The road's log: the way, the briefs, the files and the goals |
+| Papers | Every paper the life has or waits on, and the act that moves it |
+| Jobs | The job held and the offers |
+| Market | Things for the home, home only |
+| Lotto | The next draw and the tickets held |
+| Bills | The bills due, with the home card on top |
+| News | The era, the month's report lines and the stories |
+| Settings | Sound, graphics, the account, feedback and "Start a new life" |
 
 Every app act that costs money or decides something opens the shared sheet with its own card, and its main button sends the same command the world would (`act.tsx`).
 
@@ -156,29 +151,25 @@ Every app act that costs money or decides something opens the shared sheet with 
 
 The front door is three screens on its own sky (`src/features/front-door/FrontDoor.tsx` with `src/shared/front-door/`):
 
-1. **You**: a sticker of the look; the name box, empty with a suggested name as placeholder and a dice to fill it; your own colours.
-2. **Your life so far**: the lives as cards swiped sideways, with the age under them.
-3. **Where you live**: the homes as postcards.
+1. **You**: the look, the name and your own colours.
+2. **Your life so far**: the lives to pick from.
+3. **Where you live**: the homes.
 
-Everything has a default, so Next, Next and Begin starts a life. After Begin the page prints: the archetype's preset answers every step of the prologue (`src/features/prologue/`) while the page fills as the years go by, and the page itself is the handover. The ready lives are not on the door; Settings opens them. See [The front door](../plays/front-door.md) and prologue:front-door-builds-a-person, prologue:archetype-presets-answers, prologue:tile-path-open-from-start, prologue:makoko-start-never-a-trap, prologue:front-door-three-screens, prologue:printed-page-hands-over, prologue:player-colours-on-looks and prologue:nothing-behind-the-door in [the prologue rules](../../rules/prologue.md).
+After Begin the archetype's preset answers every step of the prologue (`src/features/prologue/`) while the travel data page fills, and the page itself is the handover. What a player sees is [The front door](../plays/front-door.md); the rules are on [the prologue rules](../../rules/prologue.md), from prologue:front-door-three-screens on.
 
-The travel data page (`src/shared/datapage/`) prints on the door after Begin, and opens from the band by tapping the name over the age. It shows the photo, the name, the current age, the path, the family and readiness, with a machine-readable strip built from the game's own data and a made-up country code, never a real one. It carries no stamp until a visa is granted. Each answer at the door is kept on the device, so a reload returns to the same step; the life itself is written only at Begin.
+The travel data page (`src/shared/datapage/`) prints on the door after Begin, and opens later from the band's name (prologue:printed-page-hands-over). Each answer at the door is kept on the device, so a reload returns to the same step; the life itself is written only at Begin.
 
 ## Share cards
 
 A share card marks a moment the view carries: a chapter, a visa granted, the send-off, the first pay abroad, a status secured, the December visit, a win on the draw, and on the road the real story or a life lost (`src/features/share/`, `src/shared/share/`).
 
-- The card is drawn on the player's device from the view alone, encoded as a JPEG under a size limit, and shared through the Web Share API or downloaded, only after the player taps.
-- Every card says in plain sight that Japacity is a game, carries no sum of money, and is never stored on the server (share:card-carries-no-money, share:card-drawn-on-device and share:card-never-stored in [the share rules](../../rules/share.md)).
-- The cards a player has had are kept on the device. The send-off card carries the japa type, which the data page then shows.
+The card is drawn on the player's device from the view alone and shared only after a tap; it carries no money and is never stored on the server ([the share rules](../../rules/share.md)). The cards a player has had are kept on the device.
 
 ## Moment cards
 
-Every big outcome gets one clean card over the scene, the screen a player posts: a visa granted or refused, the agent who was a scam, the one chance on the bus home, a big win on the draw, landing abroad, and a chapter closing (`src/features/moment/`; which lines are moments is in `src/shared/moment/`).
+Every big outcome gets one card over the scene, the screen a player posts: a visa granted or refused, the agent who was a scam, the one chance on the bus home, a big win on the draw, landing abroad, and a chapter closing (`src/features/moment/`; which lines are moments is in `src/shared/moment/`).
 
-- The card holds one line in the game's voice, the figure that carries it, and the game's small mark with japacity.app in its corner.
-- At a month's end it stands over the results sheet; after an act, over the world. One tap puts it away.
-- It is drawn on screen only and never looks like a bank alert. Share cards keep their own rules. See [the moments rules](../../rules/moment.md).
+At a month's end the card stands over the results sheet; after an act, over the world. What it holds is on [the moments rules](../../rules/moment.md).
 
 ## Other parts
 
@@ -191,7 +182,7 @@ Every big outcome gets one clean card over the scene, the screen a player posts:
 
 ## Tests
 
-- **Screen tests** sit beside the screens as `*.test.tsx` and run in jsdom under Vitest (the `client` project). `pnpm test` and `pnpm check` run them all. In CI, a push to a pull request runs only the tests the change can reach, and the merge queue runs every one (decision 0040).
-- **Browser tests** in `apps/client/e2e/` run in Playwright at a phone's size (Pixel 7) and a desktop's, with `pnpm test:browser`. They are not part of `pnpm check` or the pull request checks; `.github/workflows/browser.yml` runs the whole suite each night and by hand.
+- **Screen tests** sit beside the screens as `*.test.tsx` and run in jsdom under Vitest (the `client` project).
+- **Browser tests** are in `apps/client/e2e/`, in Playwright.
 
-See [Working on it](./working.md).
+How and when each runs, locally and in CI, is in [Working on it](./working.md#the-check).

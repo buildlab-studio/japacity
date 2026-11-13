@@ -1,6 +1,6 @@
 # Share cards and the japa type
 
-At a moment worth telling (a chapter done, a visa granted, the send-off), the game offers a card: a picture you can send to friends. Most people will first hear of the game through one, so a card is built never to be mistaken for anything real. It carries no sum of money, no logo, no reference number, and the words "Japacity is a game" in plain sight. At the send-off the game also reads the life as one of six japa types: a label for sharing, never a score.
+At a moment worth telling (a chapter done, a visa granted, the send-off), the game offers a card: a picture you can send to friends. Most people will first hear of the game through one, so a card is built never to be mistaken for anything real. At the send-off the game also reads the life as one of six japa types: a label for sharing, never a score. This page shows the cards as a player meets them; the rules are on [Share cards and the official accounts page](../../rules/share.md).
 
 <img src="/pictures/dev-25-card-after-month-4.webp" alt="A brief's card: Brief done, Find your feet, how ready you are, how long played, how home sees you, what you did most, and Save the card" width="260">
 
@@ -45,7 +45,7 @@ A sum of money in any currency (a sum on a picture is the part a scammer crops a
 A card is offered: nothing is posted for you, and nothing is earned by sharing.
 
 - The button under the card says **Share the card** where the phone has a share sheet, and **Save the card** where it has none.
-- The picture is drawn on the device as a portrait image the size of a messaging status, under 150 KB, with the marks drawn on before it is encoded.
+- The picture is drawn on the device as a small portrait image the size of a messaging status, with the marks drawn on before it is encoded (share:card-drawn-on-device).
 - The words that travel with it are a link to the game with the card's kind and nothing about the player. The preview a messaging app shows for that link is a fixed, approved picture for that kind.
 - A card is never stored on the server. Closed cards are kept on this device, for this life.
 

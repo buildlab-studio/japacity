@@ -44,16 +44,17 @@ The foreign leg is a debit with the reason `remit`, and the fee is `remit-fee`. 
 
 ## Entries
 
+The amounts (tax lines, rents, phones) are in Numbers; the start rates of the Canadian dollar, the dirham and the euro are in `rate.md`, Numbers.
+
 | Id | Values |
 |---|---|
-| `country.uk` money | currency GBP; `taxFreeLine` 1257000 pence; `taxBp` 2800 (20% tax plus 8% national insurance in the basic band); upkeep £15 a month, the phone's pay as you go (`obligation.upkeep-uk` 1500 pence; abroad-money:arrival-opens-upkeep-and-room); `rent-room` £670 (67000); `rent-flat` £950 (95000), deposit one month, creditMin 20; `phone` £25 a month (2500), no fixed term, creditMin 10 |
-| `country.canada` money | CAD; `taxFreeLine` 1600000 cents; `taxBp` 2500; upkeep C$30 a month, the prepaid phone (`obligation.upkeep-canada` 3000 cents; abroad-money:arrival-opens-upkeep-and-room); `rent-room` C$900 (90000); `rent-flat` C$1,700 (170000); `phone` C$45 (4500) |
-| `country.uae` money | AED; no tax; upkeep AED 50 a month, the prepaid phone (`obligation.upkeep-uae` 5000 fils; abroad-money:arrival-opens-upkeep-and-room); accommodation is the employer's: no rent while `status.gulf-worker` is held; `rent-room` AED 1,200 (120000) for anyone else |
-| `country.italy` money | EUR; cash work only; upkeep €10 a month, the prepaid phone (`obligation.upkeep-italy` 1000 cents; abroad-money:arrival-opens-upkeep-and-room); `rent-room` €350 (35000) |
+| `country.uk` money | GBP; `taxFreeLine` and `taxBp` (20% tax plus 8% national insurance in the basic band); upkeep `obligation.upkeep-uk`; `rent-room`; `rent-flat`, deposit one month, `creditMin` 20; `phone`, no fixed term, `creditMin` 10 |
+| `country.canada` money | CAD; `taxFreeLine` and `taxBp`; upkeep `obligation.upkeep-canada`; `rent-room`; `rent-flat`; `phone` |
+| `country.uae` money | AED; no tax; upkeep `obligation.upkeep-uae`; accommodation is the employer's: no rent while `status.gulf-worker` is held; `rent-room` for anyone else |
+| `country.italy` money | EUR; cash work only; upkeep `obligation.upkeep-italy`; `rent-room` |
 | `obligation.rent-cash-room-uk` | type `rent`, GBP, £840 a month (84000 pence), a quarter above the shared room, working value; paid from `any` pocket, cash first; `reportsToCredit` false; opened only by abroad-money:right-to-rent-check |
 | `obligation.tuition` | type `tuition`, GBP, principal the tuition less the deposit, the discount and an education loan's payment; `schedule` [5000, 0, 1250, 1250, 1250, 1250] basis points by course month; sink `fee-school`; a miss runs abroad-money:missed-tuition-runs-in-stages, no grace count and no default |
 | `offer.fee-payment-plan` | the university's plan: the arrears and the rest spread evenly to course month 12, fee £50 (5000 pence, `tuning.status.planFee`), lapses after 1 month (abroad-money:missed-tuition-runs-in-stages) |
-| Start rates | CAD 97000 kobo (₦970), AED 36255 (₦362.55), EUR 155800 (₦1,558) at tick 0, from the dollar rate of ₦1,331.50 and cross rates of 7 Oct 2026 |
 
 ## Numbers
 

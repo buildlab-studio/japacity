@@ -112,7 +112,7 @@ All read 8 Oct 2026.
 
 ## Contract
 
-- View field: `card` is `{ kind: "chapter" | "granted" | "send-off" | "first-pay-abroad" | "secured" | "december" | "draw-win" | "real-story" | "lost"; chapter: Id<"chapter"> | null; route: Id<"route"> | null; percent: number | null; months: number; standing: number; topActivities: Id<"activity">[]; name: string | null } | null`. The simulation sets the kind and says when a card is due, the send-off and the road included. The client's card face (`apps/client/src/shared/share/face.ts`) adds `shareable`, which is false for `lost`: that card is shown and never shared (share:no-card-for-harm).
+- View field: `card` is `{ kind: "chapter" | "granted" | "send-off" | "first-pay-abroad" | "secured" | "december" | "draw-win" | "real-story" | "lost"; chapter: Id<"chapter"> | null; route: Id<"route"> | null; percent: number | null; months: number; standing: number; topActivities: Id<"activity">[]; name: string | null } | null`. The simulation sets the kind and says when a card is due, the send-off and the road included. The client's card face (`apps/client/src/shared/share/face.ts`) adds `shareable` (share:no-card-for-harm).
 - Content: text keys `share.<kind>.title` and `share.disclaimer` ("Japacity is a game."), and an art id per chapter and per kind, `share.<kind>.art`, pointing at the assets register.
 - Tuning: `tuning.share = { width; height; maxBytes; previewWidth; previewHeight; previewMaxBytes }`.
 - Static files: one approved preview image per kind, `/share/<kind>.jpg` (in `apps/client/public/share/`), and the `/official` page.

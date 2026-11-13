@@ -111,7 +111,7 @@ Players talk only in preset phrases (pair:preset-phrases-only); nobody types a m
 | Postgres provider | Neon, London (server:worker-placed-near-database) |
 | One deployable or two | One Worker serving the client and the API: the client's build at `japacity.app`, the server's code only under `/api`. The code stays in separate packages |
 | Where the code lives | One repository, with the design pages in its `docs/` |
-| Checks on every change | GitHub Actions (`.github/workflows/check.yml`, decision 0040). On every push to a pull request: the quick checks and the unit tests the change can reach. In the merge queue, on every push to `main` and by hand: every unit test and simulated play. The full `pnpm check` runs locally. The browser suite runs locally, and nightly and by hand in `.github/workflows/browser.yml` |
+| Checks on every change | GitHub Actions (decision 0040), in two tiers, beside the full `pnpm check` run locally ([The check in CI](../site/built/working.md#the-check-in-ci)) |
 | Tests against a database | An in-process Postgres for unit tests (PGlite, `packages/db`). Provider branches for previews |
 | Email for sign-in codes | Cloudflare Email Service (decision 0007). Google sign-in is the main path |
 | People built on the device or shipped as files | Shipped as files (`apps/client/public/assets/shared/person`) |

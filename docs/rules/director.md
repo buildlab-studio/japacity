@@ -1,9 +1,9 @@
 # The director, eras and the story pool
 
-> The director fires the pool's stories from the state of the world; a story with no director fields keeps the seeded schedule of `news.md`. The news kind's delivery rules (news:changed-stages-delivered-once, news:for-you-when-touching-route and news:announcement-makes-routes-heard) hold as that page says. Timeline and sources: `../research/02` section 4, `../research/01` section 4, `../research/06`.
+> How a story reaches a character is in `news.md`. Timeline and sources: `../research/02` section 4, `../research/01` section 4, `../research/06`.
 > Kinds: `era` (world), `var`, `news`; code in `packages/sim/src/world/`. Background: `../design/01-concept.md` section 7.
 
-The world is a pool of stories that really happened, fired in an order that cause and effect allow. One era runs at a time. Most checks fire nothing.
+This page covers the world's variables, the eras, and the director that starts the pool's stories: stories that really happened, started in an order that cause and effect allow. Most ticks start nothing.
 
 ## Rules
 
@@ -72,12 +72,7 @@ The weights name story groups; each story in the pool carries one group.
 
 ## The story pool
 
-The five stories `news.md` lists are in the pool, with these preconditions:
-
-- `news.dollar-scarcity` needs `var.fx-supply` at 80 or more (it cannot fire during a scarcity), and is in group `fx`;
-- `news.naira-float` is `endedBy` nothing and keeps its `after`;
-- `news.uk-living-rise` needs `var.uk-study-window` at 1 or more;
-- `news.uk-refusals-up` needs `var.uk-study-surge` over 40, and is a backlash story.
+The five stories of the UK master's route and the naira are in the pool too, with their needs and groups in `news.md`, Stories. The rest:
 
 | Id | Group | Needs | Chance a tick | Rumour, force lag, ends | Sets | Once, shock | Date it echoes |
 |---|---|---|---|---|---|---|---|

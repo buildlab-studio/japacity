@@ -4,16 +4,26 @@ Status: Accepted
 
 ## Context
 
-Most players arrive on a phone on Nigerian mobile data, where every kilobyte before play costs money and time. A budget only holds if a check enforces it.
+- Most players arrive on a phone on Nigerian mobile data.
+- Every kilobyte before play costs them money and time.
+- A budget only holds if a check enforces it.
 
 ## Decision
 
-engine:first-download-has-budget: what a first visit downloads carries a budget for each part in `tools/check/size-budget.json` (the main chunk, three.js's core, the simulation with the content, the model loader, the other shared chunks, and their total), measured by `pnpm check:size` in every `pnpm check` and in the check workflow. A part over its budget fails the check with its name and both numbers. Each budget is a measured size plus five percent. A budget is lowered on purpose and never raised quietly: every change to the file carries a line saying why. The admin page's code is never in a first-visit chunk.
+**The rule** (engine:first-download-has-budget)
 
-The rule sits on the engine page because that page is the contract every kind is built against, and the download is the first cost a player pays: it stands beside the other engine limits (engine:browser-authority-for-dev-only), where a contributor reads it before adding a dependency.
+- What a first visit downloads has a budget for each of its parts and for their total, in `tools/check/size-budget.json`.
+- `pnpm check:size` measures it in every `pnpm check` and in the check workflow.
+- A budget is lowered on purpose and never raised quietly.
+- The rule holds the detail: the parts, how a budget is set, what a first visit may hold and what a failing check reports.
+
+**Where the rule sits**
+
+- It is on the engine page, because that page is the contract every kind is built against, and the download is the first cost a player pays.
+- It stands beside the other engine limits (engine:browser-authority-for-dev-only), where a contributor reads it before adding a dependency.
 
 ## Consequences
 
-- A feature that needs more download says why in the budget file, and the budget rises only by that.
-- The numbers are not a target to chase: they move when a piece makes the download smaller on purpose or a feature needs more and says so.
+- A feature that needs a bigger download says why in the budget file, and the budget rises only by that.
+- The numbers are not a target to chase. They move when a piece makes the download smaller on purpose, or when a feature needs more and says so.
 - A change to engine:first-download-has-budget itself needs a decision record.

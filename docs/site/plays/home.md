@@ -1,13 +1,8 @@
 # The home
 
-Where the character sleeps decides what each month costs, and so how fast saving goes. There are four homes in Lagos:
+This page shows the homes a life can have in Lagos, how the player moves between them, and the chores done there. Where the character sleeps decides what each month costs, and so how fast saving goes. The exact rules and costs are in [the home rules](../../rules/home.md).
 
-- the family house in Surulere;
-- a room of your own in a compound in Ojuelegba;
-- a hostel room in Yaba;
-- a room on the water in Makoko.
-
-The game opens at home. Home holds the things a month needs: the bed, the papers box, the cooking corner and the water drum. Cheaper homes save faster and carry their own risks, which the game states plainly.
+The game opens at home. Home holds what a month needs: the bed, the papers box, the cooking corner and the water drum.
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
   <img src="/pictures/home-family-house-parlour.webp" alt="The family house eased in on the parlour: Mama and Papa on the sofas, the table, the TV, and the way to see the whole place" width="220">
@@ -17,36 +12,32 @@ The game opens at home. Home holds the things a month needs: the bed, the papers
 
 ## The four homes
 
+Cheaper homes save faster and carry their own risks, which the game says plainly.
+
 | | The family house | Your room in a compound | The hostel room | The room on the water |
 |---|---|---|---|---|
 | Where | Surulere | Ojuelegba | Yaba | Makoko, on the lagoon |
-| What it costs | Nothing is charged. The month's measure (₦95,000 for a life from sixteen) is shown as your share for the house, bought as you go, and Papa pays the rest | A year's rent upfront, ₦350,000, plus a tenth each for the agent and the agreement; then living of about ₦50,000 a month, paid as you go | ₦15,000 a month, with no year's rent | The first month's ₦25,000 on moving in; then the living is paid as you go |
-| The catch | The family talks and leans | The next year's rent falls due twelve months on | The rent falls due every month | Some months the settlement is cleared |
-| Who can start there | Every tile | Every tile whose savings cover the move and a month | Every tile | The child of the water only |
-| Water | Fetched from the borehole down the street | Free from the yard's tap: you fill the drum | Free from the tap: you fill the drum | Fetched from the borehole sellers |
+| How it is paid | Nothing is charged; your share for the house is bought as you go, and Papa pays the rest | A year's rent up front, with the agent's and the agreement's fees, then living paid as you go | Rent every month, no year's rent | The first month's rent on moving in, then living paid as you go |
+| The catch | The family talks and leans | The next year's rent falls due a year on | Rent is due every month | Some months the settlement is cleared |
+| Water | Fetched from the borehole | Filled free from the tap | Filled free from the tap | Fetched from the borehole sellers |
 
-A self-contain flat appears on the door's Where you live as a goal with its yearly rent, always locked. It is not a home the character can live in.
+Every archetype can start in the family house or the hostel, the room in a compound when the savings cover moving in, and only the child of the water in Makoko. A self-contain flat is shown on the front door as a goal, never as a home to live in. What each home costs is in home:compound-room-is-a-home, home:move-home-once-a-month and home:living-by-hand.
 
 ## The house on screen
 
-The family house, the room in a compound and the hostel are each one wide house of walled rooms, seen whole from above, straight down its length, with the near walls cut low.
+Each home is one house of walled rooms seen whole from above, with the near walls cut low:
 
-- **The family house:** the parlour, the kitchen, the bathroom, your corner as its own small room, the dining part, and the yard along one side with a carport, the clothes line, the generator and the gate.
-- **The room in a compound:** your room, a bathroom, a kitchenette, and the compound yard with your spot by the gate.
-- **The hostel:** one small room of your own off a shared corridor.
+- **The family house:** the parlour, the kitchen, the bathroom, your corner, the dining part, and the yard with the carport, the clothes line, the generator and the gate.
+- **The room in a compound:** your room, a bathroom, a kitchenette and the compound yard.
+- **The hostel:** one small room off a shared corridor.
 
-Moving the camera:
+A tap on a room, or a pinch, eases the camera in; "See the whole place" eases back out. The round button over Phone, "See another side", turns the house a quarter, as does a sideways finger.
 
-- A tap on a room, or a pinch, eases the camera in on it. A thing tapped from the whole house eases in first, so its fan opens close.
-- A tap outside the room, a pinch out or "See the whole place" eases back out.
-- The round button over Phone, "See another side", turns the house a quarter. A sideways finger does the same, snapping to the nearest quarter. The house opens as it was left.
-- A finger up or down tilts the view towards one from above.
-
-In a home of your own, the things bought on the phone's Market stand in the room, and holding one lifts it to move or turn. A car bought stands at the home's car spot.
+In a home of your own, things bought on the phone's Market stand in the room, and holding one lifts it to move or turn. A car stands at the home's car spot.
 
 ## Moving
 
-The home card in the Bills app shows where the character lives, the monthly charge, and a move to each other home with what it costs a month and what it takes now. A move is made at home, at most once a month.
+The home card at the top of the [Bills app](./money.md#bills) shows where the character lives, what it costs, and a move to each other home with what it takes. A move is made at home, at most once a month.
 
 ```mermaid
 flowchart LR
@@ -60,25 +51,21 @@ flowchart LR
   M -->|"the year's rent and fees held"| C
 ```
 
-Moving back to the family house reopens its upkeep and costs a little standing: the family talks.
-
-::: details When a move is shut
-The card names the reason. "Moved" means a move was already made this month. "Short" means the money for the move is not held: the first month's rent for Makoko or the hostel, or the year's rent and the fees for the room. The card reads one refusal from the view, the same one the command would give.
-:::
+Moving back to the family house costs a little standing: the family talks. A move that cannot be made says why on its card: already moved this month, or not enough money held.
 
 ## The chores
 
-Each home's things carry the chores. They answer at once and can be done again as the body allows. The scene shows them (the pot steams, the drum fills), and each takes a little of the month's time: a meal a morning, water a day, a big pot a weekend.
+Each home's things carry the chores. They answer at once, the scene shows them (the pot steams, the drum fills), and each takes a little of the month's time.
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
   <img src="/pictures/home-compound-cooked.webp" alt="Cooking in the room: steam rising from the stove while the character stands by it" width="220">
   <img src="/pictures/month-calendar-chores.webp" alt="The Calendar after cooking: Done this month, Cooked, and how much less this month" width="220">
 </div>
 
-- **Meals**, at the cooking corner or the stove. At the family house, Food from the pot is free, since Mama's pot is the house's, and A big pot for the house buys ₦7,500 of foodstuff for everyone, with Mama's thanks. In a home of your own the meal is your own and is paid: Indomie and egg (₦1,500) or a pot of jollof (₦7,500). A meal fills the character.
-- **Water**, at the drum. At the family house and in Makoko, water comes from the borehole: Fetch water. In the room in a compound and the hostel the drum is filled free from the tap: Fill the drum.
+- **Meals.** At the family house, food from Mama's pot is free, and a big pot for the house buys food for everyone, with Mama's thanks. In a home of your own the meal is paid for.
+- **Water.** At the family house and in Makoko it is fetched from the borehole; in the room and the hostel the drum is filled free from the tap.
 
-The Calendar lists the chores done this month. The month's results do not list them again: a chore is answered where it is done.
+The Calendar lists the chores done this month. Their prices are in obligation:cooking-and-fetching-water ([the obligation rules](../../rules/obligation.md)).
 
 ## Makoko and eviction
 
@@ -88,36 +75,30 @@ flowchart TD
   D -->|no| L
   D -->|yes| E["Evicted: the room goes, some cash goes with it"]
   E --> O["Taken in? The same month an ask opens"]
-  O -->|"A friend, a real player with a home"| G["A guest for three months, no upkeep"]
+  O -->|"A friend, a real player with a home"| G["A guest for a few months, no upkeep"]
   O -->|"Someone from the story"| G
-  O -->|"Family, or no answer"| F["Back to the family house at its full charge"]
+  O -->|"Family, or no answer"| F["Back to the family house"]
   G --> W{"The stay ends: where next?"}
   W -->|"Makoko, if the rent is held"| L
   W -->|"Family, or no answer"| F
 ```
 
-Each month in Makoko there is a small chance (5 per cent, halved while the character is down) that the settlement is cleared:
-
-- The room is gone, and its charge closes with nothing owed.
-- Up to ₦20,000 of cash goes with it.
-- Standing does not fall: it was not the character's doing.
-- The month's results lead with it and News carries the story.
-- The same month an ask opens: who will take you in.
+Each month in Makoko carries a small chance that the settlement is cleared. The room goes, with some of the cash held, and nothing is owed; standing does not fall, since it was not the character's doing. The month's results lead with it, News carries the story, and the same month someone offers to take the character in. The chance and the losses are home:makoko-eviction-draw and home:taken-in-after-eviction.
 
 ::: warning Told straight
-Eviction is part of life on the water and part of the game. It is told plainly, never as a joke. The risk is said once on the home card ("Some months the settlement is cleared") and heard in the city's talk before any move.
+Eviction is part of life on the water and part of the game. It is told plainly, never as a joke, and the risk is said on the home card and heard in the city's talk before any move.
 :::
 
 ::: details Exceptions at home
-- **The room's rent unpaid.** The room's yearly rent defaults on the third miss in a row. The landlord takes the room back, and the character goes back to the family house as after a clearing, with the standing cost.
-- **A guest's host.** When a real player takes the character in, the host's own upkeep rises by a quarter while the guest stays. No money moves between the two lives.
-- **Abroad.** The home in Lagos is kept as it was and not read; the room abroad is its own place with its own money.
-- **The first entry.** The first time a life enters a home, the home's blurb shows once as a small card the player dismisses ("One room in a compound of ten. One tap in the yard for everybody, and the buses all night.").
+- **The room's rent unpaid.** After repeated misses the landlord takes the room back and the character goes home to the family house (home:rent-default-returns-to-family).
+- **A guest's host.** When a real player takes the character in, the host's own upkeep rises while the guest stays. No money moves between the two lives.
+- **Abroad.** The home in Lagos is kept as it was; the room abroad is its own place with its own money.
+- **The first time a life enters a home**, a small card describes it once.
 :::
 
 ## Rules it rests on
 
-- [Home](../../rules/home.md): home:home-slice-fields (the home slice), home:move-home-once-a-month (moving, the hostel by the month), home:makoko-eviction-draw (eviction), home:taken-in-after-eviction (taken in), home:hosting-costs-the-host (hosting), home:home-is-the-home-point (the home point and its things), home:view-carries-home and home:moves-carry-cost-and-reason (the home card and its moves), home:compound-room-is-a-home (the room in a compound), home:rent-default-returns-to-family (a defaulted rent), home:living-by-hand (living by hand, the family's pot), home:things-a-life-owns (what a life owns).
-- [Obligations](../../rules/obligation.md): obligation:cooking-and-fetching-water (cooking and water), obligation:prepaid-entries-skip-first-charge (rent paid ahead).
-- [The prologue](../../rules/prologue.md): prologue:makoko-start-never-a-trap (the Makoko start), prologue:front-door-three-screens (Where you live on the door).
-- [The world](../../rules/world.md): world:thumb-buttons-carry-dots (the turn button), world:camera-always-raised (the camera's two states), world:opens-where-last-stopped (the game opens at home), world:room-seen-down-its-length (the wide house, eased in on a room, turned in quarters), world:room-things-and-buy-mode (the things in the room and buy mode).
+- [Home](../../rules/home.md): home:home-slice-fields, home:move-home-once-a-month, home:makoko-eviction-draw, home:taken-in-after-eviction, home:hosting-costs-the-host, home:home-is-the-home-point, home:view-carries-home, home:moves-carry-cost-and-reason, home:compound-room-is-a-home, home:rent-default-returns-to-family, home:living-by-hand, home:things-a-life-owns.
+- [Obligations](../../rules/obligation.md): obligation:cooking-and-fetching-water, obligation:prepaid-entries-skip-first-charge.
+- [The prologue](../../rules/prologue.md): prologue:makoko-start-never-a-trap, prologue:front-door-three-screens (the homes on the front door).
+- [The world](../../rules/world.md): world:opens-where-last-stopped, world:room-seen-down-its-length, world:room-things-and-buy-mode.

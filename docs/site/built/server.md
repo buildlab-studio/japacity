@@ -8,7 +8,7 @@ Online, one program decides everything: a Cloudflare Worker in `apps/server`. It
 4. writes one new log row;
 5. answers with the new view.
 
-The only thing the phone is trusted to say is what the player wants to do. This page covers the Worker, accounts, the log, the place objects, the scheduled jobs and the database.
+The only thing the phone is trusted to say is what the player wants to do. This page is for anyone reading or changing the server's code: the Worker, accounts, the log, the place objects, the scheduled jobs and the database. How it is hosted and deployed is [From the browser to Postgres](./infrastructure.md).
 
 ::: info The rules behind this page
 The contract is [the server's rule page](../../rules/server.md), with [accounts](../../rules/account.md), [the clock](../../rules/clock.md) and [the engine](../../rules/engine.md). The stack and its pinned versions are in decision 0006 (`docs/decisions/0006-the-online-stack.md`). Where this page and a rule page differ, the rule page wins.
@@ -75,7 +75,7 @@ Accounts use Better Auth 1.7 (`apps/server/src/auth/auth.ts`), created inside ea
 
 - **Guest first.** Online, a new player starts as a guest through the auth library's anonymous sign-in. The age screen comes first (account:age-screen-refuses-minors). Before the guest life is made, the client shows a Cloudflare Turnstile check and the server verifies its token; a pass counts only if it was solved on the game's own host (account:bot-check-on-guest-creation). Sign-up behaves the same from every country (account:sign-up-open-everywhere).
 - **Securing the life.** A guest secures the account with Google or with a code sent to an email address (account:guest-secures-the-life). Codes and passkey notices are sent through Cloudflare Email Service, the Worker's `MAIL` binding, from the game's one sender (account:sign-in-routes-rate-limited, decision 0007). On the local stack they arrive in Mailpit.
-- **Passkeys.** A secured player may add a passkey. Its relying party id is exactly the host of `SITE_URL` (account:passkey-needs-signed-in-session): the apex domain in production, the staging host on staging, so a staging passkey can never sign in to production. A passkey is bound to that id permanently, so the code refuses any `SITE_URL` that is not a bare https origin.
+- **Passkeys.** A secured player may add a passkey. Its relying party id is the host of `SITE_URL` (account:passkey-needs-signed-in-session), so a staging passkey can never sign in to production ([Production and staging](./infrastructure.md#production-and-staging)).
 - **Sessions** are `HttpOnly`, `Secure`, `SameSite=Lax` cookies (account:session-is-secure-cookie). Sign-in routes are rate limited with the limit's store in the database, so the limit holds across isolates (account:sign-in-routes-rate-limited).
 - **Deletion** is requested from Settings and completed by the daily job (account:player-deletes-account, account:deleted-data-removed-within-month and account:deletion-keeps-anonymous-totals). What remains names no one: day totals, a draw's anonymous ticket list, and a one-way hash with the date.
 
@@ -134,7 +134,7 @@ sequenceDiagram
 - **Segments.** A save is a list of segments. Each names the content version and overlay it ran under, and starts from the scenario and seed or from a base state (server:save-is-list-of-segments).
 - **Snapshots.** A full snapshot is written when a segment begins and every `snapshotEvery` versions (20, in `apps/server/src/config.ts`), so a load never replays more than that (server:snapshots-bound-replay).
 - **Replay check.** Every load replays from the latest snapshot and compares the resulting hash with the last row's. On a mismatch, that one account is refused with `diverged`, queued for the rollback tool as an audit entry, and raised on the admin alarm. Every other account carries on.
-- **Content changes.** When the content changes, the next load replays the old segment under its own content, carries the state forward with `upgradeState`, checks it, and opens a new segment (server:newer-content-upgrades-state, server:upgrade-state-is-pure, server:older-contents-bundled and server:overlay-change-opens-segment). The server bundles the current content and every older version a life may still name, each as shipped. Content version 1 is the first, so the list of older versions is empty. Any change to the content's data or the simulation's code raises the version; `pnpm check:version` enforces this (server:content-version-sealed).
+- **Content changes.** When the content changes, the next load replays the old segment under its own content, carries the state forward with `upgradeState`, checks it, and opens a new segment (server:newer-content-upgrades-state, server:upgrade-state-is-pure, server:older-contents-bundled and server:overlay-change-opens-segment). The server bundles the current content and every older version a life may still name, each as shipped. Every lower content version is frozen and listed in `olderContents` (server:older-content-frozen). Any change to the content's data or the simulation's code raises the version; `pnpm check:version` enforces this (server:content-version-sealed).
 
 ::: details The rollback tool
 - `pnpm rollback check <character>` (on the database at `DATABASE_URL_UNPOOLED`) or `pnpm rollback check <character> --memory <save.json>` (a save in a file) replays one account from the base of its first segment and reports the first version whose hash differs.
@@ -182,9 +182,7 @@ The Worker has two crons in production: every five minutes and daily at 00:00 UT
 | Daily, 00:00 UTC | Money report | The day's money made and destroyed by reason, and the alarm on suspect accounts (server:daily-money-report, server:ledger-alarm-lists-suspects) |
 | Daily, 00:00 UTC | Feedback, stand-in | Drops old feedback; turns on the stand-in for a pair's absent player ([people](../../rules/person.md)) |
 
-::: info Staging's slower cron
-Staging ticks every thirty minutes so its database can sleep between runs. Its `TICK_CRON` var names that cron, and `jobCron` in `apps/server/src/scheduled/ticks.ts` passes every five-minute job the five-minute cron when the deployment's own tick cron fires. The jobs run unchanged, only less often; the daily jobs stay at 00:00 UTC (server:production-and-staging).
-:::
+Staging runs the five-minute jobs on its slower `TICK_CRON` instead (server:production-and-staging): `jobCron` in `apps/server/src/scheduled/ticks.ts` passes each of them the five-minute cron when the deployment's own tick cron fires, so the jobs run unchanged, only less often.
 
 ## The database
 
@@ -292,16 +290,10 @@ The suites live in `packages/store/src/contract/`. `packages/db` runs them on PG
 
 ## Migrations
 
-A schema change is one command, and committed migration files are never edited:
+The schema in `packages/db/src/schema/` is the source; a change to it becomes a new migration file in `packages/db/migrations/`, and a committed one is never edited:
 
 ```sh
 pnpm --filter @japacity/db db:generate --name <what-changed>
 ```
 
-- **Generate.** This writes a new SQL file into `packages/db/migrations/` from `src/schema/`. It needs no database.
-- **Apply.** `db:migrate` in the same package applies the migrations to a real branch, reading the branch's direct connection string from `DATABASE_URL_UNPOOLED`. Locally, `pnpm db:migrate:local` applies them to the local stack's Postgres (`LOCAL_DATABASE_URL`, on this machine only).
-- **Deploys** run the migrations before the build and the Worker, so a migration may only add. A column or table is removed only in a later migration, once no deployed Worker reads it (server:migration-before-deploy).
-- **Layout.** The migrations start from one file, `0000_japacity.sql`: every table in full, then the hand-written functions and triggers the generator cannot express (the admin log and the switch log are insert only). Each later file adds one change.
-- **Test.** `packages/db/src/migrations.test.ts` checks the committed migrations against a fresh generate of the schema, catalog against catalog, and checks that the insert-only triggers refuse an update and a delete.
-
-See [from the browser to Postgres](./infrastructure.md) for where the databases are.
+`packages/db/README.md` covers generating, applying (`db:migrate`, and `pnpm db:migrate:local` for the local stack) and the test that holds the migrations to the schema. Every deploy migrates first, so a migration may only add (server:migration-before-deploy); where the databases are is [From the browser to Postgres](./infrastructure.md#postgres-on-neon).

@@ -316,7 +316,7 @@ export const tuning: Tuning = {
       // country's ways in its smallest unit, the step a fare is rounded up to, the month's pass and the ways it covers
       // (place:country-pass-covers-ways, decision 0017), and the pace on foot. London's are 2025 fares, rounded: the hopper bus
       // fare, an off-peak train single by distance, a monthly bus and tram pass. Calgary, Dubai and Castel Volturno's are
-      // docs/design/11-calgary-dubai-and-castel-volturno.md section 4's 2025 figures, rounded: Calgary's one flat fare on the bus and the CTrain and the month's
+      // the 2025 figures in docs/rules/place.md's Numbers (with their sources), rounded: Calgary's one flat fare on the bus and the CTrain and the month's
       // transit pass on both; Dubai's zone fare read as distance on the bus and the metro, the Nol zone pass on both, and a
       // slower walk in the heat; the coast road's bus at one flat fare, and no train, taxi or pass in Castel Volturno.
       abroad: {

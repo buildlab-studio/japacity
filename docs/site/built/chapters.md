@@ -1,11 +1,6 @@
 # Chapters and routes
 
-A life has six chapters, from finding your feet in Lagos to securing a life abroad, and a set of routes, the ways out of the country.
-
-- A **chapter** is a short list of things to get done. When all are done, it closes and the next opens.
-- A **route** is a way out with its own checklist and its own decision at the end.
-- Once a life leans towards one way out, the middle chapters become that route's own file and decision day.
-- **Japacity**, the headline figure, is how much of a route's checklist the life already meets.
+A life has six chapters (`docs/design/03-structure-and-conventions.md` section 1), from finding your feet in Lagos to securing a life abroad, and a set of routes, the ways out of the country. This page shows how the chapters follow a route and how japacity reads one; the rules are on the pages each section links.
 
 ## The six chapters
 
@@ -21,13 +16,7 @@ flowchart LR
   F --> G["the long game:<br/>goals"]
 ```
 
-- A new life opens on the first chapter (chapter:first-chapter-starts-current).
-- In a month's `chapter` phase, if every item of the current chapter is met, it closes, the next opens and the turn bank is refilled. At most one chapter closes in a month (chapter:met-items-close-the-chapter).
-- An item is a requirement, judged against the state as it stands; the view shows each as met or not (chapter:items-are-live-requirements). A done chapter stays done (chapter:done-chapter-stays-done).
-- A chapter may name one `closesOn` item that closes it on its own: decision day closes on the grant, whether or not the held funds lasted.
-- Closing the send-off makes the send-off card (chapter:send-off-card-on-close).
-- After Secure there is no current chapter; the view shows the long game's goals instead (chapter:long-game-after-last-chapter; [Life goals](../../rules/goal.md)).
-- The view's chapter part also says whether the chapter would close at this month's end as things stand, and which chapter comes next (chapter:view-says-closes-and-next).
+A chapter is a short list of items, each a requirement judged against the state as it stands. When every item is met, the chapter closes in the month's `chapter` phase and the next opens, refilling the bank of turns. After Secure the view shows the long game's goals instead ([Life goals](../../rules/goal.md)). The exact rules, including the items that close a chapter on their own, are on [the chapters page](../../rules/chapter.md).
 
 ## The plan and the lean
 
@@ -43,10 +32,7 @@ flowchart TD
   H -->|"no"| M["the UK master's"]
 ```
 
-- A tie in the same month is broken in content's order: health care, talent, points, the Gulf, then the master's.
-- The lean is read again each time a chapter closes (`leanRoute` in `packages/sim/src/chapter/chapter.logic.ts`).
-- **A grant comes before all of this** (chapter:chapters-follow-lean-route). Once any route but the road is granted or flown (a partner's and a dependant's included), the chapters and the plan follow it. A grant finishes the chapters up to decision day, and the flight's turn closes them through the send-off (chapter:met-items-close-the-chapter).
-- **The player can choose.** `chapter/lean` makes a heard-of way the plan, while the character is at home and no visa has been granted (decision 0022).
+A grant comes before all of this: once a route is granted or flown, the chapters and the plan follow it. The player can choose the plan with `chapter/lean` while at home with no visa granted (decision 0022). The tie order, the grant's place and the lean command's limits are in chapter:chapters-follow-lean-route.
 
 The view carries `plan: { route, ways }`: the way the chapters follow, and each way of the player's own effort with the figure its checklist earns now, so the Japa app can say what switching would do.
 
@@ -58,9 +44,9 @@ In "Build the file" a route becomes papers. The base is the UK master's; each va
 flowchart TD
   F["Build the file"] --> L{"the lean"}
   L -->|"the UK master's, the base"| MA["passport held<br/>transcript held<br/>English met by the degree<br/>an offer from a school"]
-  L -->|"UK health care"| CA["24 months as a nurse<br/>the nursing council's verification<br/>a sponsor found<br/>the visa applied for"]
-  L -->|"UK talent"| TA["a portfolio of 3 or more<br/>the endorsement held<br/>the visa applied for"]
-  L -->|"Canada's points"| PO["the credential assessment<br/>English at band 6.0 or better<br/>in the pool<br/>invited to apply"]
+  L -->|"UK health care"| CA["months as a nurse<br/>the nursing council's verification<br/>a sponsor found<br/>the visa applied for"]
+  L -->|"UK talent"| TA["a portfolio<br/>the endorsement held<br/>the visa applied for"]
+  L -->|"Canada's points"| PO["the credential assessment<br/>English at the band asked<br/>in the pool<br/>invited to apply"]
   L -->|"the Gulf contract"| GU["passport held<br/>the medical held<br/>an agent with a contract<br/>the contract made"]
   MA --> D["Decision day for the same way"]
   CA --> D
@@ -69,11 +55,7 @@ flowchart TD
   GU --> D
 ```
 
-Decision day follows the same pattern:
-
-- The master's base asks for the deposit, the funds held for a month, the TB certificate, the application and the grant.
-- Each variant asks for its own route's certificates (a TB certificate, a police certificate), the application and the grant.
-- Each closes on the grant.
+Decision day follows the same pattern: each way asks for its own certificates, the application and the grant, and closes on the grant. Each variant's exact items are in [the chapters page's table of variants](../../rules/chapter.md).
 
 ::: info Why the variants exist
 Without variants, a nurse's chapters would lead to the master's file. The variants give each way of the player's own effort its own file, and the plan lets the player see and change which file they are on.
@@ -123,7 +105,7 @@ The route pages model real rules with figures from public sources, read on the d
 
 ## Japacity
 
-Japacity is how ready the character is to leave, a whole number from 0 to 100. It is worked out from the state on each request and never stored (japacity:figure-derived-each-time; `packages/sim/src/japacity/japacity.logic.ts`).
+Japacity is how ready the character is to leave, worked out from the state on each request and never stored (`packages/sim/src/japacity/japacity.logic.ts`). The rules are on [the japacity page](../../rules/japacity.md):
 
 ```mermaid
 flowchart LR
@@ -136,12 +118,7 @@ flowchart LR
   S --> B["japacity: the best figure<br/>among the routes that count"]
 ```
 
-- A route's figure is the sum of what each checklist item earns (japacity:figure-sums-checklist-items). A route granted or flown is 100 (japacity:granted-route-scores-full).
-- The routes that count are those known with a window not closed, and those applying, granted or departed. With none, japacity is empty and shown as "no route yet" (japacity:best-open-route-is-japacity).
-- A route only heard of has no figure in the view's routes; its figure is in the plan's ways (japacity:heard-routes-have-no-figure).
-- The road has no checklist and no figure (japacity:figure-is-whole-percent).
-
-The month's report carries japacity before and after the month, so the results sheet can show the change.
+The month's report carries japacity before and after the month, so the results sheet can show the change (turn:turn-stores-a-report).
 
 ## Related rules
 

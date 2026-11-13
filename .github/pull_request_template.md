@@ -1,4 +1,4 @@
-<!-- Title: `type: Imperative phrase`, short. For example `feat: Enable sending a new notification upon signup` or `fix: Reject invalid login report`. -->
+<!-- Title: `type: Imperative phrase`, short, as CONTRIBUTING.md ("Pull requests") describes. -->
 
 ## What and why
 
@@ -12,7 +12,7 @@
 
 ## How it was tested
 
-<!-- The tests added or changed, and the checks run: pnpm check and the browser specs you ran. Add a screenshot for a visible change. -->
+<!-- The tests added or changed, and the checks run: the last lines of pnpm check and the browser specs you ran. Add a screenshot for a visible change. -->
 
 -
 
@@ -20,4 +20,4 @@
 
 - [ ] `pnpm check` passes.
 - [ ] Every new behaviour has a test that names its rule.
-- [ ] A contribution from outside the project certifies the DCO here (see CONTRIBUTING.md).
+- [ ] A contribution from outside the project certifies the DCO here (CONTRIBUTING.md, "Pull requests").

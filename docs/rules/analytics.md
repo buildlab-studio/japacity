@@ -1,6 +1,6 @@
 # Analytics
 
-> Rests on `../design/04-where-things-live.md` section 2 (the client sends batched counters, the server receives and checks them, a separate store), `server.md` (the command log and the money report).
+> Rests on `../design/04-where-things-live.md` section 2 (where analytics lives), `server.md` (the command log and the money report).
 > Kind: `analytics`, server and client. The simulation counts nothing.
 
 Analytics answers three questions: are people playing, where do they stop, and is anything broken. It uses counts only, never a record of a person.
@@ -55,7 +55,7 @@ One exception: the front door comes before any account, so its three keys may ar
 
 A test proves the counter route discards every field not in `{ name, key, count }`.
 
-The one third-party script allowed is Cloudflare's Web Analytics beacon: cookieless, loaded only when the build carries its tag, and reporting visits, referrers and countries to Cloudflare and nothing to us. No other third-party script is ever loaded. The privacy notice names it under who else handles the information, in plain words: it counts visits to the game's page, sets no cookie, keeps nothing on the device and builds no profile of anyone.
+The one third-party script allowed is Cloudflare's Web Analytics beacon: cookieless, loaded only when the build carries its site token (`VITE_ANALYTICS_TOKEN`), and reporting visits, referrers and countries to Cloudflare and nothing to us. No other third-party script is ever loaded. The privacy notice names it under who else handles the information, in plain words: it counts visits to the game's page, sets no cookie, keeps nothing on the device and builds no profile of anyone.
 
 ## Rules: the counters and the dashboard
 
@@ -136,9 +136,7 @@ The admin page (moderation:admin-view-for-admin-list) reads it, and its Players,
 
 Every figure is a count or a sum. The "fewer than" of analytics:small-counts-shown-as-fewer applies to each region and to the whole game's sum. A ratio is given only when both its sides are shown, and the sum of top-ups only when their count is shown, so it is never one player's money (analytics:store-holds-nothing-personal). The server works out the ratios for the page and never stores them.
 
-There is no public page of these numbers. The only public figures are three whole-game figures made from these totals, rounded to the nearest ten, shown as the two lights over the start screen (account:two-lights-and-wink-lines). The lights read `lives/playing` as that rule says.
-
-The game's page carries Cloudflare Web Analytics' beacon when the build has a site token (`VITE_ANALYTICS_TOKEN`): the host's own count of page views, with no cookie and nothing on the device. The page's content policy lets in its script and its reports and no other outside host.
+There is no public page of these numbers. The only public figures are the three whole-game counts of the two lights over the start screen, made from these totals (account:two-lights-and-wink-lines).
 
 **analytics:session-split-by-command-gaps** A session is one account's commands sent by its player (never by a stand-in or the authority) with no gap over `SESSION_GAP_MINUTES`, cut at the edges of the UTC day. Its length runs from its first command to its last, so a one-command session is 0 minutes long. It falls in the band with the largest start at or under its length.
 

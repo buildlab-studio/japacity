@@ -3,15 +3,9 @@
 > Numbers are working values.
 > Kind: `turn`. One per character. Background: `../design/01-concept.md` section 9.
 
-A turn is one month of the character's life. The month is lived (decision 0011): now-acts spend its free time, and the month turns when the player sleeps (world:sleep-ends-the-month). The sleep rests whatever free time is left.
+A turn is one month of the character's life. The month is lived (decision 0011): now-acts (`docs/design/03-structure-and-conventions.md` section 1) spend its free time, and the month turns when the player sleeps (world:sleep-ends-the-month), resting whatever free time is left.
 
-The life also keeps a bank of turns:
-
-- Real time fills it, one turn every two real hours, up to 24.
-- A closed chapter fills it at once.
-- Each month lived takes one turn from it while it holds any.
-
-The bank never holds a month back (turn:month-turns-on-empty-bank). It exists for the player who is away: when it fills, the server sends the one bank-full notice (clock:full-bank-push-notification). No screen shows it (clock:no-month-countdown-shown).
+The life also keeps a bank of turns, filled on real time and by a closed chapter and spent one a month. It never holds a month back (turn:month-turns-on-empty-bank). It exists for the player who is away: when it fills, the server sends the one bank-full notice (clock:full-bank-push-notification). No screen shows it (clock:no-month-countdown-shown).
 
 ## Rules
 
@@ -66,14 +60,14 @@ The bank never holds a month back (turn:month-turns-on-empty-bank). It exists fo
 
 ## Outside the simulation
 
-The authority decides when to grant turns: one every two real hours.
+The authority grants turns on real time, at the rate in the Numbers table.
 
-- **Online**, the server's turn clock grants them (`clock.md`): turns are earned from `refilledAt` (clock:turns-earned-from-refill-time), the grant is stepped before any command (clock:earned-turns-granted-first), nothing is earned while the bank is full (clock:full-bank-earns-nothing), no countdown is shown (clock:no-month-countdown-shown), refills come on top of the clock (clock:bonus-grants-keep-refill-time), and production has no fast clock (clock:production-has-no-fast-clock).
+- **Online**, the server's turn clock grants them, by the rules of [the clock page](./clock.md#rules-the-bank-of-turns-on-real-time).
 - **The local authority** (`apps/client/src/authority/local.ts`) earns turns the same way. In development it runs a fast clock (`fastClock`, set by `apps/client/src/authority/clock.ts`) that refills an empty bank at once. A production build never runs it.
 
 ## Effects and requirements this kind handles
 
-The part before the slash names the kind that carries an effect out or judges a requirement (`engine.md` section 5). The types are in `packages/sim/src/engine/types.ts`.
+Which kind carries out an effect or judges a requirement: [engine.md section 5](engine.md#_5-kinds).
 
 | Type | | What it does |
 |---|---|---|

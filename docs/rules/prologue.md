@@ -89,7 +89,7 @@ The age picked is the age the life starts at, to the year (decision 0023):
 | 9 `service` | "Call-up letter. Your posting is not Lagos." | `serve`: standing +8, network +8, wellbeing +4, cash ₦500,000 (twelve months of ₦77,000 less living). `redeploy`: network +15, cash ₦300,000, standing +2 (needs family means 40 or more: someone knows someone). `skip`: no certificate (flag `no-nysc`, standing -10; the public jobs need it), 12 months of work instead: cash ₦700,000 | | 12 |
 | 10 `friend` | "Terna's send-off. Everybody is talking about where they are going." | `uk`: hear `route.uk-masters`. `canada`: hear `route.canada-points`. `tech`: hear `route.uk-talent` (needs tech 40). `care`: hear `route.uk-care` (needs care 30). `drivers`: hear `route.gulf-contract`, "they talk of Dubai". `nowhere`: standing +2, wellbeing +3 | `route/hear`, `via: "friend"`, no chance | 1 |
 | 10a `work` | never a card | one answer for each year worked (the year picked less the year the path ended): `first-year` ₦120,000 saved (`gig`), `second-year` the same and the passport held, `later-year` the same again | 12 months each, then `home` | 12 |
-| 11 `home` | "You are on your own feet now. Where do you sleep?" | `family-house`: upkeep ₦95,000, standing +3. `compound-room` (needs the year's rent, the fees and a month of the room's living costs held): the year and the fees taken under `rent`, `obligation.rent-compound` and `obligation.upkeep-compound` opened, and the life moves to `place.compound-room` as an opening, not a move (prologue:front-door-three-screens, home:compound-room-is-a-home). `hostel-room`: takes nothing on the move, opens `obligation.upkeep-hostel`, the first month charged at the month's end, and the life moves to `place.hostel-room`. `makoko`: `obligation.upkeep-makoko` at `tuning.home.makokoUpkeep` (₦25,000), and the life moves to `place.makoko` as an opening, not a move (prologue:makoko-start-never-a-trap, home:move-home-once-a-month) | Closes the prologue. The home preset is the one chosen on the door (prologue:front-door-three-screens); the four homes are the home slice's places (home:home-slice-fields) | 0 |
+| 11 `home` | "You are on your own feet now. Where do you sleep?" | `family-house`: upkeep ₦95,000, standing +3. `compound-room` (needs the year's rent, the fees and a month of the room's living costs held): the year and the fees taken under `rent`, `obligation.rent-compound` and `obligation.upkeep-compound` opened, and the life moves to `place.compound-room` as an opening, not a move (prologue:front-door-three-screens, home:compound-room-is-a-home). `hostel-room`: takes nothing on the move, opens `obligation.upkeep-hostel`, the first month charged at the month's end, and the life moves to `place.hostel-room`. `makoko`: `obligation.upkeep-makoko` at `tuning.home.makokoUpkeep`, and the life moves to `place.makoko` as an opening, not a move (prologue:makoko-start-never-a-trap, home:move-home-once-a-month) | Closes the prologue. The home preset is the one chosen on the door (prologue:front-door-three-screens); the four homes are the home slice's places (home:home-slice-fields) | 0 |
 
 ### The apprenticeship branch
 
@@ -123,10 +123,10 @@ The name box:
 
 The rest of what the door builds:
 
-- The fixed lives are the ready lives, each named by its kind and never by its person. They sit behind Settings (prologue:front-door-three-screens) and serve as test fixtures.
+- The fixed lives are the ready lives, each named by its kind and never by its person. Where they sit is in prologue:front-door-three-screens.
 - The figure is a sticker of the shipped look, shot by the shooter as a face, as a whole figure with a hand on the hip, and as a cheer (assets:contributor-renders-fixed-views).
-- Once Begin has started the life, every answer is printed onto a travel data page with the look as the photo (prologue:front-door-three-screens, prologue:printed-page-hands-over), stamping nothing. On a desktop the page stands beside the figure from the first screen and fills in as the answers are given; a row not given yet shows as the row's dots. An empty name box shows the name row's dots, never the suggestion.
-- The age is set in steps, from the tile's own year up to three years older, within 18 to 29 and never past 29 (decision 0023: the age picked is the age the life starts at). It is never typed. An older start has a little more saved and more papers in order; a younger one has more years before young-favouring routes close. The page shows what a step does.
+- Every answer is printed onto a travel data page with the look as the photo (prologue:printed-page-hands-over). An empty name box shows the name row's dots, never the suggestion.
+- The age is set in steps, from the tile's own year up to three years older, within 18 to 29 and never past 29 (prologue:age-advances-with-steps). It is never typed. An older start has a little more saved and more papers in order; a younger one has more years before young-favouring routes close. The page shows what a step does.
 - The real date of birth asked at the door is only the terms' age check. It is separate from the character and kept to the minimum.
 - The person built is kept on the device beside the save (`japacity.person`). A kept look that is not among the shipped looks is dropped on its own: the name, the archetype, the colours and the photo stay, and every screen shows the look it would show with no person kept.
 
@@ -147,7 +147,7 @@ The door's screens, the name box with its dice, and where the ready lives are fo
 
 ### Archetypes, the Makoko start and the handover
 
-**prologue:archetype-presets-answers** An archetype is a preset of the prologue's answers, held by the client, never by the simulation. For each step it names the answer to send, and it presets every step, including the exam's way (study), the strike (wait), the send-off (the tile's crowd, as the archetypes table names it) and where to sleep (the home chosen on the door, prologue:front-door-three-screens: the family house, or Makoko for the child of the water).
+**prologue:archetype-presets-answers** An archetype is a preset of the prologue's answers, held by the client, never by the simulation. For each step it names the answer to send, and it presets every step, including the exam's way (study), a retake (again), the strike (wait), the send-off (the tile's crowd, as the archetypes table names it) and where to sleep (the home chosen on the door, prologue:front-door-three-screens: the family house, or Makoko for the child of the water).
 
 - Offline, the client sends `prologue/choose` for each step in turn, at once, with the preset's answer while it is `allowed`. Where a draw has shut it, the open answer that suits the archetype goes instead.
 - Online, Begin sends the preset as one request and the server plays every step in one transaction (server:server-plays-prologue-preset). The answer at each step comes from content's `presetAnswer`, the same function the client plays offline. The page fills from the reply's trail, its chips coming in one after another over about two seconds, so the years still read as years.
@@ -174,8 +174,8 @@ So it reads as a hard start with momentum, never a punishment. Its page's chips 
 
 **prologue:printed-page-hands-over** The page is the handover.
 
-- On a desktop, the page stands on the door's stage from the first screen (prologue:front-door-three-screens), unprinted. Each field fills as its answer is given: the photo and the name on Who are you?; the age, the path and what it was on Your life so far; the strip's district on Where you live. A row whose step is not reached yet, and FROM, FAMILY and READY (which the years and the life give), wait as the row's dots. Nothing drops in as printed and nothing is stamped on the stage.
-- At Begin on a desktop, nothing on the stage is drawn again: the figure and the page stay where they stand, and the page fills through the years from the life as played (the age, the path and what it was as lived; FROM and FAMILY as the family's card turns over; READY). The panel takes the years: online, the wait ("Drawing your family" with the running bar) in its body; then the heading and its line as below, where the life starts and when rent is due, the family's card, the years' chips coming in one after another, the story's own chips, the money and japacity, and where this life can lead, with the first step and Go in its foot. Enter is Go. At the handover the page prints in place on the stage: its fields drop in one after another, the life's thing is slapped on it, and the figure cheers. It takes no stamp.
+- On a desktop, the page stands on the door's stage from the first screen (prologue:front-door-three-screens), unprinted. Each field fills as its answer is given: the photo and the name on Who are you?; the age, the path and what it was on Your life so far; the strip's district on Where you live. A row whose step is not reached yet, and FROM, FAMILY and READY (which the years and the life give), wait as the row's dots. Nothing drops in as printed.
+- At Begin on a desktop, nothing on the stage is drawn again: the figure and the page stay where they stand, and the page fills through the years from the life as played (the age, the path and what it was as lived; FROM and FAMILY as the family's card turns over; READY). The panel takes the years: online, the wait ("Drawing your family" with the running bar) in its body; then the heading and its line as below, where the life starts and when rent is due, the family's card, the years' chips coming in one after another, the story's own chips, the money and japacity, and where this life can lead, with the first step and Go in its foot. Enter is Go. At the handover the page prints in place on the stage: its fields drop in one after another, the life's thing is slapped on it, and the figure cheers.
 - On a phone, Begin runs the presets while the page stands on the door's sky under "Your page, printed" and "Over to you, {name}.", and then the page fills.
 
 What the handover shows:
@@ -187,7 +187,7 @@ What the handover shows:
 - The figure cheering on a sticker, beside a card with the home's picture over the story's own home chip, which carries where the life starts and when rent is due.
 - The money and japacity as they stand, and the first step.
 
-No stamp lands at Begin: the page fills and the family card turns over, then Go. The world opens when Go, or the page, is tapped; the page never closes on a timer. Where the authority cannot start a life over, the page reads the life as lived (`sixteenPath`), never the tile. A mark differs in shape and colour, never in colour alone, and carries its word. Online, while the preset's answer is out (server:server-plays-prologue-preset), the page is the splash's wait inside the page's own frame: "Drawing your family" with the running bar where the opening's words stand (engine:browser-authority-for-dev-only). The family and the chips fill when the years come. Offline nothing waits.
+Nothing is stamped on the page at the door or at Begin: the page fills and the family card turns over, then Go. The world opens when Go, or the page, is tapped; the page never closes on a timer. Where the authority cannot start a life over, the page reads the life as lived (prologue:tile-path-open-from-start). A mark differs in shape and colour, never in colour alone, and carries its word. Online, while the preset's answer is out (server:server-plays-prologue-preset), the page is the splash's wait inside the page's own frame: "Drawing your family" with the running bar where the opening's words stand (engine:browser-authority-for-dev-only). The family and the chips fill when the years come. Offline nothing waits.
 
 **prologue:player-colours-on-looks** Your colours on the game's own looks. On the first screen, under the look strip, "Make it yours" opens on a tap: a skin tone, a hair colour and a top colour from small swatches, and on a look with a printed top, the fabric (plain, ankara, adire, aso-oke). Each starts as the look was made, with "Back to as made".
 
@@ -249,7 +249,7 @@ The money on Where you live:
 - The hostel's reads "Then ₦15,000 a month · no year's rent".
 - The family house's gives the month's measure as your share, bought as you go, since nothing is charged there (home:living-by-hand).
 - Where the move-in and a month of living cannot be paid, the shortfall shows over "short" (for the room, the figure still needed over "needed"), and the home is shut with a lock. The room opens only when what is left after the rent and fees still covers a month of living in it (`tuning.home.compound.upkeep`).
-- The self-contain is always shown, locked, as the goal, with its figure (`tuning.home.selfContainRentYear`, ₦700,000, plus the same fees) and no action. For a tile whose savings at the age picked already cover it, the row says "reached" beside the lock and stays, never changing or leaving.
+- The self-contain is always shown, locked, as the goal, with its figure (`tuning.home.selfContainRentYear` plus the same fees) and no action. For a tile whose savings at the age picked already cover it, the row says "reached" beside the lock and stays, never changing or leaving.
 - When the tile or the age changes, a home the player picked is kept while it can be paid; otherwise the tile's own; otherwise the first that can be. A tile's preset picks the home, and a life with no choice starts at the family house.
 
 *After Begin, and the ready lives*:
@@ -271,7 +271,7 @@ The money on Where you live:
 
 ## The archetypes
 
-Every archetype also answers the steps every life passes the same way: the exam with study, a retake with again, the strike with wait, and the home with the one chosen on the door (prologue:archetype-presets-answers, prologue:front-door-three-screens; the family house unless the tile's own is Makoko).
+The steps every archetype answers the same way (the exam, a retake, the strike, the home) are in prologue:archetype-presets-answers.
 
 | Archetype | Preset answers | Open cards | Opens |
 |---|---|---|---|
@@ -281,7 +281,7 @@ Every archetype also answers the steps every life passes the same way: the exam 
 | The writer | arts, jamb, mass-comm, content, focus, serve, friend uk | none | The UK master's, Canada's points |
 | The trader | after-school apprentice, master spare-parts, years stay, friend drivers (the Gulf heard at the send-off) | none | The Gulf contract, the road through the desert; the settlement as a master's capital. His first step is asking around at the motor park: the Gulf heard from the drivers at the send-off is looked into there and the agent's pitch follows (chapter:chapters-follow-lean-route's reading, decision 0001); the road's pitch finds him there too |
 | The shop worker | after-school work, shop save, friend drivers | none | The Gulf contract, the road through the desert; the first step as the trader's |
-| The child of the water | commercial, after-school work, shop save, friend drivers, home makoko (prologue:makoko-start-never-a-trap) | none | The Gulf contract, the road through the desert; the first step as the trader's. Grew up in Makoko and starts in its room at ₦25,000 a month, so more of the pay stays; the shell opens on the water (home:home-is-the-home-point) |
+| The child of the water | commercial, after-school work, shop save, friend drivers, home makoko (prologue:makoko-start-never-a-trap) | none | The Gulf contract, the road through the desert; the first step as the trader's. Grew up in Makoko and starts in its room at Makoko's low rent (`home.md`), so more of the pay stays; the shell opens on the water (home:home-is-the-home-point) |
 
 ## Numbers
 

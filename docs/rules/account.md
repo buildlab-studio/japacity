@@ -243,7 +243,7 @@ Each of these is refused for a guest with the code `guest-only` and a detail tha
 **account:idle-guests-cleaned-by-hand** Guest lives are never removed by a schedule. Each life keeps its last-played time.
 
 - A tool run by hand, `pnpm guests:clean --idle-days <n>`, lists guest accounts with no play for the given days and, with `--apply`, removes them, through the same removal as deletion (account:deleted-data-removed-within-month). 90 days is the working number, one setting, `account.guestIdleDays`.
-- A short page in the repository says what it does.
+- `apps/server/README.md` says what it does and how to run it.
 - Secured accounts are never removed by it.
 - The privacy notice says it as it is: a guest life not played for 90 days may be removed, by hand from time to time and never on a schedule, so one may stay longer.
 
@@ -286,7 +286,7 @@ Each of these is refused for a guest with the code `guest-only` and a detail tha
 **Play's path.**
 
 - The second line "Free · no sign-up" holds because of this rule, account:age-screen-refuses-minors and account:guest-and-secured-states: nothing is signed up for to start, the only question is the date of birth, and the guest is made unseen at Begin.
-- Play leads to the age screen as account:age-screen-refuses-minors says (three fields, nothing filled, no hint of the age; under 18 refused and remembered), then to the three-screen door (prologue:front-door-three-screens).
+- Play leads to the age screen of account:age-screen-refuses-minors (a date of birth in three fields), then to the three-screen door (prologue:front-door-three-screens).
 - The bot check runs unseen when Begin creates the guest life (account:bot-check-on-guest-creation).
 - The username is typed on the page, with its rules (account:username-and-unconfirmed-email, account:username-typed-and-checked), never on a screen of its own.
 - The guest line is said once on the page, in the words of account:guest-reminded-to-secure.
@@ -368,7 +368,7 @@ Each of these is refused for a guest with the code `guest-only` and a detail tha
 
 ## Rules: who may sign up
 
-**account:same-contact-for-everyone** Every account has the same contact with other players, wherever it signed up: preset phrases and pair records only between accounts connected by an invite, with block and report (region:same-contact-everywhere). There is no table of regions and no setting per country.
+**account:same-contact-for-everyone** Every account has the same contact with other players, wherever it signed up, as region:same-contact-everywhere sets it. There is no table of regions and no setting per country.
 
 **account:country-comes-from-cloudflare** A request's country is the one Cloudflare gives it (`request.cf.country`, the same as the `CF-IPCountry` header). The country at sign-up is stored on the account as given, `XX` when Cloudflare gives none (`T1` is Tor). It is used to count play by country (`analytics.md`) and to choose the advert region (advert:campaign-chosen-without-player-data). It decides nothing a player may do.
 

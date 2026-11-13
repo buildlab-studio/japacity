@@ -88,60 +88,17 @@ The player never sees the state, only the view: what one player may know. The se
 
 ## Rule pages and tests
 
-`docs/rules/` holds one page per kind of thing in the game: turns, money, routes, the city, the server. Each rule has a name such as `turn:month-turns-on-empty-bank` (the page, then a short slug of what the rule holds), and at least one test must cite each name. The site shows these pages unchanged under [The rules](../../rules/engine.md) and never copies their text.
-
-```mermaid
-flowchart LR
-  R["A rule on a page<br/>turn:month-turns-on-empty-bank"] --> T["A test whose title<br/>starts with the name"]
-  T --> C["pnpm check:rules"]
-  R --> C
-  C -->|"every name tested,<br/>every cited name defined"| OK["passes"]
-  C -->|"a name with no test,<br/>or a test citing no rule"| F["fails"]
-```
-
-The workflow:
-
-1. A new behaviour starts as a named rule on its kind's page. Only the maintainer adds rules.
-2. A test beside the code cites it in its title: `test("[turn:month-turns-on-empty-bank] given no turn banked, when the turn is ended, then the month turns, as the bank gates nothing (decision 0011)", ...)`.
-3. `pnpm check:rules` (`tools/check/rules.ts`) reads every rule definition under `docs/rules/` and every `[page:slug]` tag in every test file. It fails when a rule is defined twice, when a rule's name says another page, when a test cites a name no page defines, or when a rule has no test.
-4. A rule that is written but not yet built is listed in `tools/rules-pending.json`. The check allows those, and fails when one of them gains a test and is still listed. The list is rewritten only with `pnpm check:rules --write-pending`, never by hand.
+`docs/rules/` holds one page per kind of thing in the game: turns, money, routes, the city, the server. Each rule has a name such as `turn:month-turns-on-empty-bank` (the page, then a short slug of what the rule holds), and at least one test cites each name in its title. The site shows these pages unchanged under [The rules](../../rules/engine.md) and never copies their text.
 
 ::: tip Why
 A rule with no test has not been built. With the name in the test title, a failing test names the rule it guards, and the rule pages read as the game's specification with the tests as proof.
 :::
 
-When a rule page and a test disagree, neither is picked silently: the change stops and is reported. Changes to determinism, to the reasons money moves, or to the command and view types also need a short record in `docs/decisions/`.
+How a rule gets its test, and what `pnpm check:rules` fails, are in [Rules and tests](./working.md#rules-and-tests).
 
 ## The check
 
-`pnpm check` (`tools/check/all.ts`) is the command to run before a change is called done. It runs ten steps in order, stops at the first failure, and ends with one line: `CHECK PASSED` or `CHECK FAILED at step: <name>`.
-
-```mermaid
-flowchart LR
-  T["check:types"] --> A["typecheck"] --> B["lint"] --> C["test"] --> P["test:play"] --> D["check:rules"] --> V["check:version"] --> E["check:assets"] --> S["check:size"] --> F["check:scrub"] --> G["CHECK PASSED"]
-```
-
-| Step | Runs | Holds |
-|---|---|---|
-| `check:types` | `wrangler types --check` for the server | The Worker's generated type file (`worker-configuration.d.ts`) is not stale, so the typecheck that reads it is not misled |
-| `typecheck` | `tsc` on the root files, then every package's own typecheck | The types line up across the workspace, under strict settings |
-| `lint` | ESLint, zero warnings allowed | The simulation's purity rules (no clock, no `Math.random`, no division outside `engine/int.ts`, no decimal literals, imports of `zod` only), content's whole-number rule, and no focused or skipped test |
-| `test` | Vitest, every project but `play` | The rule tests, the golden replays, the property tests, the client's component tests and the server's Worker tests |
-| `test:play` | Vitest's `play` project | Simulated play: the economy meets its targets in whole lives played month by month, and random lives keep the invariants (scenario:economy-meets-its-targets) |
-| `check:rules` | `tools/check/rules.ts` | Every rule has a test and every cited name exists |
-| `check:version` | `tools/check/version.ts` | The content version moved with any change to the content's data or the simulation's code: the fingerprint in `packages/content/src/seal.json` still matches, or the version was raised and sealed (server:content-version-sealed) |
-| `check:assets` | `tools/assets/assets-check.ts` | The city's models: file names, sizes, the palette, footprints, and a render of each staged place in Playwright's Chromium |
-| `check:size` | `tools/check/size.ts` | A production build of the client, whose first visit stays inside each part's gzipped budget in `tools/check/size-budget.json`, with none of the admin page's code in it (engine:first-download-has-budget) |
-| `check:scrub` | `tools/check/scrub.ts` | In every file git would publish: legal and regulatory wording only on the two pages players read (the terms and the privacy notice), each value that belongs to one deployment only in the files allowed to hold it, and no leftover process tag (a review code, a branch name, a comment tag) |
-
-The browser tests (`pnpm test:browser`) are not part of the check. Neither is `pnpm docs:build`, which builds this site.
-
-::: details Other guards
-- Git hooks kept outside the repository check every commit. A refused commit is fixed, never forced.
-- CI (`.github/workflows/check.yml`) runs in two tiers (decision 0040). Each push to a pull request runs the quick tier: generated types, typecheck, lint, content version, size, dependency audit, `pnpm check:protected`, the secret scan, and only the unit tests the change can reach. The merge queue, every push to `main` and a manual run take the full tier: every unit test and simulated play. A pull request merges only through the queue. See [Working on it](./working.md#the-check).
-- `pnpm check:protected` fails a pull request that takes away a test, an assertion or a golden file, or grows the pending rules list, unless it carries the `approved-test-change` label.
-- Golden files change only through `pnpm bless`. See [The simulation](./simulation.md#goldens-recorded-lives-and-simulated-play).
-:::
+`pnpm check` (`tools/check/all.ts`) is the command to run before a change is called done: ten steps, from the generated types to the scrub check, ending in `CHECK PASSED` or the step that failed. CI runs most of them in two tiers, and other guards (git hooks, the protected-tests check, `pnpm bless` as the only way goldens change) stand beside it. Each step, each tier and each guard is in [Working on it](./working.md#the-check).
 
 ## Other pages
 
@@ -154,5 +111,5 @@ The browser tests (`pnpm test:browser`) are not part of the check. Neither is `p
 | [The client](./client.md) | The React client, the authority modes, the city and the phone |
 | [The server and the data](./server.md) | The Worker, sign-in, the command log, the place rooms, the crons and the schema |
 | [From the browser to Postgres](./infrastructure.md) | Every piece a request passes through, the two environments and the deploy |
-| [Working on it](./working.md) | Running it, the hooks, worktrees, the play driver and short recipes |
+| [Working on it](./working.md) | Running it, every command, the check and CI, how work lands, the play driver, short recipes, and where each fact lives |
 | [How it plays](../plays/index.md) | The game feature by feature, with pictures |

@@ -37,6 +37,8 @@ In `apps/client/public/`:
 | Danfo yellow | #f2b705 | The disc on a dark ground; the warm bulb |
 | Cool | #cfe9ff | The cool bulb |
 
+Navy, chalk and danfo yellow are the interface's own colours, the role tokens `--strong`, `--sheet` and `--action` in `src/index.css`.
+
 ## Clear space and size
 
 - Keep clear space of at least a quarter of the seal's height on every side. Nothing else stands inside it.

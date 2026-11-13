@@ -1,5 +1,7 @@
 # How it plays
 
+These pages explain, in words and pictures, what a player sees and does in Japacity. The exact rules and numbers live in the [rule pages](../../rules/engine.md); each page here ends with the rules it rests on.
+
 Japacity is a life in Lagos, played a month at a time on a phone. You make a person at the front door, start them in a home with a little money, and spend each month on work, study, people and errands across the city. Nobody picks a way out at the start: routes abroad become known as the life comes to fit them, and your japacity is how ready you are for the best of them. Leaving is the main journey, and the life goes on after it, abroad and, if you choose, back home.
 
 <img src="/pictures/dev-06-the-world.webp" alt="The family house seen whole from above early in a life: the band with the name, the part of the day, the age and the money, a line from the brother over the house, and the round Map and Phone buttons with Go places and Chats, bank, news between them" width="260">
@@ -23,13 +25,11 @@ flowchart TD
   file -.-> road
 ```
 
-::: info Chapters differ by route
-Build the file and Decision day each have a version for the route you are on, so the checklist fits talent, points, health care or the Gulf. See [Chapters and routes](../built/chapters.md) and the [chapter rules](../../rules/chapter.md).
-:::
+Build the file and Decision day each have a version for the route the life is on. See [Chapters and routes](../built/chapters.md) and the [chapter rules](../../rules/chapter.md).
 
 ## One month
 
-Every month runs the same way: live it by hand at home and across the city, answer what you are asked, then sleep on the bed to end it and read what happened.
+Every month runs the same way: live it by hand at home and across the city, answer what you are asked, then sleep on the bed to end it and read what happened. See [the month and the Calendar](./month.md).
 
 ```mermaid
 flowchart TD
@@ -44,14 +44,14 @@ flowchart TD
 | Part of the game | Page |
 |---|---|
 | Making a person, the page, Begin | [The front door](./front-door.md) |
-| The first brief, the nudge and the first sure job hunt | [The first months](./first-months.md) |
+| The first brief, the nudge and the first job hunt | [The first months](./first-months.md) |
 | Starting from a finished life of a given kind | [The ready lives](./ready-lives.md) |
-| Walking Lagos: places, things, the fan of acts, the words over heads, the map | [The city and the places](./city.md) |
+| Walking Lagos: places, things and their acts, talk, the map | [The city and the places](./city.md) |
 | The family house, a room in a compound, the hostel, Makoko | [The home](./home.md) |
 | Living the month, Sleep, the results, the Calendar | [The month and the Calendar](./month.md) |
-| Cash, the bank, the float, Bills | [Money](./money.md) |
+| Cash, the bank, changing money, Bills | [Money](./money.md) |
 | The phone and each app | [The phone](./phone.md) |
-| Family, the circle, asks, pairs and invites | [People](./people.md) |
+| Family, asks, partners and invites | [People](./people.md) |
 | The weekly draw | [The Friday draw](./friday-draw.md) |
 | The Papers app, the passport office, the file chapter | [Papers and the file chapter](./papers.md) |
 | Official pages, advisers, points, the visa, decision day | [Routes and japacity](./routes.md) |
@@ -63,7 +63,3 @@ flowchart TD
 | Guest play, sign-in, invite links | [Accounts](./accounts.md) |
 | Block, report and the pages players read | [Moderation and the legal pages](./moderation.md) |
 | Every source the game cites, built at each build | [Every source](./sources.md) |
-
-::: tip The rule pages
-Every feature rests on rule pages with named rules, such as [the turn rules](../../rules/turn.md) or [the home rules](../../rules/home.md). Each page here ends with the rules it rests on. The rule pages are the source of truth; these pages explain them with pictures.
-:::

@@ -3,7 +3,7 @@
 > The prologue is a set piece (`prologue.md`), not a chapter.
 > Kind: `chapter`. One current at a time. Background: `../design/01-concept.md` section 10.
 
-A chapter is a short checklist that teaches one part of the game. Closing it fills the bank of turns (turn:refill-fills-the-bank). The bank never holds a month back (turn:month-turns-on-empty-bank); its one use is the bank-full notice (clock:full-bank-push-notification).
+This page covers the chapters: short checklists that each teach one part of the game. Closing one fills the bank of turns (turn:refill-fills-the-bank).
 
 ## Rules
 
@@ -15,7 +15,7 @@ A chapter is a short checklist that teaches one part of the game. Closing it fil
 - **The departure turn.** The chapter phase also runs on the turn the character departs, so chapter 4 can close and the send-off card be made (chapter:send-off-card-on-close).
 - **A grant closes the chapters up to decision day.** Once a route with a country is `granted` or `departed` (every route but the road; a partner's and a dependant's count), the current chapter is finished whenever its base comes at or before decision day by order, whatever its items say. The skilled worker's route has no variant of its own, and the base's items name the master's.
 - **The flight.** On a turn such a route is `departed`, the chapters close in order up to and including the send-off in that same turn, each as its own close with its own refill. So the send-off card shows from the flight (chapter:send-off-card-on-close) even when the life flew from an earlier chapter.
-- **Closes on a grant can reopen.** A close made by the grant, not by the items, rests on that grant. A grant withdrawn before the flight reopens it (chapter:done-chapter-stays-done).
+- **Closes on a grant can reopen** (chapter:done-chapter-stays-done).
 
 **chapter:done-chapter-stays-done** A done chapter stays done, whatever happens to its items afterwards, with one exception: a chapter closed on a grant that is withdrawn before the flight is reopened.
 
@@ -51,7 +51,7 @@ A refusal leaves chapter 3 open. Its items come undone and can be met again: reg
 **chapter:send-off-card-on-close** Closing `chapter.send-off` produces the send-off card.
 
 - **What it holds.** The view's `card` carries the route, the japacity figure, the months played, the standing, and the three lines the player chose most: the activities with the most months in `activity.played` (activity:months-played-counted), counted up to the month the chapter closes.
-- **How it is shown.** The interface renders it as an image sized for WhatsApp. The card is data in the view and is never stored in the state.
+- **How it is shown.** The client draws it as any share card (share:card-drawn-on-device). The card is data in the view and is never stored in the state.
 - **When.** It shows from the flight until the first month abroad ends, so its standing and its lines are the flight month's.
 - **One card per report.** A chapter that closes in the same report as the send-off (the flight's turn, chapter:met-items-close-the-chapter) has no chapter card of its own; the send-off card is that report's.
 - **Not the flight screen.** The flight shows the send-off scene (chapter:send-off-scene-in-beats). The card is offered as the keepsake of share:send-off-card-kept.
@@ -115,9 +115,9 @@ Japa shows the chapter ahead from these and keeps no copy of the order or the le
 **chapter:send-off-scene-in-beats** The send-off is a scene: six beats, seen once per life, from the airport's gate to the first ride abroad. Each beat is one screen with one yellow button and nothing else to decide.
 
 1. **Departures.** The airport place dressed as the hall: the counters, the board, two people ahead in the queue, the family behind the rope. As the hall opens, Mama says the first of the airport's own overheard lines (place.md, `place.airport-lagos.overheard.*`). The button "Step forward" is tapped three times. Each tap moves the queue one place and brings one line in a bubble over the speaker's head: the cousin's (line 2), Papa's (line 4) and the character's own (line 5). Line 3 is nobody's and is not said. After the third tap the counter comes by itself. The scene adds one line to the airport's: Papa's at the gate, `place.airport-lagos.overheard.6` with its `.by` (city:place-words-are-text-keys).
-2. **The counter.** The passport and the boarding stub (the stub of share:card-drawn-on-device, landscape) slide across as stickers. The flight chip shows what was paid (the flight's figure of route:departure-pays-flight, or "Paid by the employer"). The counter asks "Window or aisle?" as two chips that change nothing but the seat words. The stub carries no seat letter: the choice is kept in words, "By the window" or "On the aisle" (share:send-off-card-kept). The stub sticker is the share stub's own words (The send-off, Lagos to the city, the first name, the seat words), never a boarding pass, a gate or a seat code (share:card-never-looks-official). The button is "Take the stub".
+2. **The counter.** The passport and the boarding stub (the stub of share:card-drawn-on-device, landscape) slide across as stickers. The flight chip shows what was paid (the flight's figure of route:departure-pays-flight, or "Paid by the employer"). The counter asks "Window or aisle?" as two chips that change nothing but the seat words on the stub (share:send-off-card-kept). The stub sticker is the share stub's own words (The send-off, Lagos to the city, the first name, the seat words), never a boarding pass, a gate or a seat code (share:card-never-looks-official). The button is "Take the stub".
 3. **The gate.** The character at the gate's door with the plane in the window, the family waving behind (the cheer pose turned to a wave), Papa's line. The button "Board the plane" is the one act that sends `route/depart`: the flight is paid here and the chapter closes here (chapter:send-off-card-on-close, route:departure-pays-flight). So beats 1 and 2 change nothing in the life, and leaving the scene before this beat leaves the life at the airport. A small "Not yet" button, or Escape, leaves beats 1 to 3 with nothing sent, and the act opens the scene again from its start.
-4. **The plane.** A cut of about three seconds (world:plane-cut-at-send-off): the night map, the plane lifting off Lagos along a dashed line toward the route's city, the city's name arriving on a sticker. Under reduced motion, a still with the name.
+4. **The plane.** The cut of world:plane-cut-at-send-off.
 5. **Out into the place.** The landing is the route's first neighbourhood: the country's hub place in content (`place.peckham` for the UK, `place.calgary-north-east` for Canada, `place.deira` for the UAE, `place.castel-volturno` for Italy), at dusk, with that place's weather chip, the bag on the ground, someone at the stop saying the place's first overheard line (Peckham's "You just land? Welcome. It gets colder." is in content), and the country's staple pulling in.
    - The button is the staple's first ride, in words alone, with no fare and no figure: London, the red double-decker with the hub's name on its blind, "Get on the bus"; Calgary, snow, breath clouds, a pickup and the long flat road, the chip at minus twenty, "Get in the truck"; Dubai, the heat shimmer and the game's cream taxi, "Get in the taxi"; Castel Volturno, the bus along the Domitiana, "Get on the bus".
    - The person at the stop is each city's own look from the published cast, of the sex the stop's label names (an aunty in London, a neighbour in Calgary, a man at the corner in Dubai, a brother at Castel Volturno; `STOP_PEOPLE` in `apps/client/src/features/city/sendoff/plan.ts`). Never one person for all, and never the character's own look.
@@ -131,7 +131,7 @@ Japa shows the chapter ahead from these and keeps no copy of the order or the le
 
 **Client only.** Beats 4 to 6 run on the client over the view after the reply. The simulation knows nothing of them, and a life reopened after beat 3 opens in the room abroad with no scene.
 
-**Motion.** Every beat's motion is transform and opacity under half a second (world:motions-under-half-second), and still under reduced motion. The plane's lift of about three seconds (world:plane-cut-at-send-off) is the one longer motion.
+**Motion.** Every beat's motion is transform and opacity under half a second (world:motions-under-half-second), and still under reduced motion. The plane's cut (world:plane-cut-at-send-off) is the one longer motion.
 
 **Counting.** The scene is never counted beyond the events the flight sends (analytics:client-sends-interface-counts has no key for it).
 
@@ -162,7 +162,7 @@ The Find your feet line below is the fallback. Each life has its own opening lin
 
 ## Effects and requirements this kind handles
 
-The part before the slash names the kind that carries an effect out or judges a requirement (`engine.md` section 5). The types are in `packages/sim/src/engine/types.ts`.
+How these are named and judged: [`engine.md` section 5](engine.md#_5-kinds).
 
 | Type | | What it does |
 |---|---|---|

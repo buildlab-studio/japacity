@@ -1,13 +1,8 @@
 # The month and the Calendar
 
-A life moves a month at a time, and the month is lived by hand.
+This page shows how a month of a life is lived and how it ends: what carries on from month to month, how sleep turns the month, and what the month's close shows. The exact rules are in [the turn rules](../../rules/turn.md) and [the clock rules](../../rules/clock.md).
 
-- Acts at home and across the city each take a little of the month's time (a morning, a day, a weekend).
-- A job or a course takes its days by itself.
-- Talking, looking and buying take no time.
-- The month turns when the character sleeps on the bed. Everything the month held then comes at once in the month's close, in the room.
-
-The phone's Calendar app holds the month: the job, what carries on, the chores done and what is coming. There is no Next month button and no count of months to spend.
+A life moves a month at a time, and the month is lived by hand. Acts at home and in the city each take a little of the month; a job or a course takes its days by itself; talking, looking and buying take no time. The month turns when the character sleeps on the bed, and there is no Next month button.
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
   <img src="/pictures/dev-14-month-2-plan.webp" alt="The Calendar with a job: Working, remote developer for a foreign company; coming up, the brother's school fees, the visa decision for a master's in the UK and the credential assessment" width="220">
@@ -17,37 +12,30 @@ The phone's Calendar app holds the month: the job, what carries on, the chores d
 
 ## Commitments and free time
 
-There is no plan to fill in each month. A month-act the player starts at a thing (a job, a course, study, the portfolio, practice) is a commitment. It carries on every month until the player stops it, from its Stop on the thing's fan or from the Calendar, or until it ends by itself (a course finished, a way shut, a hunt whose job is now held).
+There is no plan to fill in. A job, a course, study or practice, once started at its thing, carries on every month until the player stops it (from its Stop in the city or in the Calendar) or until it ends by itself.
 
-What carries on is limited by the month's free time:
+How much can carry on is limited by the month's free time: a life with a job has less than one without, and being worn down or ill takes some away. Free time left empty is rest. The figures are turn:free-slots-per-month and turn:slots-can-be-locked.
 
-| The life | Free time a month |
-|---|---|
-| With a job | Two |
-| With no job | Three |
-| Worn down (wellbeing under 25) | One fewer |
-| Ill, or holding a side job | Fewer again, as each lock says |
+Quick acts (a purchase, a conversation, an application, a chore) never use free time, but each takes a little of the month's days, which are never shown as a number. When the character is tired, every act that takes time says "You are spent. Sleep." while talking, looking and buying stay open.
 
-Free time left empty is rest, so rest is never planned.
+## The Calendar
 
-Quick acts (a purchase, a conversation, an application, a chore) answer at once and never count against free time. They spend the month's time instead, counted in half-days and never shown as a number: a life with no job has the whole month, and one whose job takes its own days has a third of it.
+The phone's Calendar app holds the month, in this order:
 
-The body, not a count, stops a run of acts. Once the character's energy is low, every act that takes time says "You are spent. Sleep." where its button was, while talking, looking and buying stay open.
-
-The Calendar lists, in order:
-
-1. the job;
-2. what carries on, each with its Stop, and any lock with its reason;
+1. the job held;
+2. what carries on, each with its Stop, and anything locked with its reason;
 3. the chores done this month;
-4. what is coming, soonest first, each shown as months away.
+4. what is coming, soonest first, as months away.
+
+Each row opens where it is dealt with. Nothing in the Calendar ends the month.
 
 ## How the month turns
 
 ```mermaid
 flowchart TD
-  N["Sleep, on the bed, at any hour; at night, when the body is tired (energy under 30), the nudge says Night. Go to bed"] --> Q{"The first sleep of the life?"}
+  N["Sleep, on the bed, at any hour; at night, when the body is tired, the nudge says Night. Go to bed"] --> Q{"The first sleep of the life?"}
   Q -->|yes| C["One small card: Each night you sleep is a month of your life. Sleep or Not yet"]
-  C --> S["Asleep: the room dims, Asleep · tap to wake, about half a minute"]
+  C --> S["Asleep: the room dims, Asleep · tap to wake"]
   Q -->|no| S
   S -->|"Wake up early"| W2["A nap: no month turns"]
   S -->|"The sleep runs out"| MO["Any staged moments of the month"]
@@ -55,46 +43,35 @@ flowchart TD
   R -->|"Back to the place"| W["The world, a month on"]
 ```
 
-Sleep is a timed act from the bed. The figure lies down, the room takes a soft dark wash, a chip under the band says "Asleep · tap to wake", and a Wake up button stands above the Phone thumb. Waking early turns no month and counts as a nap ("Up again. The night is still yours."). When the sleep runs out, the month turns once.
+Sleep is a short timed act. The figure lies down, the room dims, and a Wake up button stands ready; waking early is only a nap. When the sleep runs out, the month turns once, any moments it staged play, and the month's close opens over the room:
 
-Then come any moments the month staged, and then the month's close, short, in the room:
+- the best thing that happened (payday, or the best moment) leads as a card;
+- money in, then money out, and rent when it was due;
+- a few moments, with the rest behind See the whole month;
+- what was kept, and one button back to the place.
 
-- The best thing that happened (payday, or the best moment) leads as a card with its picture.
-- Money in comes before money out.
-- Rent shows as a chip when it was due.
-- Three moments show, with the rest behind See the whole month.
-- Then Kept, and one button back to the place.
-
-A loss is said in quiet ink, never as the loudest thing. What was bought or done by hand during the month was paid as it was done and is not listed again. The rest of the month's report stays in the phone's News app. On the twelfth month the results say the character turned a year older.
+A loss is said quietly, never as the loudest thing. What was bought or done during the month is not listed again, and the rest of the month's report stays in the phone's [News](./phone.md#news). On the twelfth month the character turns a year older.
 
 ::: info No month numbers
-No running month number shows anywhere a player sees. A deadline reads as months away ("in 2 months", "next month"), and a past month as months ago. The band shows the age in years and months; the phone's wallpaper shows the real date, since the world runs on the real calendar.
+No month number or count of months left shows anywhere. A deadline reads as months away ("in 2 months", "next month"), the band shows the age, and the phone shows the real date.
 :::
-
-## Quiet months
-
-The game never runs months in a row for the player. A quiet month is lived in minutes by hand, with the home's free acts, and turns when the character sleeps. Abroad the months work the same way.
 
 ## The world's day and the life's months
 
 <img src="/pictures/dev-11-month-1-plan.webp" alt="The Calendar in the first month: nothing carrying on yet, and a birthday coming in eleven months" width="220" align="right" style="margin-left:16px">
 
-The world keeps its own day, the same for every player. One game day runs in an hour and three quarters of real time, so a sitting sees the sun move, and the band names the part of the day in words (Morning, Afternoon, Evening, Night).
+The world keeps its own day, the same for every player and much shorter than a real one, so a sitting sees the sun move; the band names the part of the day. The months of a life are its own: they turn only when that life sleeps, as many in a sitting as the player likes, and nothing in the life moves while the player is away.
 
-The months of a life are its own: they turn only when that life sleeps, as many in a sitting as the player likes. There is no count of months left and no wait for the next month. Only a result that real life makes you wait for (an English test band, the endorsing body's answer, a visa decision) waits for the world's next morning. It then arrives as an envelope on the phone's lock screen; play goes on meanwhile.
+Only a result that real life makes you wait for (an English test, an assessment body's answer, a visa decision) waits for the world's next morning. It then arrives as an envelope on the phone's lock screen, and play goes on meanwhile. See clock:game-day-on-real-time and clock:envelopes-show-real-waits.
+
+The game never runs months in a row for the player: a quiet month is lived in minutes with the home's free acts and turns when the character sleeps. Abroad the months work the same way.
 
 <div style="clear:both"></div>
 
-::: details Exceptions in a month
-- **A spent body.** Acts that take time are shut with "You are spent. Sleep." until the character sleeps. The city and the phone stay open meanwhile.
-- **Online.** The server's clock gives the world's day on every reply, and the client reads the same clock on the device between replies, the server's reading winning. Nothing in a life moves on that clock while its player is away. Nothing on the phone or in the world counts the months held or the time to the next one.
-- **A month with nothing new.** "A quiet month. Nothing changed that you need to know about."
-:::
-
 ## Rules it rests on
 
-- [Turns](../../rules/turn.md): turn:month-turns-on-empty-bank (the month turns whatever the bank holds), turn:free-slots-per-month (free time and rest), turn:turn-stores-a-report (the month's report), turn:slots-can-be-locked (locked free time), turn:month-lived-in-half-days (the lived month and its time in half-days).
-- [The world](../../rules/world.md): world:top-band-is-a-pill (the band, no month numbers), world:month-acts-carry-on (commitments and the Calendar), world:month-end-results-sheet (the month's close), world:sleep-ends-the-month (the bed's Sleep), world:no-months-left-count (no count of the months left, no Next month), world:no-auto-run-months (no months run in a row: a quiet month turns when the player sleeps), world:month-passes-as-lived (the month's time is the simulation's).
-- [The clock](../../rules/clock.md): clock:no-month-countdown-shown (nothing counts the months held), clock:envelopes-show-real-waits (envelopes), clock:game-day-on-real-time (the world's own clock).
-- [Activities and jobs](../../rules/activity.md): activity:now-acts-and-month-acts (acts that answer now), activity:now-acts-spend-half-days (the time an act takes), activity:spent-body-refuses-acts (the spent body).
-- [Chapters](../../rules/chapter.md): chapter:met-items-close-the-chapter (a chapter closes at the month's end).
+- [Turns](../../rules/turn.md): turn:month-turns-on-empty-bank, turn:free-slots-per-month, turn:slots-can-be-locked, turn:turn-stores-a-report, turn:month-lived-in-half-days.
+- [The world](../../rules/world.md): world:month-acts-carry-on, world:sleep-ends-the-month, world:month-end-results-sheet, world:no-months-left-count, world:no-auto-run-months, world:month-passes-as-lived.
+- [The clock](../../rules/clock.md): clock:no-month-countdown-shown, clock:envelopes-show-real-waits, clock:game-day-on-real-time.
+- [Activities and jobs](../../rules/activity.md): activity:now-acts-and-month-acts, activity:now-acts-spend-half-days, activity:spent-body-refuses-acts.
+- [Chapters](../../rules/chapter.md): chapter:met-items-close-the-chapter (a brief closes at the month's end).

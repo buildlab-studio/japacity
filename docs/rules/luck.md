@@ -1,9 +1,8 @@
 # Luck, the safety net, and the kiosk
 
-> Numbers are working values with sources where they exist. The Friday draw is `lottery.md`'s; offline, the odds are fixed and drawn from the world's seed.
 > Kinds: `offer`, `activity`, `obligation`, `news`, `turn` (the `big` line).
 
-Any player can read the code, so nothing here depends on a rule being secret. Wins come from the world and from who the character is, never from looking poor.
+This page covers the wins a life can get by chance, the one rescue, and the street's games of chance: the kiosk, the bet slip and the telco promo. Any player can read the code, so nothing here depends on a rule being secret.
 
 ## Rules
 
@@ -25,7 +24,7 @@ It pays `tuning.luck.rescue` to the bank as a gift, flagged. The pay is always l
 **luck:kiosk-sells-lotto-tickets** The lotto kiosk: `activity.play-lotto` is a now-act at home (activity:now-acts-and-month-acts: the kiosk sells at once, as a purchase that may repeat; the draw waits for the month).
 
 - **Tickets.** Its param is the ticket count, from 1 to `tuning.luck.maxTickets`. The cap is in the simulation (engine:limits-tested-through-step). The contract's `param` kinds have no `tickets`, so the activity kind gives the kiosk its counts by its id.
-- **Paying.** Each ticket costs `tuning.luck.ticket` (reason `social`), from earned naira only, never from a top-up (wallet:top-ups-are-marked). It is paid by its size (decision 0014): cash first at or under `tuning.wallet.cashUpTo`, the bank first above it.
+- **Paying.** Each ticket costs `tuning.luck.ticket` (reason `social`), from earned naira only, never from a top-up (wallet:top-ups-are-marked). It is paid by its size (wallet:money-lands-as-in-lagos, decision 0014).
 - **The draw** is on the stream `lotto`: `tuning.luck.prizeSmallBp` wins `prizeSmall`, `prizeMidBp` wins `prizeMid`, and `jackpotPerMillion` (draws in a million) wins `prizeJackpot`. Winnings are credited to the bank with the reason `win`, never flagged: a winner's letter explains them. The expected return is under half the stake, and a test proves it from the numbers.
 - **Offline only.** The kiosk's slip is the offline game's: `activity.play-lotto` holds only while `World.lottery` is null, through the requirement `world/lottery` of `lottery.md`'s contract. Online, the same kiosk sells the Friday draw (lottery:draw-runs-online-only).
 - **Spending shown.** The Lotto app says what this month's tickets cost and how many, read from the month's lines (each kiosk ticket's `social` debit, each online ticket's line), so the money spent on the lotto shows where the player looks.
@@ -65,9 +64,11 @@ This page holds the list; `text.md` cites it. The interface gives each a moment 
 
 **luck:japa-luck-in-existing-systems** Luck that belongs to japa lives in the existing systems. Each of these is `luck: true`:
 
-- `offer.relative-sends`: a relative abroad sends $500 to the dollar bank pocket, gift, flagged, when any route is known;
-- `offer.december-bonus`: a thirteenth month from the job, salary, when `var.season-december` is 1 and a job is held, chance 3000;
-- `offer.scholarship-round`: when `route.uk-masters` is known with an offer held, £3,000 to the GBP bank as a gift (see the entries table), 15% a month in the window.
+- `offer.relative-sends`: a relative abroad sends dollars, when any route is known;
+- `offer.december-bonus`: a thirteenth month from the job, in December with a job held;
+- `offer.scholarship-round`: a scholarship, when the UK master's route has a school's offer.
+
+Their terms and chances are in Entries.
 
 ## Entries
 

@@ -1,6 +1,6 @@
 # Routes and japacity
 
-A route is a way out of the country: a master's in the UK, health care, the talent visa, skilled work, permanent residence in Canada, a contract in the Gulf, the partner routes, and the road. Nobody picks one at the start. You hear of a route, look into it, and find out how much of it your life already meets. Japacity is that figure: how ready you are to go, from 0 to 100, the best of the routes you know. This page follows a route from hearing of it to the day the visa is decided.
+A route is a way out of the country: a master's in the UK, health care, the talent visa, skilled work, permanent residence in Canada, a contract in the Gulf, the partner routes, and the road. Nobody picks one at the start. You hear of a route, look into it, and find out how much of it your life already meets. Japacity is that figure: how ready you are to go, from 0 to 100, the best of the routes you know. This page follows a route from hearing of it to the day the visa is decided. The exact conditions, fees and chances are on the rule pages listed at the foot.
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
 <img src="/pictures/dev-22-month-4-official-page.webp" alt="Read the official page at the hub: the route's full list of what it asks, read to the end, and Done" width="260">
@@ -30,47 +30,34 @@ Hearing only puts its name in Japa. Looking into it shows its checklist and give
 
 ## Finding out where you stand
 
-There are four ways to look into a route. Each trades money, time and risk.
+There are four ways to look into a route. Each trades money, time and risk (the [Finding out where you stand](../../rules/advice.md) page has the fees and the rules).
 
-| Way | Where | Cost | Is it true? |
-|---|---|---|---|
-| The official page | The hub's desk in Yaba, or Japa on the phone | Free | Always. It shows the full list as the route holds it today, and nothing about your chances |
-| Someone who went | The hub, with a friend abroad or enough network | Free, answers at once | As it stood when they left. If the rules changed since, one item they name is wrong |
-| The licensed adviser | The hub's long desk | ₦80,000, by transfer | Always. Reads your whole file: what fits now, what is missing, and "at least N months" away |
-| An agent | The stop at Ojuelegba | A fee drawn from a range | Depends on the agent |
+| Way | Where | Is it true? |
+|---|---|---|
+| The official page | The hub's desk in Yaba, or Japa on the phone; free | Always. It shows the full list as the route holds it today, and nothing about your chances |
+| Someone who went | The hub, with a friend abroad or enough network; free, and answers at once | As it stood when they left. If the rules changed since, one item they name is wrong |
+| The licensed adviser | The hub's long desk; a fee by transfer | Always. Reads your whole file: what fits now, what is missing, and "at least N months" away |
+| An agent | The stop at Ojuelegba; a fee drawn from a range | Depends on the agent |
 
 Reading the official page corrects any wrong item a friend or an agent gave you.
 
 ::: warning Agents
 An agent is cheap and fast, and is one of four kinds:
 
-- a fixer, who brings a paper or appointment forward two months;
-- a chaser, who brings it forward one month, for less;
+- a fixer, who brings a paper or appointment forward;
+- a chaser, who brings it forward less, for less;
 - an overpromiser, who promises a month he cannot keep;
 - a scammer, who gives nothing.
 
-The fee never tells you which: the ranges overlap. Every agent shows one sign at once, and three free checks on his sheet find the rest before you pay: ask for his office, ask for his licence number, check his name with someone you know. A scammer carries at least two signs; a fixer at most one. Being careful is something you do, not something the game does for you.
+The fee never tells you which: the ranges overlap. Every agent shows one sign at once, and three free checks on his sheet find the rest before you pay: ask for his office, ask for his licence number, check his name with someone you know. A scammer shows more signs than a fixer. Being careful is something you do, not something the game does for you.
 :::
 
 ## Japacity
 
-- Each route's checklist adds up to 100. A met item earns its whole weight.
-- The funds item is the long bar. It fills in part as your savings grow, and falls when the naira falls or a rule changes.
-- A granted or departed route stands at 100.
-- Your japacity is the best figure among the routes you know whose window is not closed, and those already under way. With none, it reads "no route yet".
-
-| A master's in the UK | Weight |
-|---|---|
-| Degree, grade, passport, transcript | 6, 4, 4, 3 |
-| English: the bachelor's degree meets it, no test | 12 |
-| An offer from a school | 12 |
-| Deposit paid | 12 |
-| Funds shown cover the funds required | 28, filling in part |
-| Funds held at a month's end | 8 |
-| TB certificate, application sent | 4, 7 |
+Each route's checklist adds up to 100, and a met item earns its whole weight. The funds item is the long bar: it fills in part as your savings grow, and falls when the naira falls or a rule changes. A granted or departed route stands at 100. Your japacity is the best figure among the routes you know whose window is not closed, and those already under way; with none, it reads "no route yet". The rules are on [Japacity](../../rules/japacity.md), and each route's checklist with its weights is on [Routes, schools and the interview](../../rules/route.md) and [Route gates](../../rules/route-gates.md).
 
 ::: info The plan
-The chapters follow one way out, the plan. By default it is the first way of your own effort you looked into, else the first you heard of, else the master's. Japa names it ("Your plan: health care"). Opening another way's page says what switching would do to japacity, with "Keep mine" and "Make this the plan". Once a visa is granted, the grant decides: the plan and the chapters follow the way granted, whatever the plan was, and the flight on it brings the send-off.
+The chapters follow one way out, the plan. By default it is the first way of your own effort you looked into, else the first you heard of, else the master's. Japa names it ("Your plan: health care"). Opening another way's page says what switching would do to japacity, with "Keep mine" and "Make this the plan". Once a visa is granted, the grant decides: the plan and the chapters follow the way granted, and the flight on it brings the send-off (chapter:chapters-follow-lean-route).
 :::
 
 <img src="/pictures/routes-switch-plan.webp" alt="Another way's page in Japa: permanent residence in Canada at 65%, and what making it the plan would do, with Keep mine and Make this the plan" width="260">
@@ -79,20 +66,22 @@ The chapters follow one way out, the plan. By default it is the first way of you
 
 Permanent residence in Canada has no school and no sponsor. It has a score: points for your age, your education, your English and your work abroad, worked out each time and shown on the route from the day you know it.
 
-- Entering the pool needs the degree assessment, English at band 6.0, twelve months of work and the funds Canada asks for.
+- Entering the pool needs the degree assessment, an English band, months of work and the funds Canada asks for.
 - While your profile is live, the world's cut-off moves. When it falls to your score, you are invited and the application is on its way.
-- A profile lapses after twelve months with no invitation.
+- A profile lapses if no invitation comes in time.
 - Age points fall with each birthday, so the score runs down with time.
+
+The bars and the scores are on [Route gates](../../rules/route-gates.md#the-points-gate-route-canada-points).
 
 ## The file and decision day
 
-For the master's, the file is the [file chapter](./papers.md): passport, transcript, English, an offer. Decision day is the third chapter: "Now the money. Show it, hold it, and answer for it."
+For the master's, the file is the [file chapter](./papers.md#the-file-chapter): passport, transcript, English, an offer. Decision day is the third chapter: "Now the money. Show it, hold it, and answer for it."
 
 ```mermaid
 flowchart TD
-  A["Apply to a school at the hub"] --> B["The answer comes in one or two months"]
+  A["Apply to a school at the hub"] --> B["The answer comes in a month or two"]
   B -->|"An offer"| C["Pay the deposit: the university's confirmation is granted"]
-  B -->|"No"| A2["That school takes a new application after six months"]
+  B -->|"No"| A2["That school takes a new application after some months"]
   C --> D["Show the funds: the bank and pounds held, never cash"]
   D --> E["Hold them through a month's end"]
   E --> F["TB certificate"]
@@ -104,7 +93,7 @@ flowchart TD
   K --> D
 ```
 
-The chance of a refusal starts at a base and moves with how strict the world is, how much of the funds you cannot explain, earlier refusals, how the interview went and a good grade. It never falls below 3 in 100 or rises above 80 in 100. A clean file with a good interview is refused about 6 times in 100. The interview's score is never shown.
+The chance of a refusal starts at a base and moves with how strict the world is, how much of the funds you cannot explain, earlier refusals, how the [interview](./interview.md) went and a good grade, between a floor and a ceiling (route:visa-refusal-chance). A clean file with a good interview is rarely refused. The interview's score is never shown.
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
 <img src="/pictures/routes-granted-card.webp" alt="The decision day card: The visa came through, with japacity at 100%" width="260">
@@ -115,12 +104,12 @@ The chance of a refusal starts at a base and moves with how strict the world is,
 1. A grant moves the route to granted and japacity to 100. The decision day card opens over the world.
 2. That month the family house offers a send-off: a party, a quiet last dinner, or no time.
 3. Japa's next step is "Board the plane". The airport opens as the send-off scene (the queue, the counter, the gate), and Board the plane at the gate sends the flight.
-4. Flying needs the held-funds loan paid back, if one was taken, and the flight, ₦1,100,000 in naira, unless the employer pays it (the Gulf contract).
+4. Flying needs the held-funds loan paid back, if one was taken, and the flight paid in naira, unless the employer pays it (the Gulf contract).
 
 Then the life carries on abroad: see [Abroad](./abroad.md).
 
 ::: details Exceptions
-- **A refusal.** The route goes back to known and its refusals go up by one. The health surcharge comes back at once; the deposit, less a £500 fee, two months later. The school's offer stands, so the deposit can be paid again. The reasons are recorded, most telling first: the funds, the interview, an earlier refusal, or credibility.
+- **A refusal.** The route goes back to known and its refusals go up by one. The health surcharge comes back at once and most of the deposit later; the school's offer stands, so the deposit can be paid again. The reasons are recorded, most telling first: the funds, the interview, an earlier refusal, or credibility.
 - **A closed window.** While a route's window is shut, no school or visa application can be sent; one already sent is still decided.
 - **Fake papers.** A route that checks a paper refuses an application that used a fake one.
 - **A ban.** A deception or a removal shuts every route into that country for years. The route reads "refused" until the ban ends.

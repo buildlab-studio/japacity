@@ -1,6 +1,6 @@
 # Design pages
 
-Each page explains why one system of the game works the way it does. Read a page when a rule seems wrong. The rules themselves are on the rule pages in `../rules/`, the decisions in `../decisions/`, and the facts behind the numbers in `../research/`.
+Each page explains why one system of the game works the way it does. Read a page when a rule seems wrong. The rules themselves are on the rule pages in `../rules/`, the decisions in `../decisions/`, and the facts behind the numbers in `../research/`; [Where each fact lives](../site/built/working.md#where-each-fact-lives) says which page owns what.
 
 Each page is a design doc in the standard shape described in [How rules, decisions and designs are written](../site/built/working.md#how-rules-decisions-and-designs-are-written): context and scope, goals and non-goals, the design, and the alternatives considered.
 

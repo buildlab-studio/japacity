@@ -1,6 +1,6 @@
 # The load test on one machine
 
-> Rests on `../design/04-where-things-live.md` section 5 (at a viral peak of 100,000 players online the database handles about 420 commands a second, one transaction each; Lagos to London is about 100 ms; the full character is written only every 20 commands or so), `server.md` and `../decisions/0006-the-online-stack.md` (replay and the stored hash).
+> Rests on `../design/04-where-things-live.md` section 5 (the viral peak, the trip from Lagos to London and the snapshot interval), `server.md` and `../decisions/0006-the-online-stack.md` (replay and the stored hash).
 > Kind: `load`, a tool. Nothing is deployed and no account is created anywhere but the machine that runs it.
 
 The load test answers one question: does the authority, with its stores, take the viral peak's commands without falling over or getting anything wrong? It runs on one machine, so it proves the code path holds up, not what the hosted bill or Postgres's throughput will be. Run it after any change to the command route, the storage interfaces, the database schema or the snapshot interval. How to run it is in `tools/load/README.md`.

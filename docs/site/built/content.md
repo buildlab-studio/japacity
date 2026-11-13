@@ -52,23 +52,15 @@ An activity states the slot it takes (`main` for a job, `free`, `side` or `none`
 
 ### Places
 
-A place states:
-
-- where it is (`home`, `abroad` or the road), its city and area;
-- whether its name is a real public name or made up;
-- its position in thousandths of a degree, with the data source it was read from;
-- its crowd;
-- `stages`: the activities, offers and chapters it shows.
-
-Its words are in `place/place.text.ts` (name, blurb, shop signs, talk overheard). Its scene is a `place.json` under `apps/client/public/assets/places/<folder>/`. [The city rules](../../rules/city.md) list every entry; city:place-entry-fields names the fields and city:place-words-are-text-keys says every word a place shows is a key.
+A place states where it is (at home, abroad or on the road, with its city and area), whether its name is real or made up, its position, its crowd and the activities, offers and chapters it stages. city:place-entry-fields in [the city rules](../../rules/city.md) names every field, and the page lists every entry. Its words are in `place/place.text.ts` (city:place-words-are-text-keys). Its scene is a `place.json` under `apps/client/public/assets/places/<folder>/`.
 
 ::: warning Real names
-A real business name may appear only as neutral scenery: a place the player visits, eats at, shops at or meets at. Never a bank, a lender, an agent, an employer, a school or an airline, and never in a fraud or bad news (city:sponsor-shows-name-only and city:invented-names-for-risky-businesses in [the city rules](../../rules/city.md)). Each made-up shop name is checked, and `place.names.json` records each check.
+A real business name appears only as the city rules allow (city:sponsor-shows-name-only, city:invented-names-for-risky-businesses). Each made-up shop name is checked, and `place.names.json` records each check.
 :::
 
 ### Routes
 
-A route names its gate (study, sponsor, points, endorsement, contract, partner, dependant or the road), its country, the status it leads to, when a character hears of it, its window and its checklist. Each checklist item has a weight and the requirement that ticks it. On every route except the road the weights add up to exactly 100, which the japacity figure reads (japacity:figure-is-whole-percent in [the japacity rules](../../rules/japacity.md)). Each gate adds its own block, such as the sponsor's salary bar or the points table. [Chapters and routes](./chapters.md) covers how the story follows a route.
+A route names its gate (study, sponsor, points, endorsement, contract, partner, dependant or the road), its country, the status it leads to, when a character hears of it, its window and its checklist. Each checklist item has a weight and the requirement that ticks it, and the japacity figure reads the weights (japacity:figure-is-whole-percent in [the japacity rules](../../rules/japacity.md)). Each gate adds its own block, such as the sponsor's salary bar or the points table. [Chapters and routes](./chapters.md) covers how the story follows a route.
 
 ### Offers and set pieces
 
@@ -84,7 +76,7 @@ No rule number lives in code (engine:numbers-read-from-content in [the engine co
 
 ## The overlay
 
-The public content runs the whole game and passes every test. A deployment may change live numbers with an overlay: a plain object with a `version` and any part of the content to replace, defined in `packages/sim/src/engine/overlay.ts`.
+The public content runs the whole game and passes every test (server:public-defaults-run-the-game). A deployment may change live numbers with an overlay: a plain object with a `version` and any part of the content to replace, defined in `packages/sim/src/engine/overlay.ts`.
 
 ```mermaid
 flowchart TD
@@ -97,33 +89,14 @@ flowchart TD
   apply --> live["The live content<br/>its overlay version recorded in every save"]
 ```
 
-- `applyOverlay(content, overlay)` merges the overlay into a copy (arrays are replaced whole) and runs the schemas and `checkContent` on the result. It throws on any failure.
+- `applyOverlay(content, overlay)` works as engine:numbers-read-from-content says; it replaces arrays whole.
 - `checkOverlay(base, overlay)` also refuses: a field the content does not have (an overlay has no factor field), a non-number replacing a number, a list whose shape changes, a ledger reason, the rename table, money added to a scenario or to the opening of a life, and any rise in a cost or fee a new character can meet (server:overlays-never-multiply-prices and server:public-defaults-run-the-game in [the server rules](../../rules/server.md)).
 - The server reads the overlay from its environment when its isolate starts (`apps/server/src/authority/overlay.ts`) and refuses to run on one that fails.
-- A save records the overlay's version beside the content's (engine:state-is-plain-data), so a life replays under the numbers it was played with.
+- A save records the overlay's version beside the content's, so a life replays under the numbers it was played with (engine:state-is-plain-data, server:overlay-change-opens-segment).
 
 ## The words
 
-The simulation never holds prose. It emits a key and some numbers, and content holds the words. Saves stay small, and words can change without touching a save. [The words page](../../rules/text.md) is the guide for writing them.
-
-### Text keys
-
-Each kind has a words file, `<kind>.text.ts`: a plain table from key to text. Keys start from the entry's id.
-
-| Thing | Key |
-|---|---|
-| An entry's name and blurb | `<id>.name`, `<id>.blurb` |
-| An offer's title, body and choices | `<id>.title`, `<id>.body`, `<id>.choice.<choice>` |
-| A set piece's question and answer | `<id>.q.<question>`, `<id>.a.<question>.<answer>` |
-| A chapter and its items | `<id>.title`, `<id>.open`, `<id>.close`, `<id>.item.<item>` |
-| A chapter's brief, as the player is handed it | `<id>.brief.title`, `<id>.brief.giver`, `<id>.brief.reward.<n>`, with `chapter.brief.*` shared |
-| A report line | `line.<kind>.<what>` |
-| A refusal | `reject.<code>` |
-| A place's signs and talk | `<id>.sign.<n>`, `<id>.overheard.<n>` |
-
-Figures go in braces: `"Salary: {amount}"`. Money in a line is a typed parameter with its currency and its amount in minor units, and the screen formats it. The text never puts a currency sign next to a brace.
-
-`index.ts` merges every words file into one `text` table with `mergeText`. It throws when two files give the same key, so one file can never hide another's line.
+Every line a player reads is content: each kind's words file and the interface's own tables in `packages/content/src/ui/`. The simulation emits only a key and its numbers. [The words page](../../rules/text.md) owns where words live: the keys, how the files are merged and which ones a first visit leaves out, how the client looks a key up, how money is shown and how a line is written, joke versions included. Read it before writing a new line.
 
 ```mermaid
 flowchart LR
@@ -134,16 +107,6 @@ flowchart LR
   say -.->|"no words for the key"| itself["The key itself shows,<br/>so a gap is visible"]
 ```
 
-The interface's own words (labels, headings, sheets and each screen's lines) are also content, in `packages/content/src/ui/`, one `ui.<screen>.text.ts` file per screen, merged into `text` with the rest.
-
-Words a first visit does not need (each country's places and rides, the painted maps abroad, the send-off) are in separate files there that content's entry never imports. The client fetches each on its own path (`@japacity/content/ui/london` and the others) when the life needs it (engine:first-download-has-budget).
-
-The client's `say` looks a key up in content's table first, then in a country's late words. A key with no words shows as itself, so a gap is seen in play rather than hidden behind a guess.
-
-### Joke versions of report lines
-
-A common neutral report line may have three to five versions in `packages/content/src/comedy/`: one plain, the others with a joke. A draw picks one; draw 0 is plain, and the screens show the plain line. Bad news never takes a joke, and a month whose report holds bad news shows every line plain (text:jokes-keep-a-plain-version and text:bad-news-never-joked).
-
 ## How the content is checked
 
 Content is checked before anything plays on it (engine:content-checked-before-play). For the public content this happens in the test suite, under `pnpm check`.
@@ -153,27 +116,12 @@ Content is checked before anything plays on it (engine:content-checked-before-pl
 - `packages/content/src/text.test.ts` checks the words: every entry has a name; every offer has a title, a body and every choice; every set piece question and answer has words; every chapter has its title, opening, close and items; every rejection code has a line; and no em dash or en dash appears in any words file.
 - Each kind's own tests read figures back from the rule page, so a number that drifts from its page fails.
 
-## Interface words: show, then tell
+## Interface words
 
-The interface's own words show first and tell second (text:show-then-tell):
-
-- A fact is an icon and two or three words, with its state as a mark that differs in shape and colour, never colour alone.
-- A gain or a cost is a tag with its sign, not a sentence.
-- Full sentences belong to a person or a paper speaking; the shell itself speaks in short lines.
-- An act the scene shows gets no line: the figure lies on the bed, so nothing says "You lie down".
-
-Three things enforce it:
-
-1. **Shared pieces.** `Mark`, `FactChip` and `ToneTag` in `apps/client/src/shared/ui/` are the only way to show a state, a fact or a gain, each with its word for screen readers. Their tests cite text:show-then-tell.
-2. **Screen tests.** Each screen held to short words has a test citing text:show-then-tell. For example, `apps/client/src/features/city/told.words.test.ts` holds every line the shell tells in the corner to one short line with no full stop.
-3. **The voice test.** `apps/client/src/cross-feature/voice.test.ts` reads every line in content's words and every table loaded as a separate chunk. It fails an em dash, an en dash, an exclamation mark (except one scam's shout, a sign the player learns to read), stock app words such as "Oops" or "Get started", mirrored sentences and summing-up lines. It also checks who speaks on each surface (text:voice-by-surface).
-
-::: tip Writing a new line
-Read [the words page](../../rules/text.md) first. Put the line in the kind's words file under a key from the entry's id. An interface word goes in the screen's table in `packages/content/src/ui/`; a new table there must be added to `textTables` in content's `index.ts`, so `voice.test.ts` reads it. Write the line plain and correct first, then give it its voice.
-:::
+The interface's own words show first, then tell (text:show-then-tell). The shared `Mark`, `FactChip` and `ToneTag` in `apps/client/src/shared/ui/` are the only way to show a state, a fact or a gain, each screen held to short words has a test citing that rule (such as `apps/client/src/features/city/told.words.test.ts`), and `apps/client/src/cross-feature/voice.test.ts` reads every words table for the voice (text:voice-by-surface).
 
 ## Rule pages
 
 - [The engine contract](../../rules/engine.md): engine:state-is-plain-data, engine:content-checked-before-play and engine:numbers-read-from-content, for saves, checks and the overlay.
-- [Words](../../rules/text.md): the keys, money on screen and the voice.
+- [Words](../../rules/text.md): where words live, the keys, money on screen and the voice.
 - [The city](../../rules/city.md), [Activities and jobs](../../rules/activity.md), [Offers](../../rules/offer.md), [Japacity](../../rules/japacity.md), [The server](../../rules/server.md).

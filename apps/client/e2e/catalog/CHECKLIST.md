@@ -1,18 +1,18 @@
 # Screen catalog checklist
 
-One fault per line. Check every picture against every line, the first three first.
+One fault per line, for reviewing the screen catalog's pictures. Check every picture against every line, the first three first. Where a line names a rule, the rule's page holds the exact limit.
 
 1. A speech bubble's tail is joined to its own box (no gap, no seam, no tail hanging off a corner) and points at the person speaking.
 2. No words over a face: bubbles, labels, chips and markers stand clear of every person's head.
 3. People at one scale: the character, the family and the crowd stand at a grown person's height. Nobody grown is drawn at a child's size, and nobody floats or sinks.
 4. Text cut: a word clipped at a box's edge, a line running out of its box or off the screen, or an ellipsis where the whole line should fit.
 5. A chip, label, bubble or toast over a button, another chip or the band.
-6. A dash in player text: an em dash, an en dash, or a hyphen standing in for one.
+6. A dash in player text (text:voice-by-surface): an em dash, an en dash, or a hyphen standing in for one.
 7. A bare key, a raw id, a kobo figure, "undefined", "NaN", "null" or a placeholder in braces on screen.
 8. Player words that say slots, turn, banked, pages, days left, a day count or a percentage.
 9. A button under the thumb buttons, the band, the phone's home bar or the screen's edge, cut off or hard to reach.
 10. A sheet or card taller than the screen with no way to scroll to its button.
-11. More than three callouts at once (the nudge chip, a word bubble, the marker, an open fan), or two on one thing.
+11. More callouts at once than world:street-talk-budget allows (the nudge chip, a word bubble, the marker, an open fan), or two on one thing.
 12. Something drawn over a sheet, the phone or the map that belongs under it (a bubble or a label above a dimmed screen).
 13. Night paint: words the colour of their ground (navy on navy, white on white), or a surface left in day paint at night.
 14. Money in the wrong currency for where the life is, a figure without thousands separators, or a sum running out of its pill.

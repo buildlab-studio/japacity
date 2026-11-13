@@ -1,5 +1,7 @@
 # The teaser
 
+The rendered teaser files kept here, and what they show. How they are made and rendered again is in [the teaser package's README](../../apps/teaser/README.md).
+
 ## Files
 
 | File | What it is |
@@ -11,25 +13,12 @@
 
 ## What the teaser shows
 
-It follows one life, Ada's, from the door's question to the flight, and looks in on Makoko on the lagoon, where another life can start. The game's own pieces stand inside the world's shots: the word bubbles in each place's voice, the band, the brief's chip, the passbook, the four ways out (a master's in the UK, a tech job abroad, health care in the UK, the Gulf), the night, the plane and the seal's two bulbs.
+It follows one life, Ada's, from the door's question to the flight, and looks in on Makoko on the lagoon, where another life can start. The game's own pieces stand inside the world's shots: the word bubbles in each place's voice, the band whose age carries the months, the brief's chip, the passbook, the four ways out (a master's in the UK, a tech job abroad, health care in the UK, the Gulf), the night, the flight with the lights joke and the seal's two bulbs.
 
-The portrait teaser is the game in the hand from the first shot. Every shot of the world is the phone's own recording, full frame, with the band, the bubbles, the beat's words and the cards where the game puts them on a phone, all clear of a feed's own bars at the top and bottom of the frame.
+The portrait teaser is the game in the hand from the first shot: every shot of the world is the phone's own recording, full frame, with the game's pieces where the game puts them on a phone, clear of a feed's own bars at the top and bottom.
 
-Both end cards close on `japacity.app`, then GitHub's mark and the line "Free. Open source on GitHub." The address of the source goes in a post's caption, where it can be tapped.
-
-## Making it again
-
-It is made from code with Remotion in `apps/teaser`. From the repository's root:
-
-```sh
-pnpm teaser:record   # plays the game on a development server and records the clips into apps/teaser/clips
-pnpm teaser:render   # renders both files to docs/teaser/japacity-teaser.mp4 and docs/teaser/japacity-teaser-portrait.mp4
-```
-
-- `pnpm teaser:record` needs Chromium for Playwright (`pnpm exec playwright install chromium`) and ffmpeg on the path (or `FFMPEG=/path/to/ffmpeg`).
-- `pnpm teaser:render` stops if either file reaches 10 MB.
-- The two pictures are made from `pnpm teaser:render --stills <folder>` (the `landscape-end` and `portrait-open` stills), resized to 600 pixels high and saved as WebP.
+Both end cards show the wordmark, a "Play it" button over the game's address and "Japa is not by force. How ready are you?", and close on GitHub's mark and "Free. Open source on GitHub." The address of the source goes in a post's caption, where it can be tapped.
 
 ## On the front page
 
-GitHub never plays a file from the repository inline, so the root `README.md` plays the teaser through a GitHub asset link (an upload of the file through GitHub's editor). Under the player stand the two pictures at one height, each a link to its uploaded asset so a tap plays it, and a caption linking the two video files here, to download and share. After a new render the uploads are made again and the links replaced: `apps/teaser/README.md` says how.
+The root `README.md` plays the teaser through copies uploaded to GitHub, with the two pictures under the player and a caption linking the two video files here, to download and share. The files here stay the source. After a new render the uploads are made again: [Putting a new render on the front page](../../apps/teaser/README.md#putting-a-new-render-on-the-front-page) says how.

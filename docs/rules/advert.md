@@ -55,7 +55,7 @@ The one thing read about an account is read only to serve it nothing: an account
 
 **advert:reported-advert-pulled-at-once** A live advert that draws a report (moderation:report-from-every-surface) or fails a recheck of its link is pulled from rotation at once through the admin view and goes back to review. Links are rechecked before each campaign starts and whenever an advert is reported.
 
-The recheck before a start runs on the deployment's tick cron (every five minutes, or its `TICK_CRON` where one is set, which is thirty minutes on staging: server:production-and-staging). Each run takes every approved campaign that starts from the firing the run stands for up to the next firing, the cron's period in whole minutes. A run's clock is rounded to the nearest firing, so successive windows meet end to start: a run a minute late or early neither rechecks a campaign another run rechecked nor misses one.
+The recheck before a start runs on the deployment's tick cron: the five-minute cron, or its `TICK_CRON` where one is set (server:production-and-staging). Each run takes every approved campaign that starts from the firing the run stands for up to the next firing, the cron's period in whole minutes. A run's clock is rounded to the nearest firing, so successive windows meet end to start: a run a minute late or early neither rechecks a campaign another run rechecked nor misses one.
 
 "Pulled at once" means at once for the server, and within five minutes for new visitors at a location that holds the server's cached copy (server:public-replies-cached).
 

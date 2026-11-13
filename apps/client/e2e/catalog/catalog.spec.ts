@@ -1,4 +1,4 @@
-// The screen catalog (pnpm catalog; see CHECKLIST.md and CONTRIBUTING.md): every screen of the game shot as
+// The screen catalog (pnpm catalog; see CHECKLIST.md and docs/site/built/working.md, "The screen catalog"): every screen of the game shot as
 // a player sees it, at Pixel 7 size with three device pixels to each, into the catalog folder (where.ts), in the order
 // screens.ts gives. Each test is one part of the game reached the way the browser suite reaches it: the front door
 // played, a recorded life seeded (packages/sim/src/goldens/lives.data.ts), and the development build's hooks

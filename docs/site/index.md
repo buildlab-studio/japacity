@@ -31,7 +31,7 @@ features:
     link: /built/simulation
   - title: Every rule has a name and a test
     details: The rule pages are the specification. A test cites each rule's name, and the check fails when one is missing.
-    link: /built/
+    link: /built/working#rules-and-tests
   - title: One Worker for the whole game
     details: Online, a Cloudflare Worker serves the client and the API, keeps the command log and replays it, and stores lives in Postgres.
     link: /built/server

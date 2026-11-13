@@ -1,7 +1,6 @@
 # Assets
 
-> No kind of the simulation. This page holds the fixed conventions every contributor follows and the review sheet every piece is judged on. The places that use the assets are in `city.md`.
-> Builds on `../design/06-assets-and-visuals.md` (budgets, the palette rule, scale, the register, the review method, the rules for AI-made media) and the four experiments it records. The pipeline that applies these rules is `../decisions/0009-models-are-code.md`.
+> Kinds: none in the simulation. This page holds the conventions every model, picture and shipped file follows, and the sheet every piece is reviewed on. The places that use them are in [the city rules](city.md). Why the rules are as they are: Assets and visuals (`docs/design/06-assets-and-visuals.md`), with the experiments behind it in `../research/12-models-written-as-code.md`. The pipeline that applies them: decision 0009 (`../decisions/0009-models-are-code.md`).
 
 Every model in the game uses one palette, one scale and one budget, and is judged on one sheet by someone who did not build it. The examples (a kit of parts, two buildings from it, two shopfronts with signboards, the National Stadium and the Third Mainland Bridge) are judged on the same sheet as every other piece. Once accepted, they are what each new piece is compared with.
 
@@ -9,14 +8,14 @@ Every model in the game uses one palette, one scale and one budget, and is judge
 
 **assets:colours-from-named-palette** Every colour in every model is a named entry in the one palette file, and the model refers to it by name. A colour joins the palette only as a named addition the maintainer accepts, with a one-line reason. Textures are allowed only for fabric patterns (assets:fabric-pattern-from-seed) and sign text (assets:sign-text-drawn-in-code).
 
-**assets:starting-palette-frozen** The starting palette is the 37 colours of the four experiments of `../design/06-assets-and-visuals.md`, frozen in `packages/model-kit/src/__fixtures__/starting-palette.json`. Every entry keeps its name and value. The street and building additions in the table below are added to it. Four scene colours are named entries: sand, asphalt, road marking and sky.
+**assets:starting-palette-frozen** The starting palette is the 37 colours of the four experiments of `../research/12-models-written-as-code.md`, frozen in `packages/model-kit/src/__fixtures__/starting-palette.json`. Every entry keeps its name and value. The street and building additions in the table below are added to it. Four scene colours are named entries: sand, asphalt, road marking and sky.
 
 **assets:metre-units-and-origin** One unit is one metre. +Y is up. A model faces +Z (the glTF convention). Its origin is the centre of its footprint at ground level, and its lowest point is at y = 0, within 0.01 m. A place may stand copies of a model raised or lowered (`lift` in the place's file, at most 1.5 m either way). For example, a house on stilts seen from inside is lowered by its floor's height, so its floor is the ground the scene walks on and its stilts go down into the water; the model itself still stands at y = 0. The ground walked on stays at y = 0 in every place.
 
-**assets:people-and-door-sizes** Adults are 1.7 m nominal. Built people range from 1.59 m to 1.82 m before hair and headwear, as measured in the people experiments of `../design/06-assets-and-visuals.md`. A single door is 2.1 m high and 0.9 m wide; a double door is 2.1 m by 1.2 m. Every part in the kit takes its sizes from the part table below.
+**assets:people-and-door-sizes** Adults are 1.7 m nominal. Built people range from 1.59 m to 1.82 m before hair and headwear, as measured in the people experiments of `../research/12-models-written-as-code.md`. A single door is 2.1 m high and 0.9 m wide; a double door is 2.1 m by 1.2 m. Every part in the kit takes its sizes from the part table below.
 
 **assets:flat-and-smooth-shading** Hard-edged things are flat shaded. Round parts (heads, hair, wheels, pots, domes) are smooth shaded, and the contributor who builds the model names them in the node extras. The game's loader sets `flatShading` on every material it loads except the parts so named, because the setting does not survive compression (a known fault of the compression).
-- Soft organic shapes are blended from simple shapes, thinned and shown smooth at build time (`../design/06-assets-and-visuals.md` section 5). The loader never blends.
+- Soft organic shapes are finished when the model is built (assets:organic-shapes-baked-at-build). The loader never blends.
 - An asset has at most two materials: one opaque vertex-coloured material, and at most one more for a pattern or a sign texture.
 - Glass is a dark palette colour, not a transparent material.
 
@@ -169,7 +168,7 @@ The additions, accepted under assets:colours-from-named-palette, are what a Lago
 
 ## Budgets for one place
 
-From `../design/06-assets-and-visuals.md` section 6:
+The figures of both budget tables are held in `models/budgets.json`, where the build check reads them. Why they are this size: `../design/06-assets-and-visuals.md` section 6.
 
 | Scope | Draw calls | Triangles in view | Download |
 |---|---|---|---|
@@ -314,4 +313,4 @@ These rules put nothing in the simulation's `types.ts`. One small package of typ
 6. `Outline`: `{ view: "front" | "side" | "plan"; polygon: Array<[number, number]>; source: string; read: string; scaleFrom: string }`, metres.
 7. Node extras the loader and the check read: `smooth: true` on a round part (assets:flat-and-smooth-shading), `pinned: "top" | "bottom" | "left" | "right"` on a moving sheet (assets:one-shared-motion-material).
 8. `Review` also carries `against?: { file: string; scores: Review["scores"] }` for a rework scored against its old version (assets:rework-never-scores-lower).
-9. The thinning limit is `THIN_MAX_PCT` in `models/props/smoke/puff.test.ts`; the build tool that blends and thins lives in `models/`, never in the client bundle.
+9. The build tool that blends and thins (assets:organic-shapes-baked-at-build) lives in `models/`, never in the client bundle.

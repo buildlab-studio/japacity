@@ -10,7 +10,7 @@ Include:
 - the steps to reproduce it, with the smallest request or command that shows it,
 - what an attacker gains: another player's data, unearned money or standing in the game, control of the admin pages, or cost to the operator.
 
-Do not open a public issue or pull request for a vulnerability. Do not test against other players' accounts or lives: use your own account, or run your own copy (`docs/site/built/your-own-copy.md`).
+Do not open a public issue or pull request for a vulnerability. Do not test against other players' accounts or lives: use your own account, or [run your own copy](docs/site/built/your-own-copy.md).
 
 ## In scope
 

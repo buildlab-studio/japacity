@@ -1,9 +1,9 @@
 # Accounts
 
-Playing needs no sign-in at all. Online, a new player answers one question about their age, walks through the front door and starts as a guest: the life lives in that browser on that phone. Saving it, so it can be opened anywhere, is asked for later, at moments that matter, with Google or a code sent by email. A passkey can be added once the life is saved.
+Playing needs no sign-in at all. Online, a new player answers one question about their age, walks through the front door and starts as a guest: the life lives in that browser on that phone. Saving it, so it can be opened anywhere, is asked for later, at moments that matter, with Google or a code sent by email. A passkey can be added once the life is saved. This page shows what a player sees; the rules are on [Accounts](../../rules/account.md).
 
 ::: info Locally there are no accounts
-The development build (`pnpm dev`), the browser tests, offline play and the play driver (`pnpm play`) use the local authority: the life is kept in the browser and nothing on this page applies. See [The client](../built/client.md).
+The development build, the browser tests, offline play and the play driver keep the life in the browser, and nothing on this page applies. See [The client](../built/client.md).
 :::
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
@@ -30,7 +30,7 @@ flowchart TD
 
 - **The start screen.** In a browser where a saved life was open, the start screen swaps its two buttons: "Sign in" first, "Start a new life" under it. Either way, Sign in carries the small line "Carry on a saved life".
 - **The age screen** asks for a date of birth with nothing filled in and no hint of the age needed. One quiet line under it is for a returning player who tapped Play by habit. The account keeps only that the screen was passed, never the date.
-- **The username** is typed on the page into an empty box, which says whether it is free as it is typed. Rules: 3 to 20 letters, numbers or underscores, unique, and never a name of the game's own people. Other players see it; it is never the character's name and never a way in. One change is free, then there is a wait between changes. The box that changes it in Settings checks it the same way as it is typed.
+- **The username** is typed on the page into an empty box, which says whether it is free as it is typed. It is made of letters, numbers and underscores, must be unique, and may never be a name of the game's own people (the limits are in the [Accounts](../../rules/account.md) rules). Other players see it; it is never the character's name and never a way in. One change is free, then there is a wait between changes. The box that changes it in Settings checks it the same way as it is typed.
 
 ## What a guest can do
 
@@ -64,7 +64,7 @@ Once the life is saved, the sheet says so and offers a passkey as the next step,
 | Way in | How |
 |---|---|
 | Google | First, wherever Google sign-in opens |
-| A code by email | Six digits, good for five minutes and three tries; a new code replaces the old |
+| A code by email | A short code, good for a few minutes and a few tries; a new code replaces the old (account:email-code-is-short-lived) |
 | A passkey | Offered right after the life is saved, and added from Settings any time after; bound to the game's own address |
 
 ::: tip Inside a chat app's browser
@@ -81,14 +81,14 @@ Some apps' built-in browsers block Google sign-in, so the game does not show Goo
 - **Full.** While sign-ups are switched off, a full screen says to try again shortly, and checks again by itself once the wait is over.
 - **Too many new lives.** Guest lives from one device or one connection in a day are limited.
 - **One character.** An account holds one life at a time. Settings' "Start a new life" ends it for good first.
-- **Deleting the account.** From Settings, with a sign-in from the last ten minutes or a fresh code. Every session ends at once, and everything the account held is gone within 30 days.
+- **Deleting the account.** From Settings, with a recent sign-in or a fresh code. Every session ends at once, and everything the account held is gone within a month (account:deleted-data-removed-within-month).
 :::
 
 <img src="/pictures/accounts-full.webp" alt="The full screen: Japacity is full right now. Try again shortly, with Check again waiting" width="260">
 
 ## Invite links
 
-A friend's invite opens on a page of its own: the friend's card first, with a report control, then the age screen and the username, or the ways back in for a player who already saved a life. A card's link works once, for 14 days. Only a saved life may be invited, so a new guest saves the life before taking the card. No advert shows on this page. See [People](./people.md).
+A friend's invite opens on a page of its own: the friend's card first, with a report control, then the age screen and the username, or the ways back in for a player who already saved a life. A card's link works once, for a limited time (pair:invite-link-single-use). Only a saved life may be invited, so a new guest saves the life before taking the card. No advert shows on this page. See [People](./people.md).
 
 <img src="/pictures/accounts-invite-card.webp" alt="A friend sent you a card: the friend's card, Report, and the age screen under it" width="260">
 

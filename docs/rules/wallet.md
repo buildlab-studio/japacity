@@ -79,7 +79,7 @@ Each way carries its state (taken, open, shut), what it still needs, its monthly
 Which pocket money is taken from or paid into. Earned naira credits follow wallet:money-lands-as-in-lagos.
 
 - **`transfer`**: the bank first, then cash, never locked money. This is how Lagos pays (by transfer) and how people pay abroad (by tap) (decision 0014).
-- **`any`**: the street: a fare, the kiosk and the bet slip, the phone stall, an agent at the park who wants it today. Cash first at or under `tuning.wallet.cashUpTo` (₦10,000), the bank first above it, never locked money (wallet:money-lands-as-in-lagos).
+- **`any`**: the street: a fare, the kiosk and the bet slip, the phone stall, an agent at the park who wants it today. Taken by its size (wallet:money-lands-as-in-lagos).
 - **A named pocket** is used as named. A bank credit marked `locked` goes to the locked pocket.
 - **Cash alone** is taken only by the aboki (wallet:aboki-trades-at-street-rate), a theft and a robbery.
 - **A foreign fee abroad** follows wallet:foreign-fee-payment-order, the bank first. It may be recorded as two debits, one per pocket, under the same reason.
@@ -110,18 +110,16 @@ Every reason in `Reason` (`packages/sim/src/engine/types.ts`), with the page tha
 
 ## Why it is built this way
 
-- **Naira savings lose value when the naira falls.** Funds are valued in pounds on the day, so a balance can drop under the line without a kobo leaving it.
-- **Dollars and pounds are the hedge, and the bank sells few of them.** The aboki sells any amount, as cash, but cash paid into the bank is a flagged deposit for three months.
-- **A dollar salary is documented from the start.** That is why the remote job matters.
+Naira savings against fees in foreign money, dollars as the hedge, and cash deposits recorded as lots: `../design/01-concept.md` section 13, "Why it matters in play".
 
 ## Effects and requirements this kind handles
 
-The part before the slash names the kind that carries out an effect or judges a requirement (`engine.md` section 5). The types are in `packages/sim/src/engine/types.ts`.
+How these types are named and judged: [`engine.md` section 5](engine.md#_5-kinds).
 
 | Type | | What it does |
 |---|---|---|
 | `money/add` | effect | Credits `amount` to a pocket under a reason; `flagged` records a lot (wallet:large-deposits-record-lots), `locked` puts it in the locked pocket |
-| `money/take` | effect | Debits `amount` from `bank`, `cash`, `locked`, `any` (the street: cash first at or under `tuning.wallet.cashUpTo`, the bank first above it, wallet:money-lands-as-in-lagos) or `transfer` (bank first, then cash); all or nothing (wallet:no-pocket-below-zero) |
+| `money/take` | effect | Debits `amount` from `bank`, `cash`, `locked`, `any` (the street, by its size: wallet:money-lands-as-in-lagos) or `transfer` (bank first, then cash); all or nothing (wallet:no-pocket-below-zero) |
 | `money/pay-fee` | effect | Pays a foreign-currency fee by wallet:foreign-fee-payment-order |
 | `wallet/top-up` | effect | Credits `amount` to the naira bank as `top-up`, records a lot and raises the marked figure (wallet:top-ups-are-marked); only the authority's command of the same name applies it |
 | `money/min` | requirement | Bank and cash together, or the named pocket, hold at least `amount`; locked money never counts |

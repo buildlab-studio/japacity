@@ -15,7 +15,7 @@ A month has one main activity (the job) and two or three free slots. An activity
 
 **activity:costs-paid-bank-or-cash** Each cost is paid under its own ledger reason.
 - A cost in naira is paid by transfer: the bank first, then cash.
-- A street price (the kiosk, the bet slip, the phone stall) follows its size: cash first at or under `tuning.wallet.cashUpTo`, the bank first above it (decisions 0012 and 0014).
+- A street price (the kiosk, the bet slip, the phone stall) is taken by its size, as wallet:money-lands-as-in-lagos says (decisions 0012 and 0014).
 - A cost in a foreign currency follows wallet:foreign-fee-payment-order.
 
 **activity:job-hunt-lands-offer** One month of job hunting lands the named job with a chance of its base chance plus 20 basis points for each point of network, never more than 9500. On success a job offer opens that names the job. The job's requirements must hold to hunt for it, and a job already held cannot be hunted.
@@ -25,7 +25,7 @@ A month has one main activity (the job) and two or three free slots. An activity
 
 **activity:new-job-replaces-held** Starting a job replaces the job held, at once. `activity/quit` leaves the character with no job; with no job to leave it is rejected with `not-legal`. Time served in a job is kept when it is left.
 
-**activity:missed-hunt-opens-a-lead** A miss moves the story. In a life's first three months (the month being played is 1 to 3), the first hunt at home that misses, while the life holds no job and has no job offer open, opens a lead, once a life.
+**activity:missed-hunt-opens-a-lead** A missed first job hunt opens a lead. In a life's first three months (the month being played is 1 to 3), the first hunt at home that misses, while the life holds no job and has no job offer open, opens a lead, once a life.
 - After the line that says the named job came to nothing, a person in the life (Lanre at the hub, who hands the first briefs) gives a lead: `offer.job-lead`, for the lowest-paid job the life may hunt in that slot. In the main slot, that is the lowest-paid job whose pay covers the naira the life owes a month, else the lowest-paid of them all; in the side slot, the lowest-paid. Jobs are ordered by pay valued in naira at the official rate, then by id.
 - When that job is the one just missed, the lead is `offer.job-word` for it instead: the person put in a word for that same job.
 - Either is an offer like the job offer: `accept` starts the job, `decline` lets it go, and it lapses after two months into nothing. Its line, `line.activity.hunt-lead` or `line.activity.hunt-word`, has tone `good`.
@@ -35,13 +35,13 @@ A month has one main activity (the job) and two or three free slots. An activity
 
 **activity:requirements-judged-at-hunt** Requirements decide who can get a job. They are judged when the hunt lands, not again when the job offer is accepted. A job already held is kept even if they stop holding.
 
-**activity:side-gig-pays-a-draw** A side gig pays a draw between its lowest and highest figure, plus its per-point figure for each point of tech, landing where its size says (wallet:money-lands-as-in-lagos: a sum over `tuning.wallet.cashUpTo` is a transfer to the bank). Reason `gig`.
+**activity:side-gig-pays-a-draw** A side gig pays a draw between its lowest and highest figure, plus its per-point figure for each point of tech, paid into the pocket its size takes (wallet:money-lands-as-in-lagos). Reason `gig`.
 
 **activity:last-month-plan-kept** The free slots played last month are stored. The client does not ask for the same again, since the plan carries on by itself (world:month-acts-carry-on).
 
 **activity:side-job-holds-a-slot** A side job (`slot: "side"`) holds one free slot for as long as it is kept. It is started like a job (hunted, then offered) and ends with `activity/quit` with `side: true`. One side job at a time. While held, it:
 - locks one slot (turn:slots-can-be-locked with the reason `side-job`);
-- pays each `main` phase: naira under `gig` to the pocket its size takes (wallet:money-lands-as-in-lagos: cash at or under `tuning.wallet.cashUpTo`, the bank above it); a foreign currency to that currency's bank pocket under `salary`;
+- pays each `main` phase: naira under `gig` to the pocket its size takes (wallet:money-lands-as-in-lagos); a foreign currency to that currency's bank pocket under `salary`;
 - costs its monthly wellbeing;
 - halves every skill gain, as quality:high-skills-gain-slower does at the soft cap.
 
@@ -115,7 +115,6 @@ Each trade has one side job (activity:each-trade-climbs-its-ladder), the boat tr
 | Accountant | `activity.bookkeeping` | Bookkeeping for small firms | ₦70,000 | Bachelor's degree | 40% | Wellbeing -4 |
 | Anyone | `activity.ride-driving` | Driving for a ride app at night | ₦120,000; ₦150,000 at network 70, ₦180,000 at 85 | `quality.driving` 1 | 45% | Wellbeing -7 |
 
-Naira side pay lands in the bank by its size (activity:side-job-holds-a-slot).
 
 Two free-slot activities prevent the one chance robbery that month (activity:one-chance-bus-robbery):
 - `activity.safe-ride`: ₦25,000 a month, reason `upkeep`, a proper ride home.
@@ -257,7 +256,7 @@ The trader's first chapter speaks in her words (the settlement, the shop), and h
 - A better-paid rung of the other trade that counts those months among more jobs (the chartered accountant, for the bank officer) is the road across. Jobs shows it under the next rung with its pay and that the months held count toward it; Papers lists the papers it asks beside the next rung's (document:trade-papers). It is never the next rung.
 - Each trade's own surplus reaches a way out that fits it. The targets for how soon are `../design/13-the-economy.md` section 2, held by scenario:economy-meets-its-targets.
 
-**activity:capital-opens-own-work** Some rungs are opened, not hunted: own work started with its capital. A now-act staged where the work is takes the capital at once from the naira by its size (decision 0014) under the reason `goods`, all or nothing, and starts the job with `activity/start-job`, as the main job or the side job its entry names. With the capital short it is shut, with its reason.
+**activity:capital-opens-own-work** Some rungs are opened, not hunted: own work started with its capital. A now-act staged where the work is takes the capital at once from the naira by its size (wallet:money-lands-as-in-lagos) under the reason `goods`, all or nothing, and starts the job with `activity/start-job`, as the main job or the side job its entry names. With the capital short it is shut, with its reason.
 
 | Act | Where | Needs | Capital | Starts |
 |---|---|---|---|---|
@@ -336,7 +335,7 @@ From nothing to junior-ready while holding a job: the free path 10 months; the s
 
 ## Effects and requirements this kind handles
 
-The part before the slash names the kind that carries out an effect or judges a requirement (`engine.md` section 5). The types are in `packages/sim/src/engine/types.ts`.
+How these types are named and judged: [`engine.md` section 5](engine.md#_5-kinds).
 
 | Type | | What it does |
 |---|---|---|

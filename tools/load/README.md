@@ -1,6 +1,6 @@
 # The load test
 
-The load test checks that the authority, with its stores, takes the peak's commands without falling over or getting anything wrong. The rules are `docs/rules/load.md`; the numbers are in `load.config.ts`.
+The load test checks that the authority, with its stores, takes the peak's commands without falling over or getting anything wrong. It is for whoever changes the command route or the stores. The rules are [`docs/rules/load.md`](../../docs/rules/load.md); the numbers are in `load.config.ts`.
 
 Everything runs on your own machine. Nothing is deployed and no account is made anywhere else.
 
@@ -42,7 +42,7 @@ pnpm tsx tools/load/verify.ts
 ```
 
 - `run.sh` also takes `--minutes`, `--base` and `--no-verify` (see the usage line in `run.ts`).
-- `--scale 1` is the full target: 100,000 accounts at 420 commands a second.
+- `--scale 1` is the full target: `config.load.accounts` accounts at `config.load.commandsPerSecond` (the Numbers table of [the load rules](../../docs/rules/load.md)).
 - The load Worker runs on the memory stores; production's stores are Postgres (decision 0006).
 - `wrangler dev` writes `apps/server/.wrangler/`, which git and the lint ignore.
 

@@ -1,6 +1,6 @@
 # Papers and the file chapter
 
-Every way out of the country asks for papers: a passport, a transcript, an English result, a TB certificate, and for some ways a council's verification or a police certificate. Each paper takes a fee and a wait, and most run out after a while. The phone's Papers app holds them all in one list and says where each one stands in plain words. It is also where a paper asked for by call or message is requested. The second chapter, "Build the file", teaches this part of the game.
+Every way out of the country asks for papers: a passport, a transcript, an English result, a TB certificate, and for some ways a council's verification or a police certificate. Each paper takes a fee and a wait, and most run out after a while. This page shows how a player asks for papers, follows them in the phone's Papers app, and builds the file the second chapter asks for. The fees, waits and expiry of each paper are on the rule page [Documents](../../rules/document.md).
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
 <img src="/pictures/papers-not-yet.webp" alt="The Papers app before anything is asked for: the passport with the way to the passport office, the transcript with a call to chase it" width="260">
@@ -23,7 +23,7 @@ Each row gives the paper's state in words:
 - "Held", for one that never runs out;
 - run out (struck through).
 
-A paper close to running out carries a warning line. The English result also shows its band. Under the state, a line says which ways out the paper counts towards, the plan's first, at most two by name.
+A paper close to running out carries a warning line, unless a new copy is already on its way. The English result also shows its band. Under the state, a line says which ways out the paper counts towards, the plan's first, at most two by name.
 
 When a paper can be asked for now, the row carries its act:
 
@@ -37,13 +37,9 @@ When a paper can be asked for now, the row carries its act:
 <img src="/pictures/papers-nurse-box.webp" alt="A nurse's papers: the licence with its renewal, the council's verification not yet asked, each with its act" width="260">
 </div>
 
-::: tip A paper on its way
-A paper being made is "on its way" whether it is a first copy or a renewal of one you hold. A held paper with a new copy coming is not warned of as running out, because its replacement is already coming.
-:::
+## The visits
 
-## The passport office
-
-The passport is a visit. Papers says "At the passport office" and opens the map with the passport office in Ikoyi picked. The ride sheet shows the fares by danfo, keke and okada, and whether it is close enough to walk. At the office's desk the act is "Apply for a passport". The office is a stop of its own on the map; inside, it uses the visa centre's hall, with its own passport desk.
+The passport is a visit. Papers says "At the passport office" and opens the map with the passport office in Ikoyi picked, and the ride sheet shows the fares and whether it is close enough to walk. At the office's desk the act is "Apply for a passport". The office is a stop of its own on the map; inside, it uses the visa centre's hall, with its own passport desk.
 
 <img src="/pictures/papers-passport-office-map.webp" alt="The map with the passport office in Ikoyi picked and the ride sheet's fares" width="260">
 
@@ -63,14 +59,21 @@ flowchart TD
   I --> J["Held, valid for N months, then it runs out"]
 ```
 
+A few things a player may notice along the way, each set by the [Documents](../../rules/document.md) rules:
+
+- Asking again for a paper already on its way still costs the fee and changes nothing; the results say so.
+- A held passport stays in force while its renewal is being made.
+- The English result comes out the morning after the month it is due, with a band that can land half a band either side for the same English.
+- Abroad, the acts that are visits point at places in the country you are in.
+
 ## Speeding up a paper
 
-Each paper waits a number of months within a range: a passport one to three, a transcript one to four, an English result one month, a TB certificate none. Two kinds of person can bring a paper forward. Both are found through people (a friend's chat line, asking around at the motor park), never in a shop:
+Each paper's wait is drawn within a range. Two kinds of person can bring a paper forward, both found through people (a friend's chat line, asking around at the motor park), never in a shop:
 
-- **The chaser** follows up the office for you: slower and cheaper, one month sooner.
-- **The fixer** moves the paper's date himself: dearer, two months sooner.
+- **The chaser** follows up the office for you: cheaper, and a little sooner.
+- **The fixer** moves the paper's date himself: dearer, and sooner still.
 
-Both come as agent offers, and the fee never tells you which kind you met. See [Routes and japacity](./routes.md) for the agents who are neither.
+Both come as agent offers, and the fee never tells you which kind you met. The other kinds of agent, and how to tell them apart, are on [Routes and japacity](./routes.md#finding-out-where-you-stand).
 
 ::: warning Fake papers
 A scammer may offer fake papers for a little more. A fake paper used in an application is marked for good: the routes that check it refuse the application, and the interview asks about it. A fake never used can be replaced by asking for the real one.
@@ -84,19 +87,11 @@ A paper that is issued, runs out, is made void, is asked for, or is brought forw
 
 ## The file chapter
 
-The second chapter, "Build the file", opens with one line: "A file is paper and legwork: a passport, a transcript, a score, a letter." For the master's in the UK it asks for four things: the passport held, the transcript held, the English, which the bachelor's degree meets with no test and which is ticked from the start, and an offer from a school.
+The second chapter, "Build the file", opens with one line: "A file is paper and legwork: a passport, a transcript, a score, a letter." For the master's in the UK it asks for the passport, the transcript, the English (which the bachelor's degree meets, so it is ticked from the start) and an offer from a school.
 
 Lanre hands it over at the hub as a brief, "Papers, abeg", with each thing it asks for as a picture and the place to get it. The brief stays in Japa, each thing ticked as it comes in. In the world it shows only in the moment: under the band for a few seconds when it is handed over, and while you stand at the step's place, where a marker shows what to do.
 
-The chapter follows the way out the life leans to. Other ways have their own file:
-
-| The way | Its file asks for |
-|---|---|
-| A master's in the UK | Passport, transcript, the English (met by the degree), a school's offer |
-| Health care in the UK | 24 months on the ward, the council's verification, a sponsor, the application |
-| The UK talent visa | The portfolio, the endorsement, the application |
-| Permanent residence in Canada | The degree assessment, English at band 6.0, the pool, the invitation |
-| A contract in the Gulf | The passport first, the medical, the agent, the contract |
+The chapter follows the way out the life leans to, so health care, the talent visa, points in Canada and the Gulf contract each have a file of their own. What each asks for is in the [Chapters](../../rules/chapter.md#entries) entries.
 
 ```mermaid
 flowchart LR
@@ -107,15 +102,6 @@ flowchart LR
   C5 --> C6["Secure"]
   C2 -.->|"the lean route picks the variant"| V["Health care, talent, points or Gulf file"]
 ```
-
-::: details Exceptions
-- A second request for a paper already on its way still costs the fee and changes nothing; the results say so.
-- A paper with no wait, such as the TB certificate, is issued at the first month's end after it is asked for.
-- The English result waits for the next morning after the month it is due. Until then Papers still shows it on its way, and it arrives as a notice on the lock screen.
-- The English result's band is drawn when it is issued, from English plus a small draw either way, so the same English can come out half a band apart.
-- A held passport stays in force while its renewal is being made, and the new one replaces it when issued.
-- Abroad, the papers list starts with the status held, and the acts that are visits point at places in the country you are in.
-:::
 
 ## Rules it rests on
 

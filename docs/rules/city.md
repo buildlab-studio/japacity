@@ -3,7 +3,7 @@
 > Kind: `place`, one entry per 3D place, world scope, as listed in `../design/03-structure-and-conventions.md` section 7. The assets the places are built from follow `assets.md`. The pipeline is `../decisions/0009-models-are-code.md`.
 > Builds on `../design/06-assets-and-visuals.md`, `../design/01-concept.md` sections 9, 10, 15 and 17, `../research/08-real-places-and-map-data.md`, `place.md`, `route.md`, `road.md` and `text.md`.
 
-The city is where the life is seen: a set of 3D places such as streets, markets, bus stops, the airport and a room. The city reads the view and shows it; it never changes the simulation. Activities, offers and set pieces are staged in the place where they would happen, so a month in the game looks like a month in Lagos, Peckham or Deira.
+The city is where the life is seen: a set of 3D places such as streets, markets, bus stops, the airport and a room. Activities, offers and set pieces are staged in the place where they would happen, so a month in the game looks like a month in Lagos, Peckham or Deira. This page holds the places' rules and their entries.
 
 ## Rules: the city and the simulation
 
@@ -64,7 +64,7 @@ The people of the viewing centre, the shed and the deck are posed and carry no a
 
 ## Rules: the crowd
 
-**city:crowd-sample-capped** A place shows a sample of the people in it, never a list, and never a count beyond a band (`quiet`, `busy`, `packed`). The sample is at most `tuning.city.crowdLow` people in the low graphics mode and `tuning.city.crowdHigh` in the high mode. Each is also capped by the place's own `crowd` figures and by the number of people world:place-is-one-screen allows for a place of its scope: 6 low and 10 high outdoors, 4 and 6 indoors. A place dressed for the send-off party is the exception and keeps its own crowd. The tuning's 8 and 16 are above every scope's cap, so the scope's cap is the one that binds.
+**city:crowd-sample-capped** A place shows a sample of the people in it, never a list, and never a count beyond a band (`quiet`, `busy`, `packed`). The sample is at most `tuning.city.crowdLow` people in the low graphics mode and `tuning.city.crowdHigh` in the high mode. Each is also capped by the place's own `crowd` figures and by the number of people world:place-is-one-screen allows for a place of its scope. A place dressed for the send-off party is the exception and keeps its own crowd. The tuning's 8 and 16 are above every scope's cap, so the scope's cap is the one that binds.
 
 **city:players-fill-the-crowd** Other players chosen by the authority fill a sample before computer people do. They take every slot that no part holds (city:residents-fill-to-target); computer people, built from the place's dress mix (city:dress-mix-by-place), fill only the slots no player takes.
 - Every player in a sample carries their account's username (account:username-and-unconfirmed-email) and the look picked at the door (account:person-kept-with-character), whether or not the two players joined through each other. When the name shows is set by city:players-carry-name-tags.
@@ -78,7 +78,7 @@ The people of the viewing centre, the shed and the deck are posed and carry no a
 
 ## Rules: loading and graphics
 
-**city:places-load-on-entry** A place loads when the player enters it and is cached afterwards. Its files are named by content hash and kept in the browser's cache, so a second visit downloads nothing. Only the hub is in the first download (5 MB with the code and one character, `../design/06` section 6). In the low mode no other place is fetched before it is entered. While a place loads, the screen shows its name and the progress, and the panels stay usable. The progress is a filling bar (role progressbar), never a percentage: the shared loader (engine:browser-authority-for-dev-only) under the place's name, filled to the share of its models loaded. In the world the note stands under the band, never behind it.
+**city:places-load-on-entry** A place loads when the player enters it and is cached afterwards. Its files are named by content hash and kept in the browser's cache, so a second visit downloads nothing. Only the hub is in the first download (its first-load budget, with the code and one character, is in `assets.md`, "Budgets for one place"). In the low mode no other place is fetched before it is entered. While a place loads, the screen shows its name and the progress, and the panels stay usable. The progress is a filling bar (role progressbar), never a percentage: the shared loader (engine:browser-authority-for-dev-only) under the place's name, filled to the share of its models loaded. In the world the note stands under the band, never behind it.
 
 **city:two-graphics-modes** The game has two graphics modes, `low` and `high`.
 - Starting mode: a desktop (a fine pointer and a window at least `tuning.city.desktopMinWidth` CSS pixels wide) starts in `high`. A phone, or a fine pointer in a narrower window, starts in `high` when its screen is sharp (pixel ratio 2 or more) and it has at least `PHONE_HIGH_MEMORY_GB` (4) of memory, or a memory the browser does not report (Safari). A coarse screen or less memory starts in `low`. A phone that can run `high` starts there, because a rise from `low` looks like the game starting on poor graphics and then improving.
@@ -127,7 +127,7 @@ The OpenStreetMap attribution guidelines allow a credits page for games.
 
 ## Rules: motion
 
-Every place has ambient motion, on by default everywhere. Motion merged into one mesh adds about one draw call and almost no script time; finer meshes slow the frame, not motion (Numbers).
+Every place has ambient motion, on by default everywhere.
 
 **city:one-clock-one-wind** Every moving thing in a place reads one clock and one wind that the place owns: a time value and a wind value (a direction and a slow gust strength), updated once a frame and passed to every moving material as shared uniforms. Nothing keeps a clock or a wind of its own, so one gust moves the flag, the washing and the smoke together.
 
@@ -135,15 +135,15 @@ Every place has ambient motion, on by default everywhere. Motion merged into one
 
 **city:no-script-loop-per-sheet** No sheet, water grid or particle has a script loop of its own: each frame, the script updates the clock and the wind and nothing else for them. Plain script motion is kept to whole-object movements (a palm leaning, a canoe bobbing, a person idling). The place check renders each place still and moving, and fails it when motion adds more than `motion.extraDrawCalls` draw calls or more than `motion.scriptUs` microseconds of script a frame on the cheap phone profile (city:party-room-sets-the-bar).
 
-**city:motion-never-turned-off** The graphics mode never turns motion off. What it changes is mesh fineness: each place ships two mesh levels for its sheets and water grid, `coarse` and `fine`, and the mode picked from the measured frame rate (city:two-graphics-modes) picks the level: `low` draws `coarse`, `high` draws `fine`. Finer meshes cost about a fifth of a frame and the motion itself almost nothing (Numbers), so on a weak phone the mesh is what steps back. Water, smoke and leaves move in both modes. How many moving sheets a place draws is set by world:place-is-one-screen (at most one, none in low mode).
+**city:motion-never-turned-off** The graphics mode never turns motion off. What it changes is mesh fineness: each place ships two mesh levels for its sheets and water grid, `coarse` and `fine`, and the mode picked from the measured frame rate (city:two-graphics-modes) picks the level: `low` draws `coarse`, `high` draws `fine`. Finer meshes cost about a fifth of a frame and the motion itself almost nothing (Numbers), so on a weak phone the mesh is what steps back. Water, smoke and leaves move in both modes. How many moving sheets a place draws is set by world:place-is-one-screen.
 
 **city:hidden-scene-idles** A scene nobody is looking at idles: while the panels or the map stand in front of the city, it draws one frame a second, so the panels get the processor. When the city is in front, it draws every frame.
 
 ## Rules: walking
 
-The world is the game and the sheets support it (`../design/07-the-world-first.md`): the player always stands in a place and plays by touching it. A place is one screen of ground, never a free-roam world, so the player moves only as far as a tap on a thing needs.
+The player always stands in a place and plays by touching it (`../design/07-the-world-first.md`). A place is one screen (world:place-is-one-screen), never a free-roam world, so the player moves only as far as a tap on a thing needs.
 
-**city:tap-to-walk** Tap to walk. As world:nothing-roams says, nothing roams.
+**city:tap-to-walk** Tap to walk: this rule owns the character's walk, the only way it moves (world:nothing-roams).
 - A tap on a thing walks the player's character to it in a straight line, stopping `tuning.city.stopShortMm` short of a person or object, and the act follows. The walk takes about one second whatever the distance, and a second tap ends it at once.
 - A tap on the ground walks there only inside the place's walkable polygon, with no route round the things in the way.
 - A routed walk is behind `tuning.city.roam`, which is false. When on, it finds a route on the place's blocked-ground map, built once on entering the place from every model's footprint and the place's walkable ground (assets:models-record-their-footprint), walks at `tuning.city.walkMmPerS`, and searches a 25 cm grid (under a millisecond a tap on the cheap phone profile in the middle case, about nine at worst), so nobody walks through a bus.
@@ -158,7 +158,7 @@ The world is the game and the sheets support it (`../design/07-the-world-first.m
 - The build check refuses an act at a spot the place lacks, and a `staff` mark that is not `true`, is on a crossing, or is past the high mode's people.
 - The residents who stand at the parts when no other player is online, as city:sample-seeded-by-date chooses them, keep those spots whoever comes. A player never takes a part. Other players take every other slot (city:players-fill-the-crowd), and residents fill only what is left.
 - Someone standing at a thing of their own (world:place-is-one-screen) takes the place of a filler resident first, then of a player seen there only today, then of a player there now, the last placed first each time, and a part's only when no one else is left to give way. So the scope's cap of world:place-is-one-screen always holds.
-- Residents are the computer people of city:players-fill-the-crowd and city:dress-mix-by-place, chosen as city:sample-seeded-by-date chooses them.
+- Residents are the computer people of city:players-fill-the-crowd and city:dress-mix-by-place.
 - The targets live in the private settings (server:private-settings-and-dials); the public content holds working values.
 
 **city:residents-carry-no-tag** A resident carries no tag and no mark over the head. A tap on a resident opens a small card with a name and a role from content and the line "Lives in the city", for example "Iya Bisi, trader. Lives in the city." A resident's name is a common first name from the client's fixed list, with a street title by age and sex (Iya, Mama, Aunty; Baba, Oga, Brother; or the name alone), picked from the resident's hash (`RESIDENT_NAMES` and `RESIDENT_TITLES` in `apps/client/src/features/city/city.words.ts`). It is not drawn from person:computer-names-generated.
@@ -170,8 +170,7 @@ The world is the game and the sheets support it (`../design/07-the-world-first.m
 - No position, path or movement of another player is ever sent. The authority's sample (`GET /api/place/:place`) gives the look and the username (city:players-fill-the-crowd), and whether the player is there now or was there today.
 - Those seen today take the slots after those there now, and give way first when someone stands at a thing of their own (city:residents-fill-to-target).
 - The place's object keeps today's list, at most `presence.todayMax` entries, in its own storage, cleared when the Lagos day turns, and never in the game's database.
-- As world:nothing-roams says, nothing roams: the people shown in a place stand, sit or dance at their spots and do not stroll.
-- Strolling is behind the same `tuning.city.roam`. When on, residents and present players stroll between the place's spots now and then on city:tap-to-walk's route map, at walking pace, idling at each spot for a while, never two on the same spot. It is client state only, never synced, and costs no draw call.
+- They do not stroll (world:nothing-roams). Strolling is behind the same `tuning.city.roam` as city:tap-to-walk's routed walk. When on, residents and present players stroll between the place's spots now and then on city:tap-to-walk's route map, at walking pace, idling at each spot for a while, never two on the same spot. It is client state only, never synced, and costs no draw call.
 
 ## Rules: the party room bar
 
@@ -442,7 +441,7 @@ What this page defines in `packages/sim/src/engine/types.ts` and the place schem
 2. `content.place: Record<Id<"place">, PlaceEntry>` in the content object.
 3. Tuning: `tuning.city: { crowdLow: number; crowdHigh: number; fridayBp: number; saturdayBp: number; raiseAfterMs: number; raiseFrameMs: number; dropAfterMs: number; dropFrameMs: number; maxPixelRatio: number; desktopMinWidth: number; walkMmPerS: number; stopShortMm: number; roam: boolean; ride: ... }`. `roam` is city:tap-to-walk's and city:players-shown-present-not-tracked's. `ride` holds the rides' fares and ways, which the simulation reads (place:rides-between-city-places); the simulation reads nothing else of `tuning.city`. It lives in content so an overlay can change it (engine:numbers-read-from-content).
 4. Content checks: city:four-kinds-of-name field rules by `nameKind`; city:places-stage-their-acts each staged id exists and is staged once per `where` and country; city:ojuelegba-is-the-hub exactly one `hub: true` at home and one per country; city:sponsor-shows-name-only no sponsor on an institution, a stylised place or a place staging an offer with a fraud chance; city:road-places-are-stylised every `road`-group offer and road set piece staged only at a stylised place; city:place-words-are-text-keys a public place's name text equals its `realName`.
-5. Text keys in `place.text.ts`: `<id>.name`, `<id>.blurb`, `<id>.sign.<n>`, `<id>.overheard.<n>`.
+5. Text keys in `place.text.ts`, as city:place-words-are-text-keys lists them.
 6. Outside the simulation, the authority's presence sample (`GET /api/place/:place`) answers `PresenceReply` (`packages/api/src/game.ts`): `{ place: string; others: Array<{ name: string; look: string }>; today: Array<{ name: string; look: string }> }`, `others` the players there now and `today` some seen there today (city:players-shown-present-not-tracked). The name is the account's username and the look the one kept with the character (account:person-kept-with-character), read by `profileOfIn` in `apps/server/src/postgres.ts`; the character's own name never reaches another player.
 7. The content check fails a `crowd.target` over the entry's `high` (city:residents-fill-to-target).
 8. The walk's numbers (city:tap-to-walk) are in `tuning.city` (item 3). The idle rate of city:hidden-scene-idles is the scene's own constant (`IDLE_MS` in `CityScene.tsx`). city:players-carry-name-tags has no number.

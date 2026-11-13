@@ -18,6 +18,7 @@ Each kind's words are in `packages/content/src/<kind>/`, in `<kind>.text.ts`: a 
 | A news story at a stage | `<id>.<stage>.head`, `<id>.<stage>.body` | `news.naira-float.in-force.head` |
 | A set piece question and answer | `<id>.q.<question>`, `<id>.a.<question>.<answer>` | `setpiece.credibility-interview.q.after` |
 | A chapter | `<id>.title`, `<id>.open`, `<id>.close`, `<id>.item.<item>` | `chapter.send-off.close` |
+| A chapter's brief, as the player is handed it | `<id>.brief.title`, `<id>.brief.giver`, `<id>.brief.reward.<n>`, with `chapter.brief.*` shared | `chapter.brief.giver` |
 | A checklist item | `<route id>.item.<item>` | `route.uk-masters.item.funds` |
 | A report line | `line.<kind>.<what>` | `line.wallet.short-count` |
 | A rejection | `reject.<code>` | `reject.setpiece-open` |
@@ -27,9 +28,16 @@ Numbers go in with braces: `"Salary: {amount}"`. The interface formats money, mo
 
 The content check fails when an entry has no name, a report line's key has no text, or a text names a number its line does not carry.
 
+How the tables come together:
+
+- `packages/content/src/index.ts` merges every words file into one `text` table with `mergeText`, which throws when two files give the same key, so one file never hides another's line.
+- A new table in `ui/` is added to `textTables` there, so the voice test (`apps/client/src/cross-feature/voice.test.ts`) reads it.
+- Words a first visit does not need (each country's places and rides, the painted maps abroad, the send-off) are in `ui/` files that content's `index.ts` never imports. The client fetches each on its own path (`@japacity/content/ui/london` and the others) when the life needs it (engine:first-download-has-budget).
+- The client's `say` (`apps/client/src/shared/words/text.ts`) looks a key up in `text` first, then in a country's late words. A key with no words shows as itself, so a gap is seen in play rather than hidden behind a guess.
+
 ## Money on screen
 
-- A line's money is a typed param, `{ currency, amount }` in minor units, never a bare number. The screen formats it in its own currency, in whole units of the major currency (whole naira, whole pounds). A bare number in a line is a count, a band or a point; the screen never guesses money from a param's name.
+- A line's money is a typed param (engine:report-money-is-typed). The screen formats it in its own currency, in whole units of the major currency (whole naira, whole pounds), and never guesses money from a param's name.
 - Exception: a ride's fare abroad keeps its pence or cents wherever the real fare has them ("£1.75" on the ride sheet, the ride's pill and the way's button), since a whole-pound bus fare would be a false price. Every other sum abroad stays whole.
 - One line says its money one way. Either every sum on it is in full ("₦738,000 of ₦2,010,667"), or a big sum is said short and rounded down ("₦2.5m"); a short sum stands only alone where room is tight (a stamp, a road's line), never beside a sum in full.
 - **text:money-in-bank-words** Money moves in the words a Nigerian bank app and its users say: send, transfer, sent, received, paid, fee, charges, rate, balance, arrives, arrived, in the bank, as cash.
@@ -94,7 +102,7 @@ The content check fails when an entry has no name, a report line's key has no te
 | The results | the past month, past tense, plainly: what happened, never what you felt |
 | News | a happening in the world, present tense, never "you hear" or "people are talking", never advice. Every story names its source with a small icon and a word (the radio, the paper, the official page, the street, or a person's name), and a rumour is marked as a rumour, so it never reads like a changed rule |
 | A person's line | theirs, in quotes |
-| The nudge | one thing to do, imperative, under eight words |
+| The nudge | one thing to do, in the imperative (its length and choice: world:nudge-says-one-thing) |
 
 No machine tells anywhere: no em-dash or en-dash, no stacked adjectives, no "delve", no mirrored sentences, no summing-up lines, no exclamation marks (a scam text's shout is a tell and the one exception), no "Oops", no "Get started", no word written twice in a row by mistake. A double people say ("now now", "sharp sharp") or a call with a comma ("Enter, enter") is speech and stays. A test walks every words table for these.
 
@@ -132,6 +140,6 @@ A scan over content's words, the interface's own included, fails on the dead-tim
 - An act the scene shows gets no line (the figure lies on the bed, so nothing says "You lie down").
 - A person's words are theirs, over their head, with no narration round them (world:things-are-tappable-models).
 - Plain beats compact when a chip cannot be understood without its sentence.
-- Nothing is smaller than 12 px except a label over a value.
+- Nothing is smaller than 12 px (world:reach-and-read).
 
 Each screen's test cites this rule for the words it shortens.

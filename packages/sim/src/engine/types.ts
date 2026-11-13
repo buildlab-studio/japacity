@@ -1598,7 +1598,7 @@ export interface CountryRides {
   /** The ways the month's pass makes ask nothing (place:country-pass-covers-ways): the UK the bus, Canada and the UAE the bus and the train, Italy none. */
   passWays: AbroadWay[];
   lonMetresPerE3: number;
-  /** Metres a minute on foot in that country (docs/design/11-calgary-dubai-and-castel-volturno.md section 4: the UAE 60, elsewhere 80). */
+  /** Metres a minute on foot in that country (docs/rules/place.md Numbers; the UAE's slower pace for the heat: docs/design/11-calgary-dubai-and-castel-volturno.md section 4). */
   walkMetresPerMinute: number;
 }
 

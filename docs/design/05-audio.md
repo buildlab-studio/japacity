@@ -2,7 +2,7 @@
 
 ## Context and scope
 
-The game's sound: the interface's short sounds, the visa officer's spoken lines, and how both behave in a phone's browser, where sound may start only after a tap and may be refused at any time. The rules are world:interface-sounds-made-live, world:officer-voice-drawn-per-interview, world:motions-under-half-second and assets:ai-media-recorded-and-credited. The code is in `apps/client/src/shared/sound/`.
+The game's sound and why it works as it does: the interface's short sounds, the visa officer's spoken lines, and how both behave in a phone's browser, where sound may start only after a tap and may be refused at any time. The rules are world:interface-sounds-made-live, world:officer-voice-drawn-per-interview and world:motions-under-half-second in [the world rules](../rules/world.md), and assets:ai-media-recorded-and-credited in [the assets rules](../rules/assets.md). The code is in `apps/client/src/shared/sound/`.
 
 ## Goals and non-goals
 
@@ -22,23 +22,22 @@ The game's sound: the interface's short sounds, the visa officer's spoken lines,
 
 ## 2. Interface cues
 
-A cue is one short sound the interface plays when something happens on screen. There are eleven (`Cue` in `cues.ts`):
+A cue is one short sound the interface plays when something happens on screen. The set is the `Cue` type in `cues.ts`, and each cue's tones and length are its row in `CUES`; every cue is short (world:motions-under-half-second).
 
-| Cue | Plays when | Length |
+Each cue stands for one kind of event. The examples are some of the places each plays; the calls to `cue` in the client are the full list.
+
+| Cue | Means | For example |
 |---|---|---|
-| `tap` | A main button is pressed: the band's month button, the brief's Let's go, a step of the send-off, a road in the Bank app, a buy in the Market app, waking from sleep | 50 ms |
-| `open` | A brief is handed over, and the send-off opens | 120 ms |
-| `close` | The results sheet or the send-off is left, a kiosk's answer is closed, an agent's offer is turned down, or an act carried on in the month is stopped | 110 ms |
-| `done` | The family's ring on the first ride abroad | 220 ms |
-| `coin` | Money comes in or goes out on the money toast, a buy or a sale in the Market app, an agent's offer is taken | 220 ms |
-| `whoosh` | A thing's acts fan out, and the plane leaves at the send-off | 420 ms |
-| `month` | The results sheet opens as the month turns | 420 ms |
-| `ding` | A step of the chapter is done, a brief closes, the interview's last answer is in | 200 ms |
-| `thud` | The stamp lands as a brief closes, 260 ms after its `ding` | 160 ms |
-| `no` | A refusal: a road the Bank app cannot take, a buy the Market app refuses, a thing that will not fit where it is set down | 270 ms |
-| `pop` | A thing you own is lifted in buy mode, the mode for moving the things in your room (world:room-things-and-buy-mode) | 80 ms |
-
-The three cues of the game's look, `ding`, `thud` and `no`, are each under 300 ms (world:motions-under-half-second). Every cue ends within half a second.
+| `tap` | A main button is pressed | The brief's Let's go, a step of the send-off, waking from sleep |
+| `open`, `close` | Something opens or is put away | A brief handed over; the results sheet left, an offer turned down |
+| `done` | An act went through at no cost | An act answered or planned, the family's ring on the first ride abroad |
+| `coin` | Money moves | The money toast, a buy or a sale in the Market app, an agent's offer taken |
+| `whoosh` | Something takes off | A thing's acts fan out, the plane leaves at the send-off |
+| `month` | The month turns | The results sheet opens |
+| `ding` | A step is done | A step of the chapter done, a brief's close, the interview's last answer |
+| `thud` | A stamp lands | The stamp as a brief closes, just after its `ding` |
+| `no` | A refusal | A road the Bank app cannot take, a thing that will not fit where it is set down |
+| `pop` | A thing is lifted | A thing you own lifted in buy mode, the mode for moving the things in your room (world:room-things-and-buy-mode) |
 
 ## 3. How a cue is made
 
@@ -50,10 +49,10 @@ One switch mutes every cue and every spoken line. It is in the phone's Settings 
 
 ## 5. The officer's spoken lines
 
-The visa interview's officer is the only voice in the game: sixteen lines, from the greeting to the close (`setpiece.credibility-interview.*`), in two voices, a man's and a woman's.
+The visa interview's officer is the only voice in the game: its lines, from the greeting to the close (`setpiece.credibility-interview.*`), in two voices, a man's and a woman's.
 
-- Each line's clip and its length in milliseconds, for each voice, sit beside its words key in `packages/content/src/setpiece/setpiece.voice.ts`.
-- The clips are in `apps/client/public/voice/officer/m/` and `apps/client/public/voice/officer/f/`: about 265 KB per voice for every line in both formats.
+- Each line's clip and its length in milliseconds, for each voice, sit beside its words key in `packages/content/src/setpiece/setpiece.voice.ts`, which is also the list of lines that are spoken.
+- The clips are in `apps/client/public/voice/officer/m/` and `apps/client/public/voice/officer/f/`, each with its measured size in its register row (`models/register.json`). Only one voice's clips are fetched for an interview (section 7).
 - A line with no clip, or whose clip is missing, plays a short voice-like sound instead, which costs no data.
 
 ## 6. Sources and licences
@@ -64,9 +63,9 @@ The officer's voices are generated with Phonon S 31M (Apache 2.0, model and voic
 
 ## 7. Spoken lines in the browser
 
-**A scene never waits on sound.** This rule comes before the others. The text is the scene. Sound is added when the browser allows it, and if anything about it fails, the player gets the same scene in text.
+**A scene never waits on sound.** This comes before everything below: if anything about sound fails, the player gets the same scene in text (section 1).
 
-**One officer for each interview (world:officer-voice-drawn-per-interview).** The interview shows no face for the officer, only the officer's pill and the desk's tile, so either voice fits. The client draws the voice from the month the interview is held in, which does not change while the interview is open: a reload brings back the same officer, and interviews in other months may get either. Only that voice's clips are fetched. Nothing on screen says whether the officer is a man or a woman.
+**One officer for each interview** (world:officer-voice-drawn-per-interview). The interview shows no face for the officer, only the officer's pill and the desk's tile, so either voice fits. The client draws the voice from the month the interview is held in, a value that does not change while the interview is open, so a reload brings back the same officer. Only that voice's clips are fetched.
 
 ### Browser limits
 
@@ -75,11 +74,11 @@ The officer's voices are generated with Phonon S 31M (Apache 2.0, model and voic
 | Sound starts only after a tap | The first tap anywhere in the game wakes sound, silently. Phones put sound back to sleep when the game goes to the background, so the first tap after it returns wakes it again. The tap on "Enter the interview room" is the backstop |
 | Any single play can be refused | Every failure is caught and the scene carries on in text. No error is shown |
 | A clip that never loads never ends | The answers show when the clip ends, when its known length plus 1.5 seconds has passed, or on a tap, whichever comes first. The lengths sit beside the clip keys in content |
-| Opus does not play everywhere | Each clip ships as Opus (24 kbps) and MP3 (32 kbps). The browser is asked which it plays, Opus first. A clip that will not decode is tried in the other format, then the voice-like sound stands in |
+| Opus does not play everywhere | Each clip ships as Opus and MP3 (section 6). The browser is asked which it plays, Opus first. A clip that will not decode is tried in the other format, then the voice-like sound stands in |
 | Phones limit loading | Only the clips the scene will use are fetched, starting when the application is sent, so the first line plays the moment the player walks in. When muted or saving data, nothing is fetched |
 | Cached audio | Clips are not stored for offline play. The browser's own cache keeps them |
 | A call or an app switch | Hiding the page stops the clip and puts sound to sleep. On return, the rest of the clip is skipped and the text is there |
-| A page cannot set the volume on a phone | A mute switch, remembered on the device (section 4). No volume slider. Sound is on by default; when muted nothing is fetched, and unmuting fetches from then on |
+| A page cannot set the volume on a phone | The mute switch of section 4, and no volume slider. Unmuting fetches from then on |
 | In-app browsers | The browser tests run the interview inside Instagram's and Facebook's in-app browsers, faked by their user agents (`apps/client/e2e/voice.spec.ts`) |
 | The iPhone silent switch | Spoken lines play through Web Audio, which stays quiet when the switch is on. Not checked on a real iPhone |
 

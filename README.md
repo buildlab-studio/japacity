@@ -76,7 +76,7 @@ Play it in your browser, on a phone or a computer. Nothing to download.
 - [How it is built](docs/site/built/index.md)
 - [The rules](docs/rules/engine.md)
 - [Design notes](docs/design/)
-- [Working on it](docs/site/built/working.md): requirements, commands and the check
+- [Working on it](docs/site/built/working.md): requirements, commands, the check and CI
 - [Run your own copy](docs/site/built/your-own-copy.md), with your own domain, database and keys
 - [Contributing](CONTRIBUTING.md)
 - [Decisions](docs/decisions/)

@@ -3,7 +3,7 @@
 > Rests on `share.md`, `text.md`, world:world-fills-the-screen and world:month-end-results-sheet, route:grant-moves-to-granted, route:refusal-refunds-and-resets, route:refusal-reasons-recorded and route:departure-pays-flight, advice:agent-kind-drawn-on-offer and advice:bad-news-told-straight, activity:one-chance-bus-robbery, luck:big-wins-are-staged, `lottery.md`, `chapter.md`, road:road-earns-nothing.
 > Kind: none new. The simulation holds nothing for these rules: the client picks the moment from the lines it receives and draws the card from the view; content holds every word (`packages/content/src/moment/moment.text.ts`).
 
-Every big outcome in the game is shown as one clean card over the scene, worth a screenshot: one line and a big number, often a loss, with the game's name on it. Moment cards are separate from the share cards of `share.md`.
+This page covers moment cards: every big outcome in the game is shown as one clean card over the scene, worth a screenshot, with one line and a big number, often a loss, and the game's name on it.
 
 ## Rules
 
@@ -68,7 +68,7 @@ A win is drawn light (the sheet under the band's head) and a loss dark (the band
 - The figure carries no plus or minus sign and stands in the card's own ink, never green or red.
 - No word on a card says alert, credit, debit, transaction, receipt, reference, account, balance, transfer, bank or stamp.
 
-**moment:words-in-game-voice** The words are content's, in the voice of `text.md`: second person, Nigerian English, short, no exclamation mark, no em dash or en dash.
+**moment:words-in-game-voice** The words are content's, in the voice of `text.md` ("Voice").
 
 - A loss is said straight, with no joke (text:bad-news-never-joked; the agent is told as advice:bad-news-told-straight says, naming him and the fee gone). Its punch is the plain fact and the figure.
 - A win may carry a wink.
@@ -93,7 +93,7 @@ A win is drawn light (the sheet under the band's head) and a loss dark (the band
 
 ## The lines
 
-Every line is in `moment.text.ts`. Wins carry a wink; losses are straight.
+Every line is in `moment.text.ts`.
 
 | Moment | Line chosen by |
 |---|---|
