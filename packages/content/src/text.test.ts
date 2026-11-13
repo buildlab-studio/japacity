@@ -111,7 +111,7 @@ describe("words for every entry", () => {
     const keys = Object.values(content.news).flatMap((story) =>
       stagesOf(story).flatMap((stage) => [`${story.id}.${stage}.head`, `${story.id}.${stage}.body`]),
     );
-    // news.md's "Words" table has fifteen rows, one for each story at each stage; director.md's pool adds 78
+    // news.md's "Words" table has fifteen rows for the stages below (and the refusals story's ended stage, counted later); director.md's pool adds 78
     // stages and its seven eras 21 (announced, in force, ended): 114 rows of a head and a body.
     // Plus the ended stage of the refusals story and the Canadian draw, which each have an end, and the
     // rumour of the UAE lifting, whose talk runs while the ban's 18 ticks run out: 236. Plus the one-chance story's

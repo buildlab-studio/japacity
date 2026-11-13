@@ -7,7 +7,7 @@ A route is a way out of the country: a master's in the UK, health care, the tale
 <img src="/pictures/routes-board-the-plane.webp" alt="Japa with how ready you are as a full bar, the next step Board the plane, and the brief carried" width="260">
 </div>
 
-## How a route moves
+## Route states
 
 ```mermaid
 stateDiagram-v2
@@ -20,7 +20,13 @@ stateDiagram-v2
   granted --> departed: you fly
 ```
 
-You hear of a route through a friend once your life fits it (a degree for the master's), at the first meetup for the talent visa, or by asking around at the motor park for the Gulf. Hearing only puts its name in Japa. Looking into it shows its checklist and gives it a japacity figure.
+You hear of a route:
+
+- through a friend, once your life fits it (a degree for the master's);
+- at the first meetup, for the talent visa;
+- by asking around at the motor park, for the Gulf.
+
+Hearing only puts its name in Japa. Looking into it shows its checklist and gives it a japacity figure.
 
 ## Finding out where you stand
 
@@ -36,17 +42,27 @@ There are four ways to look into a route. Each trades money, time and risk.
 Reading the official page corrects any wrong item a friend or an agent gave you.
 
 ::: warning Agents
-An agent is cheap and fast, and is one of four kinds: a fixer (brings a paper or appointment forward two months), a chaser (one month, cheaper), an overpromiser (promises a month he cannot keep), or a scammer (gives nothing). The fee never tells you which: the ranges overlap. Every agent shows one sign at once, and three free looks on his sheet find the rest before you pay: ask for his office, ask for his licence number, check his name with someone you know. A scammer carries at least two signs; a fixer at most one. Being careful is something you do.
+An agent is cheap and fast, and is one of four kinds:
+
+- a fixer, who brings a paper or appointment forward two months;
+- a chaser, who brings it forward one month, for less;
+- an overpromiser, who promises a month he cannot keep;
+- a scammer, who gives nothing.
+
+The fee never tells you which: the ranges overlap. Every agent shows one sign at once, and three free checks on his sheet find the rest before you pay: ask for his office, ask for his licence number, check his name with someone you know. A scammer carries at least two signs; a fixer at most one. Being careful is something you do, not something the game does for you.
 :::
 
 ## Japacity
 
-Each route's checklist adds up to 100. A met item earns its whole weight. The funds item is the long bar: it fills in part as your savings grow, and falls when the naira falls or a rule changes. A granted or departed route stands at 100. Your japacity is the best figure among the routes you know whose window is not closed, and those already under way. With none, it reads "no route yet".
+- Each route's checklist adds up to 100. A met item earns its whole weight.
+- The funds item is the long bar. It fills in part as your savings grow, and falls when the naira falls or a rule changes.
+- A granted or departed route stands at 100.
+- Your japacity is the best figure among the routes you know whose window is not closed, and those already under way. With none, it reads "no route yet".
 
 | A master's in the UK | Weight |
 |---|---|
 | Degree, grade, passport, transcript | 6, 4, 4, 3 |
-| English band 6.0 or better | 12 |
+| English: the bachelor's degree meets it, no test | 12 |
 | An offer from a school | 12 |
 | Deposit paid | 12 |
 | Funds shown cover the funds required | 28, filling in part |
@@ -61,7 +77,12 @@ The chapters follow one way out, the plan. By default it is the first way of you
 
 ## The points
 
-Permanent residence in Canada has no school and no sponsor. It has a score: points for your age, your education, your English and your work abroad, worked out each time and shown on the route from the day you know it. Entering the pool needs the degree assessment, English at band 6.0, twelve months of work and the funds Canada asks for. While your profile is live, the world's cut-off moves; when it falls to your score, you are invited and the application is on its way. A profile lapses after twelve months with no invitation. Age points fall with each birthday, so the score is a clock.
+Permanent residence in Canada has no school and no sponsor. It has a score: points for your age, your education, your English and your work abroad, worked out each time and shown on the route from the day you know it.
+
+- Entering the pool needs the degree assessment, English at band 6.0, twelve months of work and the funds Canada asks for.
+- While your profile is live, the world's cut-off moves. When it falls to your score, you are invited and the application is on its way.
+- A profile lapses after twelve months with no invitation.
+- Age points fall with each birthday, so the score runs down with time.
 
 ## The file and decision day
 
@@ -83,7 +104,7 @@ flowchart TD
   K --> D
 ```
 
-The chance of a refusal starts at a base and moves with how strict the world is, how much of the funds you cannot explain, earlier refusals, how the interview went and a good grade. It never falls below 3 in 100 or rises above 80 in 100. A clean file with a good interview is refused about 6 times in 100. The score of the interview is never shown.
+The chance of a refusal starts at a base and moves with how strict the world is, how much of the funds you cannot explain, earlier refusals, how the interview went and a good grade. It never falls below 3 in 100 or rises above 80 in 100. A clean file with a good interview is refused about 6 times in 100. The interview's score is never shown.
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
 <img src="/pictures/routes-granted-card.webp" alt="The decision day card: The visa came through, with japacity at 100%" width="260">
@@ -91,7 +112,12 @@ The chance of a refusal starts at a base and moves with how strict the world is,
 
 ## The visa and the flight
 
-A grant moves the route to granted and japacity to 100. The decision day card opens over the world. That month the family house offers a send-off: a party, a quiet last dinner, or no time. Japa's next step is "Board the plane": the airport opens as the send-off scene (the queue, the counter, the gate), and Board the plane at the gate is what sends the flight. Flying needs the held-funds loan paid back, if one was taken, and the flight, ₦1,100,000 in naira, unless the employer pays it (the Gulf contract). Then the life carries on abroad: see [Abroad](./abroad.md).
+1. A grant moves the route to granted and japacity to 100. The decision day card opens over the world.
+2. That month the family house offers a send-off: a party, a quiet last dinner, or no time.
+3. Japa's next step is "Board the plane". The airport opens as the send-off scene (the queue, the counter, the gate), and Board the plane at the gate sends the flight.
+4. Flying needs the held-funds loan paid back, if one was taken, and the flight, ₦1,100,000 in naira, unless the employer pays it (the Gulf contract).
+
+Then the life carries on abroad: see [Abroad](./abroad.md).
 
 ::: details Exceptions
 - **A refusal.** The route goes back to known and its refusals go up by one. The health surcharge comes back at once; the deposit, less a £500 fee, two months later. The school's offer stands, so the deposit can be paid again. The reasons are recorded, most telling first: the funds, the interview, an earlier refusal, or credibility.

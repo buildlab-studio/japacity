@@ -1,23 +1,23 @@
 # Instructions for coding agents
 
-Japacity is a browser life-sim about leaving Nigeria. The simulation is pure and deterministic, every rule has a name, and every rule name has a test. Read this page fully before changing anything.
+Japacity is a browser life-sim about leaving Nigeria. The simulation is pure and deterministic. Every rule has a name, and every rule name has a test. Read this whole page before you change anything.
 
 ## Commands
 
-Run from the repository root. pnpm switches itself to the pinned version there.
+Run these from the repository root. pnpm switches itself to the pinned version there.
 
 | Command | Does |
 |---|---|
 | `pnpm install` | Install |
-| `pnpm check` | Types, lint, tests, simulated play, rule names, the content version, assets, the size budget and the scrub check. Must end with `CHECK PASSED` before you say you are done |
-| `pnpm test` | Tests only, simulated play left out. `pnpm vitest run --project sim path/to/file` for one file |
-| `pnpm test:play` | Simulated play only: the balance, endings and random-play files, most of the tests' time. `pnpm test:play path/to/file` for one |
-| `pnpm typecheck`, `pnpm lint` | One step each |
-| `pnpm check:rules` | Every rule name has a test, and every cited name exists |
-| `pnpm bless` | Regenerate the golden files. The only way they change |
-| `pnpm content:freeze` | Keep the shipped content before raising its version: writes it to `packages/content/src/older/<version>` and lists it (server:older-content-frozen) |
-| `pnpm content:seal` | Seal the content version after raising it, when the content or the simulation changed (server:content-version-sealed) |
-| `pnpm dev`, `pnpm build` | The client |
+| `pnpm check` | Everything, in order: the Workers' generated types, typecheck, lint, tests, simulated play, rule names, the content version, assets, the size budget and the scrub check. It must end with `CHECK PASSED` before you say you are done |
+| `pnpm test` | Tests without simulated play. For one file: `pnpm vitest run --project sim path/to/file` |
+| `pnpm test:play` | Simulated play only: the balance, endings and random-play files. These take most of the test time. For one file: `pnpm test:play path/to/file` |
+| `pnpm typecheck`, `pnpm lint` | One step of the check each |
+| `pnpm check:rules` | Checks that every rule name has a test and every cited name exists |
+| `pnpm bless` | Regenerates the golden files. This is the only way they change |
+| `pnpm content:freeze` | Run before raising the content version. Keeps the shipped content: writes it to `packages/content/src/older/<version>` and lists it (server:older-content-frozen) |
+| `pnpm content:seal` | Run after raising the content version, when the content or the simulation changed. Seals the new version (server:content-version-sealed) |
+| `pnpm dev`, `pnpm build` | Run or build the client |
 
 ## Where things are
 
@@ -29,56 +29,56 @@ Run from the repository root. pnpm switches itself to the pinned version there.
 | `packages/sim/src/engine/types.ts` | The contract in types | Always |
 | `packages/sim/src/<kind>/` | `<kind>.schema.ts`, `<kind>.events.ts`, `<kind>.logic.ts`, `<kind>.test.ts` | |
 | `packages/content/src/<kind>/` | `<kind>.data.ts`, `<kind>.text.ts` | |
-| `packages/api/src/` | The HTTP contract: every route's request and reply, which the client and the server share | Before changing a route |
+| `packages/api/src/` | The HTTP contract: every route's request and reply, shared by the client and the server | Before changing a route |
 | `apps/client/src/features/<kind>/` | Screens | |
-| `docs/design/` | Why the game is the way it is | When a rule seems wrong |
-| `docs/decisions/` | One short record for each decision | |
+| `docs/design/` | The reasons behind the game's design | When a rule seems wrong |
+| `docs/decisions/` | One short record per decision | |
 
-## The ten rules
+## Rules
 
-1. Do not edit, delete, skip or loosen an existing test, golden file, schema or lint rule to get a pass. If one is wrong, stop and report it.
+1. Never edit, delete, skip or loosen an existing test, golden file, schema or lint rule to get a pass. If one is wrong, stop and report it.
 2. A bug fix starts with a failing test.
-3. New behaviour needs a named rule in a rule page and a test that cites it. Only the maintainer adds rules. If you need one, ask in your report.
-4. The simulation stays pure: no clock, no randomness of its own, no network, no screen, no fractions. The lint rules enforce it. Never disable one.
-5. Golden files change only through the bless command, with the change explained.
-6. Before saying done, run `pnpm check` and paste the last lines.
+3. New behaviour needs a named rule in a rule page and a test that cites it. Only the maintainer adds rules. If you need a new rule, ask for it in your report.
+4. The simulation stays pure: no clock, no randomness of its own, no network, no screen, no fractions. Lint rules enforce this. Never disable one.
+5. Golden files change only through `pnpm bless`, and you explain the change.
+6. Before you say you are done, run `pnpm check` and paste its last lines.
 7. Never weaken an assertion. Never commit a focused or skipped test.
-8. If a rule page and a test disagree, or a rule cannot be built as written, stop and report. Do not pick one quietly.
+8. If a rule page and a test disagree, or a rule cannot be built as written, stop and report it. Do not quietly pick one side.
 9. Changes to determinism, the ledger's reasons, or the command and view types need a decision record. Only the maintainer writes those.
-10. Stay in your own folders. Your task names them. Anything else you need changed goes in your report.
+10. Change only the folders your task names. Anything else you need changed goes in your report.
 
-## How tests are written
+## Writing tests
 
-- Beside the code: `<kind>.test.ts`.
-- Helpers beside the tests that use them: `<name>.testing.ts`. A helper tests in several folders share goes in the package's `testing/` folder (the simulation's is `packages/sim/src/testing/`). A test file exports nothing.
-- The title starts with the rule's name in brackets, then given, when, then: `test("[turn:month-turns-on-empty-bank] given no turn banked, when the turn is ended, then the month turns", ...)`.
-- One rule, at least one test. A rule with numbers gets a test at each edge.
-- Read numbers from content (`content.tuning`, the entry) unless the test is about that exact number.
-- Start from a scenario and play commands through `step`. Do not build states by hand when a few commands would get there.
+- Tests sit beside the code: `<kind>.test.ts`.
+- Test helpers sit beside the tests that use them: `<name>.testing.ts`. A helper shared by tests in several folders goes in the package's `testing/` folder (for the simulation, `packages/sim/src/testing/`). A test file exports nothing.
+- A test title starts with the rule's name in brackets, then given, when, then: `test("[turn:month-turns-on-empty-bank] given no turn banked, when the turn is ended, then the month turns", ...)`.
+- Each rule has at least one test. A rule with numbers gets a test at each edge.
+- Read numbers from content (`content.tuning` or the entry) unless the test is about that exact number.
+- Start from a scenario and play commands through `step`. Do not build a state by hand when a few commands would reach it.
 - Property tests use `import { fc, test } from "@fast-check/vitest"`.
-- A rule you could not test is a rule you have not built. Say so.
+- A rule you could not test counts as not built. Say so in your report.
 
-## How code is written
+## Writing code
 
 - Plain functions and plain data. No classes. No inheritance. No functions inside data.
 - Money is a whole number of kobo, pence or cents. Division only through `packages/sim/src/engine/int.ts`.
-- Rates are kobo for one pound or one dollar. Chances are basis points: 10000 is 100%.
-- Random numbers only through `ctx.random`, on the named stream the rule page gives.
+- Exchange rates are kobo per pound or per dollar. Chances are basis points: 10000 is 100%.
+- Random numbers come only from `ctx.random`, on the named stream the rule page gives.
 - A kind changes only its own slice, and only in `evolve`. To change another kind, emit an effect.
 - Ids are `kind.slug`. Events are `kind/what-happened`, past tense. Files are `kind.role.ts`.
 - Exhaustive switches over unions, ending in a `never` check.
-- Comments say why. Never what.
+- Comments say why, never what.
 
-## Writing
+## Writing text
 
 - Short plain sentences. No filler. No emoji.
 - Player text follows `docs/rules/text.md`.
 
-## Versions, and what goes wrong with them
+## Pinned versions
 
-Pinned on purpose. Do not upgrade.
+These are pinned on purpose. Do not upgrade them.
 
-| Tool | Pin | Trap |
+| Tool | Pin | Watch out for |
 |---|---|---|
 | TypeScript | 6.0.x | The registry's latest is 7. The lint tooling stops below 6.1 |
 | Vitest | 4.1.x | The registry's latest is 5 |
@@ -90,9 +90,9 @@ Pinned on purpose. Do not upgrade.
 | Tailwind | 4 | Configured in CSS with `@theme`, not a JavaScript config file. Import is `@import "tailwindcss"` |
 | Base UI | 1.x | The package is `@base-ui/react`. Not the old `@base-ui-components` name |
 
-## Interface traps
+## Common mistakes in the client
 
-What goes wrong with these versions on the screens:
+Mistakes that break the screens with these versions:
 
 - Writing `tailwind.config.js` and `@tailwind base`. Tailwind 4 uses `@import "tailwindcss"` and `@theme` in CSS.
 - Adding `postcss`, `autoprefixer` or the `tailwindcss` PostCSS plugin. With Vite only `@tailwindcss/vite` is needed.
@@ -118,7 +118,13 @@ What goes wrong with these versions on the screens:
 
 ## Skills
 
-The way of working is also kept as skills in `.claude/skills/`: `japacity-dev` (how a change is made), `japacity-play` (the end-to-end play driver, `pnpm play`) and `japacity-shipped-lives` (how a change is judged against the lives players already have on production: read it before changing the simulation's rules, the content's shape or the database schema). `CONTRIBUTING.md` maps them for a person.
+The working method is also kept as skills in `.claude/skills/`:
+
+- `japacity-dev`: how a change is made.
+- `japacity-play`: the end-to-end play driver, `pnpm play`.
+- `japacity-shipped-lives`: how a change is judged against the lives players already have on production. Read it before changing the simulation's rules, the content's shape or the database schema.
+
+`CONTRIBUTING.md` explains them for a person.
 
 ## Your report
 
@@ -126,17 +132,19 @@ End every task with:
 
 1. What you built, by rule name.
 2. The last lines of `pnpm check`.
-3. Anything in the contract, a rule page or another kind that you needed changed, or changed because you had to. Be exact: file, line, why.
+3. Anything in the contract, a rule page or another kind that you needed changed, or had to change. Be exact: file, line, why.
 4. Rules you could not build or test, and why.
 5. What you would look at next.
 
 ## Commits
 
-Small, with a subject that says what changed and where. A commit a hook refuses is fixed, never forced. A body only when the change needs one; bullets are one line each. Use `git add` with explicit paths.
+Keep commits small, with a subject that says what changed and where. If a hook refuses a commit, fix the problem; never force it. Add a body only when the change needs one, with one line per bullet. Use `git add` with explicit paths.
+
+A pull request runs the quick checks on every push; the full suite, simulated play included, runs in the merge queue before the merge (decision 0040). `pnpm check` runs everything locally, so run it before you push. Pull request titles follow `CONTRIBUTING.md`.
 
 ## Never
 
 - Copy anything from another game.
 - Put a real person or a real photo into content. A real business name only as neutral scenery under city:sponsor-shows-name-only and city:invented-names-for-risky-businesses (a place the player only visits, eats at, shops at or meets at; never a bank, lender, agent, employer, sponsor, school or airline; never with a logo or in a fraud, a mishap or bad news).
-- Add a dependency without the maintainer agreeing. Only well-adopted tools.
-- Publish or deploy. Push your branch only when your task says to and `pnpm check` has passed; never push `main`.
+- Add a dependency without the maintainer's agreement. Use only well-adopted tools.
+- Publish or deploy. Push your branch only when your task says to and `pnpm check` has passed. Never push `main`.

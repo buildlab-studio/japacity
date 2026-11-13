@@ -23,7 +23,7 @@ function personName(id: string): string | null {
 }
 
 /**
- * The people lines' own params as words (docs/rules/person.md "Lines"): a spot,
+ * The people lines' own params as words (docs/rules/person.md): a spot,
  * what was done, the step asked, the slot, and `player` for a friend. Null when
  * the param is not one of these, so the usual formatting applies.
  */

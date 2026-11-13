@@ -1,14 +1,14 @@
 # The road
 
-> Every number here is stylised on purpose. The record it follows is `../research/02-all-routes-and-timeline.md` section 2. The design contract it obeys is "What the road holds to" below.
+> Every number here is stylised on purpose. The record it follows is `../research/02-all-routes-and-timeline.md` section 2. The rules obey the "Design principles" below.
 > Kinds: `route` (gate `road`), `offer` (group `road`), `obligation` (type `agent-debt`), `setpiece`. No kind of its own.
-> This page holds no usable detail: no places beyond the stylised, no prices that are real, no contacts, no methods.
+> This page holds no usable detail: no places beyond the stylised, no real prices, no contacts, no methods.
 
-The road is never named. It arrives as an offer that beats every formal route on every number the player can see. The player learns what it is in steps, and at every step the list of things they can do gets shorter. Exits exist and are shown.
+The road is the irregular journey north by land and sea. It is never named: it arrives as an offer, the player learns what it is in steps, and at every step there is less they can do. Exits exist and are shown.
 
-## What the road holds to
+## Design principles
 
-These hold for every step of the road and for every rule below. They have no ids of their own: the rules carry them out.
+These hold for every step of the road and every rule below. They have no names of their own: the rules carry them out.
 
 1. **It arrives as an offer, never as a menu choice.** A cousin's friend, a recruiter at a salon, a man at the motor park. On every number the player can see, the offer beats the formal routes: faster, cheaper, no exams.
 2. **The warning signs are there and can be learned.** They are in the feed, in the agency's radio spots and in what returnees say. A player who has listened can say no.
@@ -19,45 +19,50 @@ These hold for every step of the road and for every rule below. They have no ids
 7. **No operational detail.** No usable waypoints, prices, contacts or methods. Places and sums are stylised.
 8. **Trafficking is shown through debt, confinement and control.** No sexual content and no scenes. The character can be deceived. The player is never put in the role of trafficker or buyer.
 9. **Exits exist and are shown.** The anti-trafficking agency, return flights, the embassy, shelters. Coming home carries debt and stigma, and a real way to rebuild.
-10. **No player can recruit, sell or profit from another player.** Every handler is a computer character. A dealer's role for a real player would pay one player to deceive another into a loss, the trick would work only until players warned each other, and with preset phrases the pitch cannot be made anyway. What real players can be is the word on the street: someone who took the road can leave a warning, or a boast, for others to hear.
-11. **The real story follows.** After the chain a card credits and links the journalism it draws on. Nothing from it is reproduced.
+10. **No player can recruit, sell to or profit from another player.** Every handler is a computer character. A dealer's role for a real player would pay one player to deceive another into a loss; the trick would work only until players warned each other, and with preset phrases the pitch cannot be made anyway. What real players can be is the word on the street: someone who took the road can leave a warning, or a boast, for others to hear.
+11. **The real story follows.** After the chain, a card credits and links the journalism it draws on. Nothing from that journalism is reproduced.
 12. **The road is never labelled.** The offer does not say "desert" or "dangerous". It is sold as "Europe in three weeks, no visa wahala", on the radio, at the motor park or through a cousin's friend. The player learns what it is in steps: a deposit, a night meeting at a motor park, the news that it is by road, then a demand for more money. Turning back is possible early and costs the deposit.
 13. **Offers are a system, and not all are what they seem.** Some cheap offers are the road. Some are plain fraud: the money goes and nobody travels. A few are real. The player cannot tell from the price.
-14. **Anyone can take the road.** The offer can reach every player and every player can accept it, whatever their profile. It is ranked like everything else: a player with strong formal routes sees it low down, under better options, and a player with refusals, age pressure or debt sees it more often and nearer the top. Nothing is locked. A curious player can also go looking: ask around at the motor park and the offer is there. The game never pushes it at a profile that has better options.
+14. **Anyone can take the road.** The offer can reach every player, and every player can accept it, whatever their profile. It is ranked like everything else: a player with strong formal routes sees it low down, under better options; a player with refusals, age pressure or debt sees it more often and nearer the top. Nothing is locked. A curious player can also go looking: ask around at the motor park and the offer is there. The game never pushes it at a profile that has better options.
 15. **The warning is given once, at the door.** The game is for adults: the age screen comes before any play (account:age-screen-refuses-minors), and the terms say the game shows dangerous journeys. The offer itself carries no warning, which would give it away.
 
 ## Rules
 
-**road:road-route-has-no-figure** `route.road` has the gate `road`, no checklist, no window var, no japacity figure, and never appears in the routes view. Its state moves only through the offers below. japacity:best-open-route-is-japacity skips it. The content switch `tuning.road.enabled` turns the whole pool off. The road variant of `RouteGateView` (`gate: "road"`, `step`, `monthsHere`) is built by the road gate but never sent: the routes view drops every route whose gate is `road` before the gate's part is read. While the chain runs the player sees it through `place.where` (`road`), the report lines and the card.
+**road:road-route-has-no-figure** `route.road` has the gate `road`, no checklist, no window variable and no japacity figure, and never appears in the routes view. Its state moves only through the offers below. japacity:best-open-route-is-japacity skips it. The content switch `tuning.road.enabled` turns the whole pool off. The road gate builds the road variant of `RouteGateView` (`gate: "road"`, `step`, `monthsHere`), but it is never sent: the routes view drops every route whose gate is `road` before the gate's part is read. While the chain runs, the player sees it through `place.where` (`road`), the report lines and the card.
 
-**road:pitch-rises-with-pressure** The pitch is an offer in group `road`: `offer.road-radio`, `offer.road-park`, `offer.road-cousin`. Each is rolled as any offer, with its chance raised by the character's situation (offer:come-up-rolls-in-order reads `chanceBp` plus the entry's `pressure` terms: +200 per earlier refusal, +300 if any loan is in default, +200 if standing under 30, +100 per year of age over 30) and lowered by it (-400 if any formal route is known with a japacity figure of 60 or more). `activity.ask-around` at the motor park (a now-act, `where: home`) opens `offer.road-park` at once for the curious. The pitch never says desert, sea, road or danger.
+**road:pitch-rises-with-pressure** The pitch is an offer in group `road`: `offer.road-radio`, `offer.road-park`, `offer.road-cousin`. Each is rolled as any offer is, with its chance raised or lowered by the character's situation: offer:come-up-rolls-in-order reads `chanceBp` plus the entry's `pressure` terms. They add +200 per earlier refusal, +300 if any loan is in default, +200 if standing is under 30 and +100 per year of age over 30, and take -400 if any formal route is known with a japacity figure of 60 or more. `activity.ask-around` at the motor park (a now-act, `where: home`) opens `offer.road-park` at once for the curious. The pitch never says desert, sea, road or danger.
 
-**road:taking-pitch-pays-deposit** Taking the pitch pays its `deposit` term from the naira, by its size (decision 0014: cash first at or under `tuning.wallet.cashUpTo`, the bank first above it) (reason `fee-agent`). Which of three the offer is stays hidden: `fraud` (money gone, nothing follows), `realish` (a connection that moves), or `road` (the thing itself). The shares are the entry's `kinds` basis points. The fraud is drawn when the pitch opens, at the entry's `fraudBp`, which is the `fraud` share (offer:opening-fixes-terms-and-fraud), so the signs follow it; taking an honest pitch splits it between `realish` and `road` by their shares, one draw on the `road` stream. `fraud` ends there with a line a month later. The other two open `setpiece.road-night`.
+**road:taking-pitch-pays-deposit** Taking the pitch pays its `deposit` term from the naira, by its size (decision 0014: cash first at or under `tuning.wallet.cashUpTo`, the bank first above it), reason `fee-agent`. Which of three things the offer is stays hidden: `fraud` (the money is gone and nothing follows), `realish` (a connection that moves), or `road` (the thing itself). The shares are the entry's `kinds`, in basis points. The fraud is drawn when the pitch opens, at the entry's `fraudBp`, which is the `fraud` share (offer:opening-fixes-terms-and-fraud), so the signs follow it. Taking an honest pitch splits it between `realish` and `road` by their shares, with one draw on the `road` stream. `fraud` ends there, with a line a month later. The other two open `setpiece.road-night`.
 
-**road:road-night-allows-turn-back** `setpiece.road-night` asks one question with two answers: `go` and `turn-back`. Turning back costs the deposit and nothing else, and closes the chain with standing -2. Going opens the next step. From here on every set piece in the chain keeps at least one `exit` answer. While a road scene is open, `turn/end` is rejected with `setpiece-open`, as for every set piece (route:open-set-piece-holds-month); between scenes none is open, so the months pass while you wait, and the road's Wait ends the month whatever the bank of turns holds (turn:month-turns-on-empty-bank).
+**road:road-night-allows-turn-back** `setpiece.road-night` asks one question with two answers: `go` and `turn-back`. Turning back costs the deposit and nothing else, and closes the chain with standing -2. Going opens the next step. From here on, every set piece in the chain keeps at least one `exit` answer. While a road scene is open, `turn/end` is rejected with `setpiece-open`, as for every set piece (route:open-set-piece-holds-month). Between scenes none is open, so the months pass while you wait, and the road's Wait ends the month whatever the bank of turns holds (turn:month-turns-on-empty-bank).
 
-**road:road-truth-asks-more** `setpiece.road-truth` tells the player it is by road and asks for `more` money: `pay` (from the naira, by its size, decision 0014, reason `fee-agent`), `call-home` (the family pays: `quality.family-means` falls by the amount over ₦100,000, `quality.family-stake` set to 1, standing -5), or `exit` (home with standing -4, the money gone). Paying or calling moves the route to `applying` and the character to the place `road` for the chain's remaining steps; the home obligations are suspended and no free slots exist: the month's activities are the chain's own.
+**road:road-truth-asks-more** `setpiece.road-truth` tells the player it is by road and asks for `more` money. The answers:
+- `pay`: from the naira, by its size (decision 0014), reason `fee-agent`;
+- `call-home`: the family pays; `quality.family-means` falls by one point for each ₦100,000 of the amount, `quality.family-stake` is set to 1, standing -5;
+- `exit`: home with standing -4, the money gone.
 
-**road:chain-steps-monthly** The chain runs in the `clocks` phase, one step a month, each a draw on stream `road` from the entry's outcome table for that step. Steps: `desert` (2 to 4 months), `compound` (0 to 6 months), `coast` (1 to 3 months), `sea` (1 month). At each step the outcomes are: `on` (to the next step), `held` (another month here, and a ransom call), `turned` (returned to the previous country by the authorities there: to `exit`), `lost` (the ending). The compound's `held` outcome opens `obligation.agent-debt` for the ransom sum and `offer.road-ransom-call` to the family: `pay` takes from family means and standing; `cannot` adds the sum to the debt and costs wellbeing -10.
+Paying or calling home moves the route to `applying` and the character to the place `road` for the chain's remaining steps. The home obligations are suspended and there are no free slots: the month's activities are the chain's own.
 
-**road:exit-is-assisted-return** `exit` at any step after `truth` means the assisted return: the effect `place/return` with the shape `assisted` (place:return-shape-decided-at-once), standing by return:standing-by-return-shape, and `obligation.agent-debt` kept open in naira: the debt follows you. The return is on the place record with `country` null: the road is not a country. The exit is shown on every card with the words of the anti-trafficking agency and the migration agency, from content.
+**road:chain-steps-monthly** The chain runs in the `clocks` phase, one step a month, each a draw on stream `road` from the entry's outcome table for that step. Steps: `desert` (2 to 4 months), `compound` (0 to 6 months), `coast` (1 to 3 months), `sea` (1 month). At each step the outcomes are: `on` (to the next step), `held` (another month here, and a ransom call), `turned` (returned to the previous country by its authorities: to `exit`), `lost` (the ending). The compound's `held` outcome opens `obligation.agent-debt` for the ransom sum and `offer.road-ransom-call` to the family: `pay` takes from family means and standing; `cannot` adds the sum to the debt and costs wellbeing -10.
+
+**road:exit-is-assisted-return** `exit` at any step after `truth` is the assisted return: the effect `place/return` with the shape `assisted` (place:return-shape-decided-at-once), standing by return:standing-by-return-shape, and `obligation.agent-debt` kept open in naira: the debt follows you. The return is on the place record with `country` null, because the road is not a country. The exit is shown on every card, in the words of the anti-trafficking agency and the migration agency, from content.
 
 **road:lost-is-final** `lost` applies `turn/finish`, and the view's card is the `lost` one (`card.kind`). It is final for that character. The view shows the ending card and the real-story card, and nothing else can be done. The authority may still grant turns; nothing uses them.
 
-**road:sea-arrival-in-italy** `on` from the `sea` step arrives: `place/move` to `country.italy` with `status.eu-irregular`, cash work only (ladders:cash-jobs-paid-in-hand), no route from there except `return/home` by the assisted scheme. The debt stays open. The road arrives with no papers, so there is no grace (status:grace-before-overstaying, `graceMonths` 0). Detection gives an expulsion order with one month to leave (status:detection-gives-notice); the assisted return before it or inside it carries no ban, and only a removal at the order's end bans Italy, for 36 months (place:leaving-an-overstay-bans). Real: an expulsion decree can give 7 to 30 days to leave, the re-entry ban of 3 to 5 years can be revoked on proof of leaving in time, and joining an assisted voluntary return suspends the expulsion (D.lgs. 286/1998, Art. 13 c.5 and c.14, Art. 14-ter).
+**road:sea-arrival-in-italy** `on` from the `sea` step arrives: `place/move` to `country.italy` with `status.eu-irregular`, cash work only (ladders:cash-jobs-paid-in-hand), and no route from there except `return/home` by the assisted scheme. The debt stays open. The road arrives with no papers, so there is no grace (status:grace-before-overstaying, `graceMonths` 0). Detection gives an expulsion order with one month to leave (status:detection-gives-notice). The assisted return before or within that month carries no ban; only a removal at the order's end bans Italy, for 36 months (place:leaving-an-overstay-bans). Real: an expulsion decree can give 7 to 30 days to leave, the re-entry ban of 3 to 5 years can be revoked on proof of leaving in time, and joining an assisted voluntary return suspends the expulsion (D.lgs. 286/1998, Art. 13 c.5 and c.14, Art. 14-ter).
 
-**road:road-earns-nothing** No achievement, collection entry, share card or japacity point is earned anywhere in the chain. The report lines are plain and tone `bad`. No advert slot renders while the place is `road` (a rule the client obeys; the sim marks `place.where === "road"`).
+**road:road-earns-nothing** No achievement, collection entry, share card or japacity point is earned anywhere in the chain. The report lines are plain, with tone `bad`. No advert slot renders while the place is `road` (a rule the client obeys; the simulation marks `place.where === "road"`).
 
-**road:real-story-card-after-chain** After the chain ends in any way, the view's `card` carries the real-story card: the credits and links in content for the journalism the chain follows. Nothing from that journalism is reproduced. Content carries each credit's link beside it, `road.real-story.link.N` beside `road.real-story.credit.N` in `route.text.ts`, where the research found one; a credit with no link is named only. The documentation site's sources page lists every credit with its link (guide:one-sources-page). The credits are the four below, by outlet, work and year, never a reporter's name (`../research/02-all-routes-and-timeline.md` section 1):
+**road:real-story-card-after-chain** However the chain ends, the view's `card` then carries the real-story card: the credits and links in content for the journalism the chain follows. Nothing from that journalism is reproduced. Content carries each credit's link beside it, `road.real-story.link.N` beside `road.real-story.credit.N` in `route.text.ts`, where the research found one; a credit with no link is named only. The documentation site's sources page lists every credit with its link (guide:one-sources-page). The credits are the four below, by outlet, work and year, never a reporter's name (`../research/02-all-routes-and-timeline.md` section 1):
 
 | Key | Credit | Link |
 |---|---|---|
 | `credit.1` | Foundation for Investigative Journalism, an undercover journey north, 2026 | the FIJ's part I |
-| `credit.2` | The Sun, an undercover Sahara trek, December 2010 | the award copy, award.wscij.org/?p=8058 |
+| `credit.2` | The Sun, an undercover Sahara trek, 2010 | the award copy, award.wscij.org/?p=8058 |
 | `credit.3` | CNN, migrants auctioned in Libya, 2017 | CNN, 14 Nov 2017, edition.cnn.com/2017/11/14/africa/libya-migrant-auctions/index.html |
 | `credit.4` | BBC News, women held by debt and an oath, 2019 | the BBC News video of Feb 2019 |
 
-**road:pitch-reaches-anyone-at-home** The pitch offers reach every character who meets `tuning.road.enabled` and is at home, and `take` needs the character at home when it is chosen: a pitch left open through a flight cannot start the chain abroad. Nothing on the profile locks them. A player with better options sees them less often (road:pitch-rises-with-pressure) and lower in the offer list (the offer view sorts by group, `road` last).
+**road:pitch-reaches-anyone-at-home** The pitch offers reach every character at home while `tuning.road.enabled` is on, and `take` needs the character to be at home when it is chosen: a pitch left open through a flight cannot start the chain abroad. Nothing on the profile locks the offers. A player with better options sees them less often (road:pitch-rises-with-pressure) and lower in the offer list (the offer view sorts by group, `road` last).
 
 ## Entries
 
@@ -69,7 +74,7 @@ These hold for every step of the road and for every rule below. They have no ids
 | `offer.road-ransom-call` | road | opened by the compound | | 1 | `sum` ₦500,000 to ₦2,000,000 | | `pay`, `cannot` |
 | `offer.road-exit` | road | opened by the chain each month on the road (road:exit-is-assisted-return), staged at `place.road-night` | | 1 | | | `ask`: the assisted return |
 
-The `kinds` shares of every pitch: `fraud` 3000, `realish` 1000, `road` 6000. A `realish` connection runs the same chain with `held` chances halved: it is still the road.
+The `kinds` shares of every pitch: `fraud` 3000, `realish` 1000, `road` 6000. A `realish` connection runs the same chain with the `held` chances halved: it is still the road.
 
 ### Outcome tables (basis points)
 
@@ -80,15 +85,15 @@ The `kinds` shares of every pitch: `fraud` 3000, `realish` 1000, `road` 6000. A 
 | coast | 5500 | 2500 | 1950 | 50 |
 | sea | 6000 | 0 | 3850 | 150 |
 
-Read as the record reads: of those who set out, well under half arrive; most come back; a few die. Over the four steps about 22 in 100 arrive, about 2 in 100 are lost, and the rest are held, turned or leave by the exit.
+This follows the record: of those who set out, well under half arrive, most come back and a few die. Over the four steps about 22 in 100 arrive and about 2 in 100 are lost; the rest are held, turned or leave by the exit.
 
-### Signs, words
+### Sign texts
 
 `too-cheap` "It costs less than the visa fee alone." `no-paper` "Nobody has mentioned a visa, a form or an office." `cash-today` "He wants the deposit today, in cash." `agency-warning` "A radio spot from the anti-trafficking agency ran straight after the advert." `returnee-said` "Someone who came back from that road is at the park. He is not saying much." `cousin-vouches` "Your cousin says his friend did it last year."
 
 ## Numbers
 
-Every figure here is stylised on purpose (rule 7 of "What the road holds to"): none is a real price or a real rate.
+Every figure here is stylised on purpose (principle 7 of "Design principles"): none is a real price or a real rate.
 
 | Setting | Value | In content as | Source |
 |---|---|---|---|
@@ -105,7 +110,7 @@ Every figure here is stylised on purpose (rule 7 of "What the road holds to"): n
 
 ## Effects and requirements this kind handles
 
-The part before the slash names the kind that carries an effect out or judges a requirement (`engine.md` section 5). The types are in `packages/sim/src/engine/types.ts`.
+The part before the slash names the kind that carries out an effect or judges a requirement (`engine.md` section 5). The types are in `packages/sim/src/engine/types.ts`.
 
 | Type | | What it does |
 |---|---|---|

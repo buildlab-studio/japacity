@@ -1,8 +1,10 @@
 # The simulation
 
-The simulation is the game's rules written as plain functions. It lives in `packages/sim` and does one thing: given a life as it stands, the world at that moment, the game's content and one command from the player, it says whether the command is allowed and, if it is, what happened and what the life looks like now. It never reads a clock, never makes up a random number of its own, never touches the network or the screen, and never uses a fraction. Because of that, the same inputs give the same answer on a phone and on the server, today and in a year, and a whole life can be rebuilt from the list of commands that made it.
+The simulation is the game's rules written as plain functions, in `packages/sim`. Given a life, the world at that moment, the game's content and one command, it says whether the command is allowed and, if so, what happened and what the life is now.
 
-## One function
+It never reads a clock, makes its own random numbers, touches the network or the screen, or uses a fraction. So the same inputs give the same answer on a phone and on the server, now and later, and a whole life can be rebuilt from the list of commands that made it.
+
+## The step function
 
 ```ts
 step(state, command, world, content, sender) -> { ok: true, state, events, lines } | { ok: false, code, detail }
@@ -19,19 +21,29 @@ step(state, command, world, content, sender) -> { ok: true, state, events, lines
 | View | What one player may see of the state. The interface reads nothing else |
 | Sender | `player`, `authority` or `stand-in`. Some commands only the authority may send |
 
-`step` is in `packages/sim/src/engine/step.ts`. Before any kind runs, it refuses a command when the life has ended (`ended`), when a player sends an authority's command (`not-yours`), when the command was based on an older version (`stale`), when the world's tick has gone backwards (`clock-went-back`), or when the prologue is still open (`prologue-open`). A rejected command changes nothing and records nothing. An accepted one raises the version by one and ends with an `engine/stepped` event that carries the engine's own counters: the version, the tick, the draw counts and the next instance number.
+`step` is in `packages/sim/src/engine/step.ts`. Before any kind runs, it refuses a command with one of these codes:
 
-The contract behind all this is [the engine page](../../rules/engine.md), with its types in `packages/sim/src/engine/types.ts`.
+| Code | When |
+|---|---|
+| `ended` | The life has ended (only the authority's `turns/grant` still passes) |
+| `not-yours` | A player or a stand-in sends a command it may not send |
+| `stale` | The command was based on an older version |
+| `clock-went-back` | The world's tick is earlier than the last accepted command's |
+| `prologue-open` | The prologue is still open |
+
+A rejected command changes nothing and records nothing. An accepted one raises the version by one and ends with an `engine/stepped` event carrying the engine's counters: the version, the tick, the draw counts and the next instance number.
+
+The contract is [the engine page](../../rules/engine.md), with its types in `packages/sim/src/engine/types.ts`.
 
 ## Kinds
 
-The game is split into kinds. Each kind owns one slice of the state and is one module of plain functions in `packages/sim/src/<kind>/`, with a schema, its events, its logic and its tests beside it. The registry (`packages/sim/src/kinds.ts`) lists the twenty-one kinds that own a slice, in the order the engine calls them:
+Each kind owns one slice of the state and is one module of plain functions in `packages/sim/src/<kind>/`, with its schema, events, logic and tests. The registry (`packages/sim/src/kinds.ts`) lists the twenty-one kinds in the order the engine calls them:
 
 `turn`, `quality`, `activity`, `wallet`, `document`, `route`, `setpiece`, `obligation`, `offer`, `chapter`, `news`, `place`, `status`, `credit`, `goal`, `prologue`, `lottery`, `people`, `interview`, `home`, `things`.
 
-Two kinds sit in a folder named in the singular: `people` in `packages/sim/src/person/`, and `things` (what a life owns, decision 0019) in `packages/sim/src/thing/`.
+Two kinds sit in a folder with a different name: `people` in `packages/sim/src/person/`, and `things` (what a life owns, decision 0019) in `packages/sim/src/thing/`.
 
-Other folders hold helpers that own no slice: `japacity` (the readiness figure), `world` (the stand-in world, the director, rates), `scenario`, `school`, `country`, `era`, `var`, `pair`, `phrase` (the preset phrases), `guide` (the early win), `goldens` (the recorded saves), `simulated-play` (simulated players) and `testing`.
+These folders hold helpers that own no slice: `japacity` (the readiness figure), `world` (the stand-in world, the director, rates), `scenario`, `school`, `country`, `era`, `var`, `pair`, `phrase` (the preset phrases), `guide` (the early win), `goldens` (the recorded saves), `simulated-play` (simulated players) and `testing`.
 
 A kind adds only the parts it needs:
 
@@ -57,17 +69,23 @@ flowchart LR
   E2 --> L
 ```
 
-**A kind may read any part of the state but change only its own.** When an offer pays money, the offer kind does not touch the wallet: it emits the effect `money/add`, the engine hands it to the wallet kind, and the wallet answers with `wallet/credited`. The engine enforces this at run time (`applyReturned` in `engine/draft.ts` throws if a kind returns another kind's event), and the table of which kind carries out which effect is `EFFECT_OWNER` in the same file.
+**A kind may read any part of the state but change only its own slice.** When an offer pays money, the offer kind emits the effect `money/add`; the engine hands it to the wallet kind, which answers with `wallet/credited`. `applyReturned` in `engine/draft.ts` throws if a kind returns another kind's event. `EFFECT_OWNER` in the same file says which kind carries out each effect.
 
-**Requirements are data.** A checklist item, an offer's condition or a chapter's goal is written as an object such as `{ type: "quality/min", quality: "quality.tech", value: 60 }`. One function, `check` in `engine/check.ts`, judges them all: the part before the slash names the kind that judges it, and the engine itself judges a few that read no slice (`not`, `any`, `month/min`, `var/min`, `var/max`, `era/is`). Content never needs code to state a condition.
+**Requirements are data.** A checklist item, an offer's condition or a chapter's goal is an object such as `{ type: "quality/min", quality: "quality.tech", value: 60 }`. `check` in `engine/check.ts` judges them all: the part before the slash names the kind that judges it. The engine judges the ones that read no slice itself: `not`, `any`, `month/min`, `var/min`, `var/max`, `era/is`. Content never needs code to state a condition.
 
-**Text never lives in the state.** A kind's `lines` give a key and numbers; the words are in content and the client looks them up. Money in a line's numbers is always a typed `{ currency, amount }` in minor units (engine:report-money-is-typed).
+**Text never lives in the state.** A kind's `lines` give a key and numbers; the words are in content, and the client looks them up. Money in a line's numbers is always a typed `{ currency, amount }` in minor units (engine:report-money-is-typed).
 
-## One month
+## Running a month
 
-Most commands cost nothing and resolve at once: moving money, paying a bill, answering a question. `turn/end` is different. It runs the month. The month is lived (decision 0011): the acts done now spend its free time in half-days through the effect `turn/spend-days`, and the month turns only when the character sleeps (world:sleep-ends-the-month, decision 0011), whatever free time is left (turn:month-lived-in-half-days). The life also keeps a bank of turns: real time fills it, one turn every two real hours up to 24, a closed chapter fills it at once, and each month lived takes one while it holds any. It never holds a month back (turn:month-turns-on-empty-bank); its one use is the bank-full notice that tells a player who is away (clock:full-bank-push-notification).
+Most commands cost nothing and resolve at once: moving money, paying a bill, answering a question. `turn/end` runs the month.
 
-First every kind that has a `turn/end` validator checks the command, in registry order: no set piece may be open, no more slots may be filled than the month has free, and every free slot must hold an activity the character may do now. A validator only refuses or allows; it never changes anything. Then fourteen phases run in a fixed order (`PHASES` in `engine/kind.ts`), and in each phase every kind that has it runs in registry order, its events applied before the next kind runs.
+- **The month is lived** (decision 0011). Acts spend its free time in half-days through the effect `turn/spend-days`. The month turns only when the character sleeps (world:sleep-ends-the-month), whatever free time is left (turn:month-lived-in-half-days).
+- **The bank of turns.** Real time fills it, one turn every two real hours up to 24; a closed chapter fills it at once; each month lived takes one while it holds any. It never holds a month back (turn:month-turns-on-empty-bank). Its one use is the bank-full notice to a player who is away (clock:full-bank-push-notification).
+
+`turn/end` runs in two stages:
+
+1. **Validation.** Every kind with a `turn/end` validator checks the command, in registry order: no set piece may be open, no more slots may be filled than the month has free, and every free slot must hold an activity the character may do now. A validator only allows or refuses; it changes nothing.
+2. **Phases.** Fourteen phases run in a fixed order (`PHASES` in `engine/kind.ts`). In each phase every kind that has it runs in registry order, and its events are applied before the next kind runs.
 
 ```mermaid
 sequenceDiagram
@@ -112,17 +130,17 @@ The phases, in order:
 | 13 | chapter | At most one chapter closes and the next opens; goals are checked |
 | 14 | close | The month's report is stored with japacity after it, and the month's money is told |
 
-The exact rules for each phase, and which kinds take part, are in [the engine page](../../rules/engine.md), section 4 (engine:turn-phases-in-fixed-order). The report the close phase stores is what the results sheet shows: the month's lines, japacity before and after, and whether something now needs the player.
+Each phase's exact rules, and which kinds take part, are in [the engine page](../../rules/engine.md), section 4 (engine:turn-phases-in-fixed-order). The results sheet shows the report the close phase stores: the month's lines, japacity before and after, and whether something now needs the player.
 
 ::: info A set piece does not stop the month
-If a set piece (an interview, a hard conversation) opens during the month, the month still finishes. The open set piece then blocks the next `turn/end` until it is answered, and at least one of its answers is always legal (engine:player-never-stuck). A player is never stuck.
+If a set piece (an interview, a hard conversation) opens during the month, the month still finishes. The open set piece then blocks the next `turn/end` until it is answered, and at least one of its answers is always legal (engine:player-never-stuck).
 :::
 
 ## The view
 
-The view is everything the interface ever sees. `viewFor` in `engine/view.ts` asks every kind for its part and joins them. The engine adds the parts no kind owns: the japacity figure, the world's era read as this player's months, the share card that is due, and whether an advert may show.
+The view is all the interface ever sees. `viewFor` in `engine/view.ts` joins every kind's part and adds the parts no kind owns: the japacity figure, the world's era read as this player's months, the share card that is due, and whether an advert may show.
 
-Two checks run every time a view is built: no two kinds may give the same key, and every key of `PlayerView` must be present. A separate rule (engine:view-holds-no-hidden-field) says the view holds no hidden field, and the tests walk every view for keys named `seed`, `draws` or `secret`. The seed never leaves the authority (engine:seed-never-leaves-authority), so a result that needs a random draw is always decided there.
+Each time a view is built, two checks run: no two kinds may give the same key, and every key of `PlayerView` must be present. The view holds no hidden field (engine:view-holds-no-hidden-field); the tests walk every view for keys named `seed`, `draws` or `secret`. The seed never leaves the authority (engine:seed-never-leaves-authority), so a result that needs a random draw is always decided there.
 
 [The character](./character.md#how-the-view-is-built) shows the view's parts one by one.
 
@@ -135,11 +153,13 @@ The simulation has no fractions (engine:no-fractions-in-simulation, engine:money
 - A chance is in basis points: 10000 is certain, 2500 is one in four.
 - Division happens only through the helpers in `packages/sim/src/engine/int.ts` (`divFloor`, `divCeil`, `mulDiv`, `bp` and the currency helpers), which round down unless their name says otherwise.
 
-The lint rules hold this for every file under `packages/sim/src`: the `/` and `**` operators, decimal literals, `Math.random`, the floating-point `Math` functions, `Date`, `fetch`, `window` and the rest are refused, and only `engine/int.ts` may divide. Content is held to the decimal-literal rule as well. Floating-point maths can differ between browsers and the server; whole numbers cannot.
+The reason: floating-point maths can differ between browsers and the server; whole numbers cannot.
+
+Lint enforces this for every file under `packages/sim/src`. It refuses the `/` and `**` operators, decimal literals, `Math.random`, the floating-point `Math` functions, `Date`, `fetch`, `window` and similar, and only `engine/int.ts` may divide. Content is held to the decimal-literal rule too.
 
 ## Random streams
 
-A life's randomness comes from named streams, each drawn by position (engine:randomness-from-named-streams; the reasons are in decision 0003, `docs/decisions/0003-random-draws-by-position.md`).
+A life's randomness comes from named streams, each drawn by position (engine:randomness-from-named-streams; reasons in `docs/decisions/0003-random-draws-by-position.md`).
 
 ```mermaid
 flowchart LR
@@ -150,24 +170,24 @@ flowchart LR
   N["the stream's count n<br/>kept in the state"] --> D
 ```
 
-Because the nth draw depends only on the seed, the stream's name and n, a draw on one stream never changes what another gives. A new rule that draws on the `home` stream cannot shift a single job hunt. The state keeps only how many draws each stream has made, and those counts are hidden from the view.
+The nth draw depends only on the seed, the stream's name and n, so a draw on one stream never changes what another gives: a new rule that draws on the `home` stream cannot shift a job hunt. The state keeps only each stream's draw count, hidden from the view.
 
-The character's streams include `job`, `gig`, `test`, `school`, `document`, `visa`, `offer`, `fraud`, `street`, `prologue`, `status`, `credit`, `road`, `lotto`, `health` and `home`; [the engine page](../../rules/engine.md), section 6, says what each is for. The world has its own seed and its own streams (`rate`, `shock`, `rule`, `era`), which a character's draws never touch.
+The character's streams include `job`, `gig`, `test`, `school`, `document`, `visa`, `offer`, `fraud`, `street`, `prologue`, `status`, `credit`, `road`, `lotto`, `health` and `home`. [The engine page](../../rules/engine.md), section 6, says what each is for. The world has its own seed and its own streams (`rate`, `shock`, `rule`, `era`), which a character's draws never touch.
 
 Kinds draw only through `ctx.random` on the stream their rule page names.
 
 ## The world
 
-The world is what everyone shares at one tick: the official and street exchange rates, the running era, the world variables and the news. The simulation never builds it for itself; it is passed into `step`.
+The world is what everyone shares at one tick: the official and street exchange rates, the running era, the world variables and the news. It is passed into `step`; the simulation never builds it itself.
 
 - Offline, `standInWorld` in `packages/sim/src/world/standIn.ts` produces it from a world seed and a tick, and one tick passes for each month played.
-- Online, the server steps the same director (`stepWorld` in `world/director.ts`) on real time and stores one row per tick, each a pure function of the row before. The stand-in is that same step looped from tick 0, so offline and online share one director.
+- Online, the server steps the same director (`stepWorld` in `world/director.ts`) on real time and stores one row per tick, each a pure function of the row before. The stand-in is that step looped from tick 0, so offline and online share one director.
 
 The rules for rates, news and eras are on [the rates page](../../rules/rate.md), [the news page](../../rules/news.md) and [the director page](../../rules/director.md).
 
 ## Saves and replays
 
-A save is not a copy of the state. It is how the life began and the list of commands accepted since (engine:state-is-plain-data, `engine/replay.ts`):
+A save is not a copy of the state. It holds how the life began and the commands accepted since (engine:state-is-plain-data, `engine/replay.ts`):
 
 ```mermaid
 flowchart LR
@@ -180,19 +200,20 @@ flowchart LR
   R --> State["the state, exactly"]
 ```
 
-Replaying the commands in order under the same content rebuilds the state exactly. When the content changes under a life, a new segment opens: its base is the old state carried to the new content by `upgradeState`, and a replay checks that the base is exactly that carried state (decision 0004). A command the save says was accepted but is now refused is a bug, and the replay throws.
-
-The state also carries a `schema` number, so a change to its shape is read from that number, never guessed.
+- Replaying the commands in order under the same content rebuilds the state exactly.
+- When the content changes under a life, a new segment opens. Its base is the old state carried to the new content by `upgradeState`, and a replay checks that the base is exactly that carried state (decision 0004).
+- A command the save says was accepted but is now refused is a bug, and the replay throws.
+- The state carries a `schema` number, so a change to its shape is read from that number, never guessed.
 
 ## Goldens, recorded lives and simulated play
 
-Three kinds of test hold the engine to its rules over whole lives.
+Three kinds of test check the engine over whole lives.
 
-**Golden replays.** `packages/sim/src/goldens/` holds a small set of saves with the figures each must produce: for every month, the version, the turns banked, the naira in the bank and a hash of the state, and a hash of the final state. The golden test replays each save and compares (engine:same-inputs-same-result, engine:state-is-plain-data). Two goldens run on the small test content; the rest are recorded lives on the real content.
+**Golden replays.** `packages/sim/src/goldens/` holds a small set of saves with the figures each must produce: for every month the version, the turns banked, the naira in the bank and a hash of the state, plus a hash of the final state. The golden test replays each save and compares (engine:same-inputs-same-result, engine:state-is-plain-data). Two goldens run on the small test content; the rest are recorded lives on the real content.
 
-**Recorded lives.** `pnpm record:lives` (`tools/goldens/record-lives.ts`) plays simulated players with fixed strategies (careful, borrower, risky) through the starting lives on the real content and a fixed world, and writes their saves. Each blessed life is recorded twice: once to the flight, and once as a careful life that carries on three years abroad and comes home by choice. A recorded life that is not a golden goes into `packages/sim/src/simulated-play/lives.data.ts` (the lives in the other countries into `lives.countries.data.ts`) and is replayed by its own test there.
+**Recorded lives.** `pnpm record:lives` (`tools/goldens/record-lives.ts`) plays simulated players with fixed strategies (careful, borrower, risky) through the starting lives on the real content and a fixed world, and writes their saves to `packages/sim/src/goldens/lives.data.ts`. Each blessed life is recorded twice: once to the flight, and once as a careful life that carries on 36 months abroad and comes home by choice. Recorded lives that are not goldens go into `packages/sim/src/simulated-play/lives.data.ts` (the lives in the other countries into `lives.countries.data.ts`) and are replayed by their own tests there.
 
-**Bless.** `pnpm bless` (`tools/goldens/bless.ts`) replays the scripts and rewrites the golden files, saying what changed. It is the only way a golden changes, and a change is explained in the commit.
+**Bless.** `pnpm bless` (`tools/goldens/bless.ts`) replays the scripts, rewrites the golden files and prints what changed. It is the only way a golden changes, and the commit explains the change.
 
 ```mermaid
 flowchart LR
@@ -202,13 +223,18 @@ flowchart LR
   D --> E["the golden test<br/>replays every save"]
 ```
 
-**Simulated play.** `packages/sim/src/simulated-play/` plays many random lives and simulated players and, after every command, checks the invariants, that the view has every key and no hidden one, and that replay gives the same hash. It is how a rule that breaks some unlikely life gets caught. The heaviest files (the balance tests, the endings and the random play) are Vitest's `play` project: `pnpm test` leaves them out, `pnpm test:play` and `pnpm check` run them, and CI plays each on its own runner in the merge queue, before a pull request merges, and on every push to main.
+**Simulated play.** `packages/sim/src/simulated-play/` plays many random lives and simulated players. After every command it checks the invariants, that the view has every key and no hidden one, and that replay gives the same hash. It catches a rule that breaks some unlikely life.
+
+The heaviest files (`balance.*.test.ts`, `endings.test.ts` and `randomPlay*.test.ts`) are Vitest's `play` project:
+
+- `pnpm test` leaves them out; `pnpm test:play` and `pnpm check` run them.
+- CI does not play them on a push to a pull request. It plays them in the full tier, one file to a runner: in the merge queue before a pull request merges, on every push to `main`, and when started by hand (decision 0040).
 
 ::: warning Never by hand
-Golden files and recorded lives are never edited by hand, and a failing golden is never re-blessed to get a pass without saying why. If a golden moves, something in the rules moved, and that is the thing to explain.
+Golden files and recorded lives are never edited by hand. A failing golden is never re-blessed to get a pass without saying why: if a golden moves, something in the rules moved, and that is what to explain.
 :::
 
-## Rules this page rests on
+## Related rules
 
 - [The engine contract](../../rules/engine.md)
 - [Turns](../../rules/turn.md): the month, lived in half-days, and the bank of turns

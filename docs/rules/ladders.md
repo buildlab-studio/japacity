@@ -1,23 +1,27 @@
 # Ladders: working life abroad
 
 > Pay figures are the real ones at the dates given, as working values; where the game differs from real life, the real value and the factor stand beside it. Sources at the end.
-> Kind: `activity`, extended with `where`, `part`, `cash`, `needsCar`, `carBonus`. Background: `../design/01-concept.md` section 12, `../research/03` sections 3 and 4.
+> Kind: `activity`, extended with `where`, `part`, `cash`, `needsCar`, `carBonus`. Background: `../design/01-concept.md` section 12, `../research/03-life-abroad-and-return.md` sections 3 and 4.
 
-Abroad, as at home, a month has a main activity and two or three free slots. What is on offer depends on the status you hold and the country you are in.
+Abroad, as at home, a month has a main activity and two or three free slots. What is on offer depends on the status held and the country.
 
 ## Rules
 
-**ladders:activities-filtered-by-where** Every activity entry carries `where`. Abroad, the free slots list only entries with `where` `abroad` or `any`, and only those whose `country` is the character's or null. The status's `work` rule (status:status-sets-work-rule) decides which `main` entries may be hunted or started: `part` allows only entries marked `part`, `cash` only entries marked `cash`, `one-employer` only the job the status names.
+**ladders:activities-filtered-by-where** Every activity entry carries `where`. Abroad, the free slots list only entries with `where` `abroad` or `any` whose `country` is the character's or null. The status's `work` rule (status:status-sets-work-rule) decides which `main` entries may be hunted or started: `part` allows only entries marked `part`, `cash` only entries marked `cash`, and `one-employer` only the job the status names.
 
-**ladders:local-tenure-counted** Tenure abroad is counted per job as at home, and a `local` tenure total is kept: months in any job in the current country. Entries read it with the requirement `activity/local-tenure`. It is how a survival job turns into a professional one.
+**ladders:local-tenure-counted** Tenure abroad is counted per job, as at home, plus a `local` total: months in any job in the current country. Entries read it with the requirement `activity/local-tenure`. This is how a survival job leads to a professional one.
 
-**ladders:cash-jobs-paid-in-hand** A job marked `cash` is paid in hand: naira by its size (wallet:money-lands-as-in-lagos: cash at or under `tuning.wallet.cashUpTo`, the bank above it), foreign cash work in cash; it reports no tax, and carries a `withheldBp` chance on stream `status` each month that the pay is not paid at all (wage theft). Cash work while holding an overstayer status raises that status's detection chance by `tuning.ladder.cashDetectBp` that month.
+**ladders:cash-jobs-paid-in-hand** A job marked `cash` is paid in hand: naira by its size (wallet:money-lands-as-in-lagos: cash at or under `tuning.wallet.cashUpTo`, the bank above it), foreign cash work in cash. It reports no tax. Each month it carries a `withheldBp` chance, on stream `status`, that the pay is not paid at all (wage theft). Cash work while holding an overstayer status raises that status's detection chance by `tuning.ladder.cashDetectBp` that month.
 
 **ladders:car-bonus-needs-car** A job marked `carBonus` pays its bonus only while the character has the car (car:open-finance-gives-the-car). An activity marked `needsCar` is not legal without it.
 
-**ladders:sponsor-job-ties-status** The sponsor's job is the job held on arrival. On a `one-employer` status, `activity/end-job` for any cause (the sponsor losing its licence, offer entries in `abroad`, or quitting) starts the status clock (status:lost-job-starts-clock). Hunting is legal only for jobs marked `sponsor: true`, which carry their own certificate: getting one grants a new `one-employer` status for that job. In the grace of an overstay (status:grace-before-overstaying) the overstayer may hunt the same jobs, which its `cash` rule otherwise refuses, and a hire grants the status in the same way, ending the overstay (status:grace-allows-in-country-applications).
+**ladders:sponsor-job-ties-status** The sponsor's job is the job held on arrival. On a `one-employer` status, `activity/end-job` for any cause (the sponsor losing its licence, offer entries in `abroad`, or quitting) starts the status clock (status:lost-job-starts-clock). Hunting is legal only for jobs marked `sponsor: true`, which carry their own certificate: getting one grants a new `one-employer` status for that job. In the grace of an overstay (status:grace-before-overstaying) the overstayer may hunt the same jobs, which its `cash` rule otherwise refuses. A hire then grants the status in the same way and ends the overstay (status:grace-allows-in-country-applications).
 
-**ladders:student-holds-one-part-job** A student may hold one `part` job. Working more is not a thing the game lets you do: the cap is the list. The cap moves with the course as status:status-sets-work-rule says: in course months 4 and 8, the vacations, the part job pays full time; from course month 13 the student may hold any job, and the warehouse or a graduate job pays toward the Graduate visa (status:graduate-visa-applied-for). Real: a National Living Wage of £12.71 an hour gives about £1,101 a month at 20 hours, and about £14,550 a year with Christmas and Easter worked full time.
+**ladders:student-holds-one-part-job** A student may hold one `part` job. The game offers no way to work more: the list of jobs is the cap. The cap moves with the course as status:status-sets-work-rule says:
+- course months 4 and 8 (the vacations): the part job pays full time;
+- from course month 13: the student may hold any job, and the warehouse or a graduate job pays toward the Graduate visa (status:graduate-visa-applied-for).
+
+Real figures: a National Living Wage of £12.71 an hour gives about £1,101 a month at 20 hours, and about £14,550 a year with Christmas and Easter worked full time.
 
 ## Entries: jobs abroad
 

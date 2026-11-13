@@ -1,12 +1,12 @@
 # How it plays
 
-Japacity is a life in Lagos, played a month at a time on a phone. You make a person at the front door, start them in a home with a little money, and spend each month on work, study, people and errands across the city. Nobody picks a way out at the start: routes abroad become known as the life comes to match them, and your japacity is how ready you are for the best of them. Leaving is the main journey, and the life goes on after it, abroad and, if you choose, back home.
+Japacity is a life in Lagos, played a month at a time on a phone. You make a person at the front door, start them in a home with a little money, and spend each month on work, study, people and errands across the city. Nobody picks a way out at the start: routes abroad become known as the life comes to fit them, and your japacity is how ready you are for the best of them. Leaving is the main journey, and the life goes on after it, abroad and, if you choose, back home.
 
 <img src="/pictures/dev-06-the-world.webp" alt="The family house seen whole from above early in a life: the band with the name, the part of the day, the age and the money, a line from the brother over the house, and the round Map and Phone buttons with Go places and Chats, bank, news between them" width="260">
 
-## A life, end to end
+## The chapters of a life
 
-The game teaches itself in chapters, which the player knows as briefs. Each is a short checklist handed over by a person; finishing it opens the next.
+The game teaches itself in chapters, which the player knows as briefs. A person hands each one over as a short checklist, and finishing it opens the next.
 
 ```mermaid
 flowchart TD
@@ -23,13 +23,13 @@ flowchart TD
   file -.-> road
 ```
 
-::: info The chapters vary by route
-Build the file and Decision day each come in a version for the route you are on, so the checklist is the right one for talent, points, health care or the Gulf. See [Chapters and routes](../built/chapters.md) for how they are put together, and the [chapter rules](../../rules/chapter.md).
+::: info Chapters differ by route
+Build the file and Decision day each have a version for the route you are on, so the checklist fits talent, points, health care or the Gulf. See [Chapters and routes](../built/chapters.md) and the [chapter rules](../../rules/chapter.md).
 :::
 
 ## One month
 
-Every month has the same shape: live it by hand at home and across the city, answer what you are asked, then sleep on the bed to turn it and read what happened.
+Every month runs the same way: live it by hand at home and across the city, answer what you are asked, then sleep on the bed to end it and read what happened.
 
 ```mermaid
 flowchart TD
@@ -39,7 +39,7 @@ flowchart TD
   results --> live
 ```
 
-## The features
+## Pages in this section
 
 | Part of the game | Page |
 |---|---|
@@ -64,6 +64,6 @@ flowchart TD
 | Block, report and the pages players read | [Moderation and the legal pages](./moderation.md) |
 | Every source the game cites, built at each build | [Every source](./sources.md) |
 
-::: tip Where the rules are
-Every feature rests on rule pages with ids, such as [the turn rules](../../rules/turn.md) or [the home rules](../../rules/home.md). Each page here ends with the rules it rests on. The rule pages are the source of truth; this half of the site explains them with pictures.
+::: tip The rule pages
+Every feature rests on rule pages with named rules, such as [the turn rules](../../rules/turn.md) or [the home rules](../../rules/home.md). Each page here ends with the rules it rests on. The rule pages are the source of truth; these pages explain them with pictures.
 :::

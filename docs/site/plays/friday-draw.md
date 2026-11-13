@@ -1,6 +1,11 @@
 # The Friday draw
 
-A lotto ticket is part of street life in Lagos, so the game has one, kept small and fair. Offline, a kiosk on Bode Thomas Street sells tickets and its draw is made with the month. Online, the whole world draws together once a week, on Friday evening, at fixed odds that anyone can check afterwards. Tickets are bought only with game naira earned by playing. A prize is only game naira. Nothing about the draw can be bought, sold or taken out of the game, and the most a player can stake is a small treat, never a strategy.
+A lotto ticket is part of street life in Lagos, so the game has one, kept small and fair.
+
+- **Offline**, a kiosk on Bode Thomas Street sells tickets, and its draw is made with the month.
+- **Online**, the whole world draws together once a week, on Friday evening, at fixed odds that anyone can check afterwards.
+
+Tickets are bought only with game naira earned by playing, and a prize is only game naira. Nothing about the draw can be bought, sold or taken out of the game, and the most a player can stake is a small treat, never a strategy.
 
 <p style="display:flex;gap:12px;flex-wrap:wrap">
 <img src="/pictures/lotto-kiosk.webp" alt="The lotto kiosk on Bode Thomas Street" width="260">
@@ -30,10 +35,10 @@ flowchart LR
 | Jackpot | 1 in 100,000 wins ₦2,000,000 |
 | Expected return | Under half the stake |
 
-Winnings go to the bank, with a letter that explains them. The Lotto app on the phone says how many tickets you bought this month and what they cost, so the money spent on the lotto shows where you look.
+Winnings go to the bank, with a letter that explains them. The Lotto app on the phone says how many tickets you bought this month and what they cost, so the money spent on the lotto is in plain view.
 
 ::: details The fifth ticket
-Once you have bought five this month, the kiosk man says so in his own voice: that is five this month, keep the rest for transport. Once the ceiling is reached, the slip's button is shut with his line.
+Once you have bought five this month, the kiosk man says so in his own voice: that is five this month, keep the rest for transport. From then on the slip's button is shut with his line.
 :::
 
 ::: details The bet slip next door
@@ -55,9 +60,9 @@ Online, the kiosk's own draw is closed and the world runs one draw a week for ev
 | When nobody hits the jackpot | It grows by a tenth of the week's sales, up to ₦380,000 |
 | When somebody hits it | Shared equally among the tickets that hit it; the next draw starts again at ₦200,000 |
 
-Every ticket is drawn on its own, so the number of tickets sold changes nothing about anyone's chances. There is no shared pot, no top-up and no forced win. The odds stand on the screen as plain words, with the jackpot and whether it rolled over.
+Every ticket is drawn on its own, so the number of tickets sold changes nothing about anyone's chances. There is no shared pot, no top-up and no forced win. The odds are on the screen in plain words, with the jackpot and whether it rolled over.
 
-### How the draw is made, and checked
+### How the draw is made and checked
 
 ```mermaid
 sequenceDiagram
@@ -77,7 +82,7 @@ sequenceDiagram
 
 The server commits to its secret before sales open and cannot change it, and the beacon's value is not known until after the close, so neither the server nor anyone else can steer the result. The draw page fetches a draw's public data, works out every ticket again on the device with the same functions the server used, and says plainly whether the two match.
 
-On the phone, the Lotto app shows the next draw and its jackpot, the tickets you hold and their numbers, and the last draw: how many tickets won each prize, with any of yours lit. A win arrives as a letter; a jackpot or middle prize gets a moment of its own and a [share card](./share.md) that says "won the Friday draw" and never a figure.
+The Lotto app shows the next draw and its jackpot, the tickets you hold and their numbers, and the last draw: how many tickets won each prize, with any of yours lit. A win arrives as a letter. A jackpot or middle prize gets a moment of its own and a [share card](./share.md) that says "won the Friday draw" and never a figure.
 
 ::: info Nobody is named
 Tickets in the published list are tokens, never accounts. A winner's name or character is never shown. Computer characters never buy a ticket.
@@ -95,7 +100,15 @@ flowchart LR
   SHEET --> FOLD["Tap a row: the odds, the draw's seal, the last draw and its check"]
 ```
 
-The sheet's face holds the jackpot standing and whether it rolled over, the close counting down, the price and the cap, the tickets you hold, and one button that says the act ("Buy 2 tickets", its cost paid now). The odds in plain words, the draw's seal and the last draw with its check fold behind a tap on a row, so the face is never a wall of words. The Lotto app on the phone only tells: it shows the draw and your tickets and says tickets are sold at the kiosk.
+The face of the sheet holds:
+
+- the jackpot and whether it rolled over;
+- the close, counting down;
+- the price and the cap;
+- the tickets you hold;
+- one button that names the act ("Buy 2 tickets", its cost paid now).
+
+The odds in plain words, the draw's seal and the last draw with its check sit behind a tap on a row, so the face is never a wall of words. The Lotto app on the phone only informs: it shows the draw and your tickets and says tickets are sold at the kiosk.
 
 ::: danger What the draw may never become
 A ticket is bought only with naira earned in the game. Topped-up naira (no top-up is on sale) would pay for anything in Lagos except a Friday ticket, so the draw stays a game of money earned by playing, with the odds as published. A prize is only game naira in the winner's own pocket. Game naira is never sold, given to another player or taken out of the game, and a prize can never leave it.

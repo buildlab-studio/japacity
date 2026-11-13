@@ -3,27 +3,58 @@
 > The director fires the pool's stories from the state of the world; a story with no director fields keeps the seeded schedule of `news.md`. The news kind's delivery rules (news:changed-stages-delivered-once, news:for-you-when-touching-route and news:announcement-makes-routes-heard) hold as that page says. Timeline and sources: `../research/02` section 4, `../research/01` section 4, `../research/06`.
 > Kinds: `era` (world), `var`, `news`; code in `packages/sim/src/world/`. Background: `../design/01-concept.md` section 7.
 
-The world is a pool of things that have really happened, fired in an order that cause and effect allows. One era runs at a time. Most checks produce nothing.
+The world is a pool of stories that really happened, fired in an order that cause and effect allow. One era runs at a time. Most checks fire nothing.
 
 ## Rules
 
-**director:world-variables-per-route** The world's variables are the ones in `rate.md` plus, for each route, a window (`var.<route>-window`, 2 open, 1 narrowing, 0 closed), a strictness (`var.<route>-strictness`, 0 to 100; content has none for the talent and Gulf routes, `var.uk-talent-strictness` and `var.uae-strictness` do not exist, as neither gate reads a strictness) and a surge (`var.<route>-surge`, 0 to 100), and at home `var.inflation` (0 to 100), `var.season-december` and `var.season-rains` (0 or 1) and the status and fee variables named on the other pages. Every variable has a start value in content and is changed only by a story in force or by director:policy-cycle-surge-backlash and director:december-and-inflation.
+**director:world-variables-per-route** The world's variables are those in `rate.md`, plus:
 
-**director:one-era-at-a-time** One era runs at a time. At tick 0 the era is `era.calm`. When an era's end tick comes, the next is drawn from the pool on the world stream `era`, weighted by each entry's `after` weights for the era that just ended, never the same era twice in a row, and its length is a draw between its `ticks`. `World.era` carries the id, the tick it began and its end tick; the view shows them as well as `sinceMonth` and `untilMonth`, the same ticks read as the player's months (one tick is one month played). An era is announced as a story of its own (`news.era-*`) on the tick it begins. News tells an era as months ago and away on its front page; the calm era, nothing in particular happening, has no front page.
+- for each route: a window (`var.<route>-window`: 2 open, 1 narrowing, 0 closed), a strictness (`var.<route>-strictness`, 0 to 100) and a surge (`var.<route>-surge`, 0 to 100). The talent and Gulf routes have no strictness in content (`var.uk-talent-strictness` and `var.uae-strictness` do not exist), because neither gate reads one;
+- at home: `var.inflation` (0 to 100), and `var.season-december` and `var.season-rains` (0 or 1);
+- the status and fee variables named on the other pages.
 
-**director:stories-start-by-roll** Each tick the director goes through the pool in two passes, first the stories whose roll is certain (its `chanceBp` times the running era's weight for it at 10000 or more over 10000) and then the rest, each pass in id order, so a certain story is never pushed back by a rolled one under the cap. For each story it rolls (world stream `shock`) whether it starts now (with a `rumourLead` above zero the rumour runs from this tick and the announcement comes `rumourLead` ticks later; with none it is announced on this tick): it must not have fired within its `cooldown`, must not be `once` and already fired, every `needs` requirement over the world's variables and era must hold, and the roll is the story's `chanceBp` times the running era's weight for that story over 10000. At most `tuning.director.maxNewPerTick` stories start on one tick, and a story marked `shock` fires at most once per era and never within `tuning.director.shockGapTicks` of the last shock.
+Every variable has a start value in content. It changes only through a story in force, director:policy-cycle-surge-backlash or director:december-and-inflation.
 
-**director:stories-pass-through-stages** A story passes through its stages as `news.md` says: rumour `rumourLead` ticks before announcement when above zero, in force `forceLag` ticks after announcement (never under 2: news:force-waits-after-announcement), ended `endsAfter` ticks after in force or when a `endedBy` story comes into force. Its `sets` apply when it comes into force; later in force wins; `revert` restores on end (rate:latest-story-sets-variable). An `adds` is relative and holds no variable: it is added when the story comes into force and, when the story reverts, taken back when it ends.
+**director:one-era-at-a-time** One era runs at a time.
 
-**director:policy-cycle-surge-backlash** The policy cycle: while a route's window is 2, its surge rises by `tuning.director.surgePerTick` each tick, capped at 100; while 1 it holds; while 0 it falls by twice that. Backlash stories `needs` a surge over their threshold; restriction stories `needs` a backlash in force; a closure `needs` a restriction in force; a shortage (reopening) `needs` a window at 0 for at least `tuning.director.closedTicks`. The cycle is shortage, open, surge, backlash, restriction, and no story skips a step.
+- At tick 0 the era is `era.calm`.
+- When an era's end tick comes, the next is drawn from the pool on the world stream `era`, weighted by each entry's `after` weights for the era that just ended, never the same era twice in a row. Its length is a draw between its `ticks`.
+- `World.era` carries the id, the tick it began and its end tick. The view shows them, along with `sinceMonth` and `untilMonth`: the same ticks read as the player's months (one tick is one month played).
+- An era is announced as a story of its own (`news.era-*`) on the tick it begins. News shows an era on its front page as months ago and months away. The calm era (nothing in particular happening) has no front page.
 
-**director:december-and-inflation** `var.season-december` is 1 on the tick whose month of the game year is December and 0 otherwise: offline, tick mod 12 equals 11; online, by the real calendar. `var.season-rains` is 1 on the ticks whose month of the game year is June to September, the rains, and 0 otherwise: offline, tick mod 12 from 5 to 8; online, by the real calendar. The catch reads it (activity:catch-drawn-each-month). `var.inflation` adds its basis points to every naira `upkeep` and `support` charge, so home support paid from abroad rises too (the obligation kind reads it).
+**director:stories-start-by-roll** Each tick the director goes through the pool in two passes, each in id order: first the stories whose roll is certain (`chanceBp` times the running era's weight for the story is 10000 or more), then the rest. So a certain story is never pushed back by a rolled one under the cap.
 
-**director:stories-never-undo-player-gains** Fairness: no story lowers a quality, removes a document, closes an obligation the player chose, or changes a recorded visa application's rules (route:application-fixes-figures fixes those at submission). A story that would do so fails `checkContent`. Every era has an end and a name.
+- **Conditions.** A story may start only if it has not fired within its `cooldown`, is not `once` and already fired, and every `needs` requirement over the world's variables and era holds.
+- **The roll** (world stream `shock`): the chance is the story's `chanceBp` times the running era's weight for it, out of 10000.
+- **Starting.** With a `rumourLead` above zero, the rumour runs from this tick and the announcement comes `rumourLead` ticks later. With none, it is announced on this tick.
+- **Caps.** At most `tuning.director.maxNewPerTick` stories start on one tick. A story marked `shock` fires at most once per era, and never within `tuning.director.shockGapTicks` of the last shock.
 
-**director:world-stepped-from-seed** The stand-in world builds all of this from the world seed and the tick by stepping from tick 0 (rate:world-follows-seed-and-tick). The online world does the same from a stored history and the real clock. `World.news` lists every story that has reached a stage, and the news kind delivers them (news:changed-stages-delivered-once).
+**director:stories-pass-through-stages** A story passes through its stages as `news.md` says:
 
-**director:story-touches-and-hearing** A story's `touches` and `hear` lists work as in `news.md`; `era.*` stories touch every route and go to the front page.
+| Stage | When |
+|---|---|
+| rumour | `rumourLead` ticks before the announcement, when above zero |
+| in force | `forceLag` ticks after the announcement, never under 2 (news:force-waits-after-announcement) |
+| ended | `endsAfter` ticks after in force, or when an `endedBy` story comes into force |
+
+Its `sets` apply when it comes into force; the later story in force wins; `revert` restores on end (rate:latest-story-sets-variable). An `adds` is relative and holds no variable: it is added when the story comes into force and, when the story reverts, taken back when it ends.
+
+**director:policy-cycle-surge-backlash** The policy cycle runs shortage, open, surge, backlash, restriction, and no story skips a step.
+
+- **Surge.** While a route's window is 2, its surge rises by `tuning.director.surgePerTick` each tick, capped at 100. While it is 1 the surge holds. While it is 0 the surge falls by twice that.
+- **Story conditions.** Backlash stories `needs` a surge over their threshold. Restriction stories `needs` a backlash in force. A closure `needs` a restriction in force. A shortage (reopening) `needs` a window at 0 for at least `tuning.director.closedTicks`.
+
+**director:december-and-inflation**
+
+- `var.season-december` is 1 on the tick whose month of the game year is December, and 0 otherwise. Offline: tick mod 12 equals 11. Online: by the real calendar.
+- `var.season-rains` is 1 on the ticks whose month of the game year is June to September (the rains), and 0 otherwise. Offline: tick mod 12 from 5 to 8. Online: by the real calendar. The catch reads it (activity:catch-drawn-each-month).
+- `var.inflation` adds its basis points to every naira `upkeep` and `support` charge, so home support paid from abroad rises too (the obligation kind reads it).
+
+**director:stories-never-undo-player-gains** Fairness: no story lowers a quality, removes a document, closes an obligation the player chose, or changes the rules of a recorded visa application (route:application-fixes-figures fixes those at submission). A story that would do so fails `checkContent`. Every era has an end and a name.
+
+**director:world-stepped-from-seed** The stand-in world builds all of this from the world seed and the tick, by stepping from tick 0 (rate:world-follows-seed-and-tick). The online world does the same from a stored history and the real clock. `World.news` lists every story that has reached a stage, and the news kind delivers them (news:changed-stages-delivered-once).
+
+**director:story-touches-and-hearing** A story's `touches` and `hear` lists work as in `news.md`. `era.*` stories touch every route and go to the front page.
 
 ## Eras
 
@@ -37,11 +68,16 @@ The world is a pool of things that have really happened, fired in an order that 
 | `era.strike` | 10 to 16 | home 3, study 2 | calm 2, crash 2 | Universities shut. Study routes stall |
 | `era.pandemic` | 12 to 18 | closures 4, remote 3, fx 2 | calm 1 (`once`) | Borders shut. Remote work and health workers gain |
 
-The weights name story groups; each story below carries one group.
+The weights name story groups; each story in the pool carries one group.
 
 ## The story pool
 
-The five stories `news.md` lists are in the pool, with these preconditions: `news.dollar-scarcity` needs `var.fx-supply` at 80 or more (it cannot fire during a scarcity) and group `fx`; `news.naira-float` is `endedBy` nothing and keeps its `after`; `news.uk-living-rise` needs `var.uk-study-window` at 1 or more; `news.uk-refusals-up` needs `var.uk-study-surge` over 40 and is a backlash story.
+The five stories `news.md` lists are in the pool, with these preconditions:
+
+- `news.dollar-scarcity` needs `var.fx-supply` at 80 or more (it cannot fire during a scarcity), and is in group `fx`;
+- `news.naira-float` is `endedBy` nothing and keeps its `after`;
+- `news.uk-living-rise` needs `var.uk-study-window` at 1 or more;
+- `news.uk-refusals-up` needs `var.uk-study-surge` over 40, and is a backlash story.
 
 | Id | Group | Needs | Chance a tick | Rumour, force lag, ends | Sets | Once, shock | Date it echoes |
 |---|---|---|---|---|---|---|---|
@@ -75,11 +111,15 @@ The five stories `news.md` lists are in the pool, with these preconditions: `new
 | `news.remote-hiring-boom` | remote | era pandemic | 5000 | 1, 2, 18 | `var.remote-hire-bonus` 1500 (added to the remote job's hire chance), revert | once | 2020 to 2021 |
 | `news.era-*` | front page | the era begins | fixed | 0, 2, with the era | nothing | | |
 
-Content: `offer.sponsor-licence-lost` takes `var.uk-care-sponsor-risk` as its chance a month (`CHANCE_VARS` in `offer.logic.ts`), 300 and 1200 while the revocations are in force.
+`offer.sponsor-licence-lost` takes `var.uk-care-sponsor-risk` as its chance a month (`CHANCE_VARS` in `offer.logic.ts`): 300 normally and 1200 while the revocations are in force.
 
-The variables this page defines, with their starts: `var.uk-study-surge` 20, `var.uk-care-surge` 0, `var.uk-skilled-surge` 10, `var.uk-talent-surge` 0, `var.canada-surge` 30, `var.uae-surge` 0, `var.uk-care-strictness` 50, `var.uk-skilled-strictness` 40, `var.canada-strictness` 50, `var.inflation` 0, `var.season-december` 0, `var.season-rains` 0, `var.uk-care-sponsor-risk` 300, `var.passport-fee` 10000000, `var.transcript-wait-extra` 0, `var.flight-factor` 10000, `var.remote-hire-bonus` 0, `var.uae-amnesty` 0, `var.canada-education-cutoff` 9999 (no education draw until the story sets one).
+The variables this page defines, with their start values: `var.uk-study-surge` 20, `var.uk-care-surge` 0, `var.uk-skilled-surge` 10, `var.uk-talent-surge` 0, `var.canada-surge` 30, `var.uae-surge` 0, `var.uk-care-strictness` 50, `var.uk-skilled-strictness` 40, `var.canada-strictness` 50, `var.inflation` 0, `var.season-december` 0, `var.season-rains` 0, `var.uk-care-sponsor-risk` 300, `var.passport-fee` 10000000, `var.transcript-wait-extra` 0, `var.flight-factor` 10000, `var.remote-hire-bonus` 0, `var.uae-amnesty` 0, `var.canada-education-cutoff` 9999 (no education draw until the story sets one).
 
-**director:education-draw-opens-for-a-time** Canada's education draw is a story, not a standing door. `news.canada-education-draw` opens an education cut-off for a time: in force it sets `var.canada-education-cutoff` to 365 and reverts it to 9999 when it ends 6 ticks later, so a teacher in the pool with a score at or above it is invited while it stands (route-gates:pool-draws-invite), and News tells it as Canada inviting teachers. Real: IRCC's category-based selection names an education category, and it has run two rounds, on 1 May 2025 (CRS 479) and 17 Sep 2025 (CRS 462), and none from then to 16 Oct 2026, while other categories drew every few weeks; so the draw comes now and then, and the game's chance a tick and cooldown are working values. The cut-off is set on the game's scale as the care cut-off is (route-gates.md, Numbers). The other lever for the teacher, a UK teacher's route, is not in the game (`../design/13-the-economy.md`, Non-goals).
+**director:education-draw-opens-for-a-time** Canada's education draw is a story, not a standing door. `news.canada-education-draw` opens an education cut-off for a time. In force, it sets `var.canada-education-cutoff` to 365, and reverts it to 9999 when it ends 6 ticks later. While it stands, a teacher in the pool with a score at or above the cut-off is invited (route-gates:pool-draws-invite). News tells it as Canada inviting teachers.
+
+- **Real basis.** IRCC's category-based selection names an education category. It has run two rounds, on 1 May 2025 (CRS 479) and 17 Sep 2025 (CRS 462), and none from then to 16 Oct 2026, while other categories drew every few weeks. So the draw comes now and then; the game's chance a tick and cooldown are working values.
+- **Scale.** The cut-off is set on the game's scale, as the care cut-off is (route-gates.md, Numbers).
+- **Not in the game.** The teacher's other option, a UK teacher's route (`../design/13-the-economy.md`, Non-goals).
 
 ## Numbers
 
@@ -94,7 +134,7 @@ The variables this page defines, with their starts: `var.uk-study-surge` 20, `va
 
 ## What the player should feel
 
-- Calm is most of the time. Then a rumour, and a month to act before it is law.
+- Calm most of the time. Then a rumour, and a month to act before it is law.
 - A window closing mid-plan is the central drama (`../research/02`). The surge makes it predictable to the attentive: when everyone is going, the door is about to narrow.
 
 ## Sources

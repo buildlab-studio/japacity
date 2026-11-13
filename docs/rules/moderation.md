@@ -1,9 +1,9 @@
 # Block, report, the queue and the admin view
 
 > Rests on `../design/01-concept.md` section 6 (safety rule 7: block and report on every interaction), `../design/04-where-things-live.md` section 4 (a report cites message ids; a reported conversation is held until reviewed), server:rollback-check-finds-divergence, server:rollback-apply-one-account and server:no-mass-rollback (the rollback tool).
-> Kind: `moderation`, server only. The simulation holds no moderation state. Pair records, invites and preset phrases are `pair.md` and `person.md`; the rollback tool and the money report are `server.md`. This page names them and does not define them.
+> Kind: `moderation`, server only. The simulation holds no moderation state. Pair records, invites and preset phrases are defined in `pair.md` and `person.md`; the rollback tool and the money report in `server.md`. This page uses them and does not define them.
 
-Players meet each other through invites, preset phrases, characters in a place, pair records and shared cards. Every one of those has a block and a report beside it. A report goes into one queue, a person decides it, and every decision is written down.
+Players meet each other through invites, preset phrases, characters in a place, pair records and shared cards. Each of these has a block and a report beside it. Reports go into one queue, a person decides each one, and every decision is logged.
 
 ## Rules: block
 
@@ -11,59 +11,112 @@ Players meet each other through invites, preset phrases, characters in a place, 
 
 **moderation:block-ends-pair-records** A block ends any pair record the two share the way a break-up does (`person.md`), with no standing cost to the one who blocked. `moderation/unblock` lifts the block and restores nothing.
 
-**moderation:blocked-list-in-settings** The phone's Settings holds a Blocked list: every account the player has blocked, newest first, each line the account's username, its face drawn from the shown name (as on a board), the day of the block and an Unblock button. Unblock is `moderation/unblock` and restores nothing (moderation:block-ends-pair-records); the line goes from the list. With none blocked the list says so in one line. The list is the blocker's alone: no account learns it is on another's list. A deleted account's line reads "A player" until its rows go. `GET /api/moderation/blocked` answers `{ ok, blocked: { account, username, at }[] }`, and `moderation/unblock` takes `{ account }` naming a line of that list, or the pair or character a block takes.
+**moderation:blocked-list-in-settings** The phone's Settings holds a Blocked list of every account the player has blocked, newest first. Each line shows the account's username, its face drawn from the shown name (as on a board), the day of the block and an Unblock button.
 
-**moderation:blocks-off-friends-board** Neither of two accounts with a block between them, in either direction, is on the other's friends boards, though an invite joined them. The everyone boards and the joined-week board are unchanged: they are public, and a gap there would tell the blocked account it was blocked.
+- Unblock is `moderation/unblock` and restores nothing (moderation:block-ends-pair-records); the line leaves the list.
+- With no one blocked, the list says so in one line.
+- The list is the blocker's alone: no account learns it is on another's list.
+- A deleted account's line reads "A player" until its rows are removed.
+
+`GET /api/moderation/blocked` answers `{ ok, blocked: { account, username, at }[] }`. `moderation/unblock` takes `{ account }` naming a line of that list, or the pair or character a block takes.
+
+**moderation:blocks-off-friends-board** When there is a block between two accounts, in either direction, neither is on the other's friends boards, even if an invite joined them. The everyone boards and the joined-week board are unchanged: they are public, and a gap there would tell the blocked account it was blocked.
 
 ## Rules: report
 
-**moderation:report-from-every-surface** `moderation/report` can be sent from every surface where a player meets another player or anything the game did not write: a conversation, a phrase said in a place, a character seen in a place, a display name, an invite card, a pair record, a stand-in's behaviour, and an advert. The client shows the report control on each of them; a test walks every surface in the interface list and finds it. The terms of play say so: a player can block or report another wherever they meet. A friend's thread in Chats carries block and report, citing their messages.
+**moderation:report-from-every-surface** `moderation/report` can be sent from every surface where a player meets another player or anything the game did not write: a conversation, a phrase said in a place, a character seen in a place, a display name, an invite card, a pair record, a stand-in's behaviour, and an advert. The client shows the report control on each of them, and a test walks every surface in the interface list and finds it. A friend's thread in Chats carries block and report, citing their messages. The terms of play say that a player can block or report another wherever they meet.
 
-**moderation:report-carries-subject-and-reason** A report carries a `subject` (an account, or an advert's campaign), a `reason` from a fixed list (`scam`, `harassment`, `impersonation`, `underage`, `sexual`, `hate`, `self-harm`, `illegal`, `cheating`, `advert`, `other`), and what it cites: message ids for a conversation (`../design/04-where-things-live.md` section 4), the place, phrase id and time for a phrase said aloud, the card or pair record id, or the campaign and slot for an advert. A report takes no typed text: nothing the reporter types goes with it.
+**moderation:report-carries-subject-and-reason** A report carries:
+
+- a `subject`: an account, or an advert's campaign;
+- a `reason` from a fixed list: `scam`, `harassment`, `impersonation`, `underage`, `sexual`, `hate`, `self-harm`, `illegal`, `cheating`, `advert`, `other`;
+- what it cites: message ids for a conversation (`../design/04-where-things-live.md` section 4); the place, phrase id and time for a phrase said aloud; the card or pair record id; or the campaign and slot for an advert.
+
+A report takes no typed text: nothing the reporter types goes with it.
 
 **moderation:spoken-phrases-not-stored** A phrase said aloud in a place is not stored (`../design/04-where-things-live.md`). Its report records what the reporter's client heard, marked unverified, because storing every spoken phrase to check reports would keep far more about everyone than the reports need.
 
 **moderation:report-offers-block** Sending a report offers a block in the same step, ticked by default. A player may file at most `config.moderation.reportsPerDay` reports a day; a report over that is refused with `rate-limited`.
 
-**moderation:reporter-told-outcome-only** The reporter is told the report was received at once, and told the outcome (acted on, or no action) when it is decided, never what was done to whom.
+**moderation:reporter-told-outcome-only** The reporter is told at once that the report was received, and told the outcome (acted on, or no action) when it is decided, never what was done to whom.
 
-## Rules: the hold
+## Rules: holding reported material
 
-**moderation:reports-hold-cited-records** A report holds what it cites. The cited messages, the conversation they are in, and the pair record if one is cited are kept unchanged until the report is decided, even if either account is deleted meanwhile; the hold lasts at most `config.moderation.holdDays`, and then deletion goes ahead.
+**moderation:reports-hold-cited-records** A report holds what it cites. The cited messages, the conversation they are in, and the pair record if one is cited are kept unchanged until the report is decided, even if either account is deleted meanwhile. The hold lasts at most `config.moderation.holdDays`; then deletion goes ahead.
 
 **moderation:open-report-pauses-conversation** While a report on a conversation is open, the conversation is paused in the reported account's direction: nothing new reaches the reporter from them. The reporter's own sends are not paused, unless they chose the block.
 
 ## Rules: the queue
 
-**moderation:one-queue-by-reason-weight** Every report, every advert submission (advert:named-person-approves-creatives) and every appeal (moderation:actioned-player-told-and-appeals) enters one queue, ordered by reason weight then age: `underage`, `self-harm`, `sexual` and `illegal` first, then `scam`, then the rest.
+**moderation:one-queue-by-reason-weight** Every report, every advert submission (advert:named-person-approves-creatives) and every appeal (moderation:actioned-player-told-and-appeals) enters one queue, ordered by reason weight, then age: `underage`, `self-harm`, `sexual` and `illegal` first, then `scam`, then the rest.
 
 **moderation:reports-decided-within-target** The target is a decision within `config.moderation.decideHours` of a report arriving. The admin view shows the oldest open item's age, and the dashboard carries it (`analytics.md`).
 
 ## Rules: the admin view
 
-**moderation:admin-view-for-admin-list** The admin view is a separate set of server routes and screens, reached only by accounts on the admin list in the server's configuration (the deployment's `ADMIN_ACCOUNTS` Worker secret, server:ledger-alarm-lists-suspects), each from a session that has shown a passkey. A session has shown a passkey when a passkey assertion with the user-verified flag set (a face, a fingerprint or a screen lock) opened it no more than 15 minutes ago (`admin.passkeyMs`: the inactivity limit NIST SP 800-63B-4 sets for AAL3, counted here from the passkey itself). A passkey that verified no one still signs in, and never counts. At `/admin`, a listed account whose session has not shown a passkey is asked for it in place: the passkey is shown from the signed-in browser, the auth library opens a new session from it for the same account and the cookie moves to it, and the session it stepped up from ends (OWASP: a new session on a change of privilege). From a browser signed in to a kept account, only that account's own passkeys are taken; another account's passkey is refused and opens nothing. A browser whose cookie opens no live session signs in as any sign-in does (account:dead-cookie-expired-on-first-read). `GET /api/account` says `admin` when the account is listed and the session has shown a passkey; `adminNeedsPasskey` is in the reply only for a listed account (true while its session has not shown a passkey), so no one else's reply differs from what it would be with no admin view. With no passkey held, the sheet points to Settings to add one. An admin route asked from a listed session that has not shown a passkey answers 403 `not-legal`, and the page asks for the passkey again. `/admin` reveals nothing to anyone else: to a signed-out browser, a guest or an account off the list it is any unknown address, judged on the same one account read the game makes as it starts, with no request of its own, the same game shown, `/` in the address bar (server:unknown-address-becomes-root), no admin words, no sheet, and the admin page's code never fetched; every admin route answers them as a page that does not exist. Once an admin account holds a passkey, a new passkey is added to it only from a session that has shown a passkey, and every addition is logged and the account's email told (account:passkey-needs-signed-in-session). The admin page's code is its own chunk, fetched only at `/admin` and only once the server has named the account as listed; the game's shell imports only its address, so a player never downloads the page (engine:first-download-has-budget's size check fails if a first visit fetches it). The operator decides who is on the list; by default, the operator alone. On a phone the admin page's tabs wrap to a second row rather than run off the edge unseen.
+**moderation:admin-view-for-admin-list** The admin view is a separate set of server routes and screens, reached only by accounts on the admin list in the server's configuration (the deployment's `ADMIN_ACCOUNTS` Worker secret, server:ledger-alarm-lists-suspects), each from a session that has shown a passkey. The operator decides who is on the list; by default, the operator alone.
 
-**moderation:queue-item-shows-context** For an item in the queue the view shows: the report and its reason, the cited messages rendered as their phrases with times, both accounts' sign-up country, account age and past reports (made and received) with their outcomes, and any earlier moderation action on either. It never shows a seed, a hidden simulation field, an email address, or another player's character state beyond what that player's own view would show.
+Passkey step-up:
 
-**moderation:fixed-admin-actions** An admin may take only these actions: `dismiss`, `warn`, `mute` (no phrases or invites for `days`), `suspend` (no sign-in for `days`), `ban` (the account is closed and its sign-in identity barred), `reset-name` (the display name returns to a generated one, and the player may choose their own at once: the reset never costs them a rename), `pull-advert` (advert:reported-advert-pulled-at-once), `approve-advert`, `refuse-advert`, `refer` (record that the matter was passed to a named outside body), and `rollback`, which opens the rollback tool of `server.md` for that one account. No admin action edits a balance, a state or a world value directly. The terms of play say that what breaks them may be removed and that an account may be closed for it. Two more actions, `approve-light` and `refuse-light` (account:name-a-light-for-yours, moderation:dedication-lights-await-approval), are taken on a dedication light and never on a report; a report cannot be closed with them.
+- A session has shown a passkey when a passkey assertion with the user-verified flag set (a face, a fingerprint or a screen lock) opened it no more than 15 minutes ago (`admin.passkeyMs`: the inactivity limit NIST SP 800-63B-4 sets for AAL3, counted here from the passkey itself). A passkey that verified no one still signs in, but never counts.
+- At `/admin`, a listed account whose session has not shown a passkey is asked for one in place. The passkey is shown from the signed-in browser, the auth library opens a new session from it for the same account, the cookie moves to the new session, and the old session ends (OWASP: a new session on a change of privilege).
+- From a browser signed in to a kept account, only that account's own passkeys are accepted; another account's passkey is refused and opens nothing. A browser whose cookie opens no live session signs in as any sign-in does (account:dead-cookie-expired-on-first-read).
+- `GET /api/account` says `admin` when the account is listed and the session has shown a passkey. `adminNeedsPasskey` appears in the reply only for a listed account (true while its session has not shown a passkey), so no one else's reply differs from what it would be with no admin view. With no passkey held, the sheet points to Settings to add one.
+- An admin route asked from a listed session that has not shown a passkey answers 403 `not-legal`, and the page asks for the passkey again.
+- Once an admin account holds a passkey, a new passkey can be added to it only from a session that has shown a passkey. Every addition is logged and the account's email told (account:passkey-needs-signed-in-session).
 
-**moderation:admin-actions-logged-append-only** Every admin action is written to an append-only log with the admin, the time, the item, the action, its parameters and a reason chosen from a list, plus an optional note. The log has no update and no delete route; a test proves the routes refuse both. The privacy notice names the log among what is kept, for `config.moderation.logYears`. The log's reasons are the report reasons of moderation:report-carries-subject-and-reason plus `dedication`, the reason of the two light actions (`LOG_REASONS` in `apps/server/src/moderation/reports.ts`); a player cannot report under it.
+Hidden from everyone else:
 
-**moderation:actioned-player-told-and-appeals** A warned, muted, suspended or banned player is told the action, the reason from the list and how to appeal, by the route that reaches them (the game, or the sign-in email). An appeal enters the queue and is decided by an admin other than the one who acted when there is more than one admin. Beyond the game, the terms of play give the complaints route: a player writes to the operator's address (`region.md`, "Who runs the game") and has a reply within 14 days. The notice is a row in Settings.
+- To a signed-out browser, a guest or an account off the list, `/admin` is any unknown address. This is judged on the same single account read the game makes as it starts, with no request of its own: the same game is shown, `/` is in the address bar (server:unknown-address-becomes-root), with no admin words, no sheet, and the admin page's code never fetched.
+- Every admin route answers them as a page that does not exist.
+- The admin page's code is its own chunk, fetched only at `/admin` and only once the server has named the account as listed. The game's shell imports only its address, so a player never downloads the page (engine:first-download-has-budget's size check fails if a first visit fetches it).
+
+On a phone, the admin page's tabs wrap to a second row rather than run off the edge unseen.
+
+**moderation:queue-item-shows-context** For a queue item the view shows: the report and its reason; the cited messages rendered as their phrases with times; both accounts' sign-up country, account age and past reports (made and received) with their outcomes; and any earlier moderation action on either. It never shows a seed, a hidden simulation field, an email address, or another player's character state beyond what that player's own view would show.
+
+**moderation:fixed-admin-actions** An admin may take only these actions:
+
+- `dismiss`;
+- `warn`;
+- `mute`: no phrases or invites for `days`;
+- `suspend`: no sign-in for `days`;
+- `ban`: the account is closed and its sign-in identity barred;
+- `reset-name`: the display name returns to a generated one, and the player may choose their own at once (the reset never costs them a rename);
+- `pull-advert` (advert:reported-advert-pulled-at-once), `approve-advert`, `refuse-advert`;
+- `refer`: records that the matter was passed to a named outside body;
+- `rollback`: opens the rollback tool of `server.md` for that one account.
+
+No admin action edits a balance, a state or a world value directly. The terms of play say that what breaks them may be removed and that an account may be closed for it. Two more actions, `approve-light` and `refuse-light` (account:name-a-light-for-yours, moderation:dedication-lights-await-approval), are taken on a dedication light and never on a report; a report cannot be closed with them.
+
+**moderation:admin-actions-logged-append-only** Every admin action is written to an append-only log with the admin, the time, the item, the action, its parameters, a reason chosen from a list, and an optional note. The log has no update and no delete route; a test proves the routes refuse both. The privacy notice names the log among what is kept, for `config.moderation.logYears`. The log's reasons are the report reasons of moderation:report-carries-subject-and-reason plus `dedication`, the reason for the two light actions (`LOG_REASONS` in `apps/server/src/moderation/reports.ts`); a player cannot report under it.
+
+**moderation:actioned-player-told-and-appeals** A warned, muted, suspended or banned player is told the action, the reason from the list and how to appeal, by whatever route reaches them (the game, or the sign-in email). An appeal enters the queue. When there is more than one admin, an admin other than the one who acted decides it. Beyond the game, the terms of play give the complaints route: a player writes to the operator's address (`region.md`, "Who runs the game") and gets a reply within 14 days. The notice is a row in Settings.
 
 **moderation:upheld-underage-closes-account** A report with the reason `underage` that an admin upholds closes the account and deletes its data, keeping only what the hold and the log need. The account cannot be reopened by a new date-of-birth answer from the same sign-in identity.
 
 **moderation:ban-survives-as-hash** A ban survives deletion as a salted hash of the sign-in identity, so the same Google account or email cannot sign up again. Nothing else about a banned account is kept beyond the log.
 
-## Rules: the rollback tool's place
+## Rules: the rollback tool
 
-**moderation:rollback-through-admin-view** The rollback tool belongs to `server.md`: replay one account from its seed and commands, compare with what is stored, correct only that account, never a mass freeze. The admin view is its only door: it opens on one account from a queue item or a money report alarm, shows the comparison, and records its use in the log of moderation:admin-actions-logged-append-only.
+**moderation:rollback-through-admin-view** The rollback tool belongs to `server.md`: replay one account from its seed and commands, compare with what is stored, and correct only that account, never a mass freeze. The admin view is its only way in: it opens on one account from a queue item or a money report alarm, shows the comparison, and records its use in the log of moderation:admin-actions-logged-append-only.
 
-## Rules: feedback
+## Rules: feedback and dedication lights
 
-**moderation:feedback-box-in-settings** The feedback box is a row in Settings (`shared/moderation/Feedback.tsx`). One tap opens a box for a short text of at most `config.feedback.maxChars` characters and a send button; it asks for nothing else. The server stores the text with the build number the client was built from, the screen it was sent from, the graphics mode, the day and the request's country, and nothing else: no account, no session, no character. A session may send at most `config.feedback.perDay` a day. Feedback is read in the admin view, is never shown to another player, never enters the report queue or the analytics store, and is deleted after `config.feedback.keepDays`. It lives on this page, not `analytics.md`, because analytics stores only counts and holds no typed text, and the admin view is where what players send is read. It is one of the two typed texts the game takes, and it goes only to the team; the other is a dedication light's name (account:name-a-light-for-yours), which reaches other players only through moderation:dedication-lights-await-approval.
+**moderation:feedback-box-in-settings** The feedback box is a row in Settings (`shared/moderation/Feedback.tsx`). One tap opens a box for a short text of at most `config.feedback.maxChars` characters and a send button; it asks for nothing else.
 
-**moderation:dedication-lights-await-approval** The lights list. The admin page's Moderation section carries the dedication lights whose names await a look (account:name-a-light-for-yours): the name, the years, the account's username and sign-up country, when lit, oldest first, from `GET /api/admin/dedication/pending`. "Approve" (`POST /api/admin/dedication/:account/approve`) sets the approval and the name shows to everyone from the next read; "Refuse" (`POST /api/admin/dedication/:account/refuse`) puts the light out. Both are written to the log of moderation:admin-actions-logged-append-only with the admin's account, the reason list carrying `dedication`. The look is by hand: no process approves on the makers' behalf.
+- The server stores the text with the build number the client was built from, the screen it was sent from, the graphics mode, the day and the request's country, and nothing else: no account, no session, no character.
+- A session may send at most `config.feedback.perDay` a day.
+- Feedback is read in the admin view. It is never shown to another player, never enters the report queue or the analytics store, and is deleted after `config.feedback.keepDays`.
+
+It is defined here, not in `analytics.md`, because analytics stores only counts and holds no typed text, and the admin view is where what players send is read. It is one of the two typed texts the game takes, and it goes only to the team. The other is a dedication light's name (account:name-a-light-for-yours), which reaches other players only through moderation:dedication-lights-await-approval.
+
+**moderation:dedication-lights-await-approval** The admin page's Moderation section lists the dedication lights whose names await review (account:name-a-light-for-yours), oldest first, from `GET /api/admin/dedication/pending`: the name, the years, the account's username and sign-up country, and when it was lit.
+
+- "Approve" (`POST /api/admin/dedication/:account/approve`) sets the approval, and the name shows to everyone from the next read.
+- "Refuse" (`POST /api/admin/dedication/:account/refuse`) puts the light out.
+
+Both are written to the log of moderation:admin-actions-logged-append-only with the admin's account, under the log reason `dedication`. A person reviews every name by hand: no automated process approves on the team's behalf.
 
 ## Numbers
 
@@ -89,4 +142,4 @@ The simulation's `types.ts` holds nothing for this page. The server holds:
 - **Types**: `ReportReason` (the list in moderation:report-carries-subject-and-reason); `ReportCite = { messages: string[] } | { place: string; phrase: string; at: number } | { card: string } | { pair: string } | { campaign: string; slot: string }`; `ReportRow { id; reporter; subject: { account: string } | { campaign: string }; reason; cites: ReportCite; pair: string | null; unverified: boolean; at; status: "open" | "decided"; outcome: "acted" | "no-action" | null; decidedAt: number | null }` (`packages/store/src/pair.types.ts`); `Hold { report; messages: string[]; pair?: string; until }`; `BlockRow { from; to; at }`; `AdminAction = "dismiss" | "warn" | "mute" | "suspend" | "ban" | "reset-name" | "pull-advert" | "approve-advert" | "refuse-advert" | "approve-light" | "refuse-light" | "refer" | "rollback"` (`packages/store/src/moderation.types.ts`); `ModerationLogEntry { id; admin; at; item; action: AdminAction; params; reason; note? }`; `BannedIdentity { hash; at }`.
 - **Tables**: `reports`, `holds`, `blocks`, `moderation_log` (insert only), `banned_identities`, `feedback`.
 - **Feedback**: `POST /api/feedback { text, build, screen, mode }`; `Feedback { id; text; build: string; screen: string; mode: "low" | "high"; day: string; region: string }`; config `config.feedback = { maxChars, perDay, keepDays }`; the build number is injected into the client at build time.
-- **A check** in the pair checks of `pair.md`: "neither has blocked the other" reads `blocks`.
+- **Pair check**: in the pair checks of `pair.md`, "neither has blocked the other" reads `blocks`.

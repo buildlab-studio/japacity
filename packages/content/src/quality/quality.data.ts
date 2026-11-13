@@ -26,7 +26,7 @@ export const qualityTable:Record<Id<"quality">, QualityEntry> = {
   "quality.wellbeing": { id: "quality.wellbeing", group: "self", min: 0, max: 100, shown: true, counts: [] },
   "quality.credit-mark": { id: "quality.credit-mark", group: "self", min: 0, max: 3, shown: true, counts: [] },
 
-  // route-gates.md "New qualities": nursing and care skill. A nurse starts at 60, a care assistant at 30.
+  // route-gates.md "Qualities, documents and starting life": nursing and care skill. A nurse starts at 60, a care assistant at 30.
   // It counts toward no route (quality:gains-name-their-routes).
   "quality.care": { id: "quality.care", group: "skills", min: 0, max: 100, shown: true, counts: [] },
   // car.md: 1 for the lives that can drive. Hidden.

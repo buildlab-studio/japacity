@@ -3,23 +3,25 @@
 > The thresholds are the real UK ones; prices are working values. Sources at the end.
 > Kinds: `obligation` (type `car`), `activity`, `document`. Background: `../design/01-concept.md` section 12, `../research/04` section 4.
 
-A car abroad is a work tool. For a home carer it is the difference between the visits that pay and the shifts the bus can reach. It is bought on finance, and finance has thresholds that bite.
+A car abroad is a work tool. A home carer with a car can take the visits that pay; without one, only the shifts the bus can reach. Cars are bought on finance, and finance has thresholds with real consequences.
 
 ## Rules
 
 **car:car-bought-on-finance** `activity.buy-car-finance` (abroad, the UK only) needs `credit/min` 30, the deposit payable in the local currency, and a licence in force: `document.home-licence` within its 12 months or `document.uk-licence`. It pays the deposit (reason `car-deposit`) and opens `obligation.car` with the price less the deposit as the principal, the term from the entry, the monthly rate from the credit ladder (credit:rate-follows-credit-ladder), and the final payment recorded.
 
-**car:open-finance-gives-the-car** While `obligation.car` is open and not in default, the character has the car (the code's `hasCar` in `activity.pay.ts`; content reads it with the requirement `obligation/has` and type `car`): activities marked `needsCar` are legal, and the job entries marked `carBonus` pay their bonus. Losing the car ends those at once.
+**car:open-finance-gives-the-car** While `obligation.car` is open and not in default, the character has the car (the code's `hasCar` in `activity.pay.ts`; content reads it with the requirement `obligation/has` and type `car`): activities marked `needsCar` are legal, and job entries marked `carBonus` pay their bonus. Losing the car ends both at once.
 
-**car:missed-payments-take-the-car** A missed payment on the car follows obligation:miss-applies-its-effects and marks the credit file. Two misses in a row bring a `notice` (a line). On the third miss in a row, if under a third of the total price has been paid, the car is taken at once: the obligation closes, the shortfall (what is owed less the entry's `car.resaleBp` of the price) becomes the entry's `car.shortfall` obligation (`obligation.car-shortfall`) with a court judgment (credit:judgment-blocks-credit) if above zero. If a third or more has been paid, the lender needs a court: the car is taken the entry's `car.courtMonths` later unless the arrears are cleared with `obligation/pay` first.
+**car:missed-payments-take-the-car** A missed car payment follows obligation:miss-applies-its-effects and marks the credit file. Two misses in a row bring a `notice` (a line). On the third miss in a row:
+- **Under a third of the total price paid**: the car is taken at once. The obligation closes. The shortfall (what is owed less the entry's `car.resaleBp` of the price), if above zero, becomes the entry's `car.shortfall` obligation (`obligation.car-shortfall`), with a court judgment (credit:judgment-blocks-credit).
+- **A third or more paid**: the lender needs a court. The car is taken the entry's `car.courtMonths` later, unless the arrears are cleared with `obligation/pay` first.
 
 **car:car-handed-back-after-half** At any time once half the total price has been paid, `obligation/pay` with the amount `0` on the car hands it back: the obligation closes, nothing more is owed, no judgment, and the character has no car.
 
-**car:final-payment-owns-the-car** When the term ends with every payment made, the final payment is due: paid, the car is owned and kept with nothing owed (its item stays in the state so the car still counts for car:open-finance-gives-the-car, but it is never charged again, the view does not list it, and `obligation/pay` on it is rejected with `not-legal`); missed, the car is handed back with nothing owed, as car:car-handed-back-after-half.
+**car:final-payment-owns-the-car** When the term ends with every payment made, the final payment is due. If it is paid, the car is owned and kept with nothing owed: its item stays in the state, so the car still counts for car:open-finance-gives-the-car, but it is never charged again, the view does not list it, and `obligation/pay` on it is rejected with `not-legal`. If it is missed, the car is handed back with nothing owed, as in car:car-handed-back-after-half.
 
-**car:licence-and-driving-test** `document.home-licence` is held on arrival by anyone who holds `quality.driving` 1 or more, valid 12 months from arrival. `activity.driving-test` (abroad, UK) costs `tuning.car.lessons` once for the lessons, then `tuning.car.testFee` per attempt, and passes with 5500 plus 500 for each earlier attempt, capped at 9000, stream `status`. A pass grants `document.uk-licence`, never expiring. Driving with no licence in force is not legal: the car's `needsCar` activities close and the car cannot be bought.
+**car:licence-and-driving-test** Anyone with `quality.driving` 1 or more holds `document.home-licence` on arrival, valid for 12 months from arrival. `activity.driving-test` (abroad, UK) costs `tuning.car.lessons` once for the lessons, then `tuning.car.testFee` per attempt. It passes on a draw on stream `status` at 5500 basis points plus 500 for each earlier attempt, capped at 9000. A pass grants `document.uk-licence`, never expiring. Driving with no licence in force is not legal: the car's `needsCar` activities close and the car cannot be bought.
 
-**car:view-shows-car-terms** The view shows the car: price, paid so far and the thirds and half marks, months left, the final payment, the rate, misses in a row, and whether a notice or a court date stands. The obligation item carries them as `car`: `price`, `paid`, `third`, `half`, `final`, `resale`, `interest` (the monthly interest the ladder fixed), `rateBp` (that interest over the opening principal), `notice`, and `courtMonth` (the month the car is taken, null when no court stands) with `courtMonths`. On Bills the rate is shown as interest a month, with no percent sign.
+**car:view-shows-car-terms** The view shows the car: price, paid so far, the third and half marks, months left, the final payment, the rate, misses in a row, and whether a notice or a court date stands. The obligation item carries them as `car`: `price`, `paid`, `third`, `half`, `final`, `resale`, `interest` (the monthly interest the ladder fixed), `rateBp` (that interest over the opening principal), `notice`, and `courtMonth` (the month the car is taken, null when no court stands) with `courtMonths`. On Bills the rate is shown as interest a month, with no percent sign.
 
 ## Entries
 
@@ -54,8 +56,8 @@ A car abroad is a work tool. For a home carer it is the difference between the v
 
 ## Why it is built this way
 
-- **A third and a half are the two decisions.** Under a third, two bad months lose the car and leave a debt with a judgment. Over a half, you can walk away clean. Between, you have time but it costs.
-- **The car and the visa are one chain.** The sponsor loses its licence, the job goes, the 60-day clock starts, the payments stop, and the car follows. What softens it is the grace, the hand-back and the notice.
+- **A third and a half are the two thresholds.** Under a third paid, three missed payments in a row lose the car and leaves a debt with a judgment. Over half paid, you can hand it back owing nothing. In between, the court delay gives you time, but it costs.
+- **The car and the visa are linked.** If the sponsor loses its licence, the job goes, the 60-day clock starts, the payments stop, and the car follows. The grace, the hand-back and the notice soften this.
 
 ## Sources
 

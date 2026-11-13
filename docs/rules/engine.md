@@ -4,7 +4,7 @@
 > Background: `../design/02-quality-and-testing.md`, `../design/03-structure-and-conventions.md`, `../design/04-where-things-live.md` section 7.
 > The types that go with this page are in `packages/sim/src/engine/types.ts`.
 
-## 1. The shape of it
+## 1. Overview
 
 ```mermaid
 flowchart LR
@@ -51,25 +51,73 @@ step(state, command, world, content) -> { ok: true, state, events, lines } | { o
 
 **engine:no-fractions-in-simulation** The simulation uses no fractions. Division happens only through the helpers in `engine/int.ts`, which round down unless their name says otherwise.
 
-**engine:state-is-plain-data** A state is plain data. Turning it to JSON and back gives an equal state. A save at its simplest is one segment: the `schema` number, the scenario, the seed, the world seed, the content version, the overlay version if one was applied, and the list of accepted commands, each with its tick and its sender. Replaying that list under that content rebuilds the state exactly. Online, a save is a list of such segments (decision 0004; `engine/replay.ts`; server:save-is-list-of-segments, server:newer-content-upgrades-state and server:upgrade-state-is-pure): each holds the commands accepted under one content version and one overlay, the first starting from the scenario and the seeds, a later one from a base state carried to the newer content by `upgradeState`. Replaying the segments in order rebuilds the state exactly.
+**engine:state-is-plain-data** A state is plain data: turning it to JSON and back gives an equal state.
+
+- **A simple save** is one segment: the `schema` number, the scenario, the seed, the world seed, the content version, the overlay version if one was applied, and the list of accepted commands, each with its tick and its sender. Replaying that list under that content rebuilds the state exactly.
+- **An online save** is a list of such segments (decision 0004; `engine/replay.ts`; server:save-is-list-of-segments, server:newer-content-upgrades-state, server:upgrade-state-is-pure). Each segment holds the commands accepted under one content version and one overlay. The first starts from the scenario and the seeds; each later one starts from a base state carried to the newer content by `upgradeState`. Replaying the segments in order rebuilds the state exactly.
 
 **engine:player-never-stuck** A player is never stuck. With no set piece open, ending the turn with every free slot resting is legal, whatever the character owes. With a set piece open, at least one answer is legal.
 
-**engine:simulation-reads-no-clock** The simulation never reads a clock. The world's tick arrives with each command, and a command whose tick is lower than the last accepted one is rejected with the code `clock-went-back`.
+**engine:simulation-reads-no-clock** The simulation never reads a clock. The world's tick arrives with each command. A command whose tick is lower than the last accepted one is rejected with the code `clock-went-back`.
 
-**engine:kinds-own-their-state** An event belongs to one kind, named by the part before the slash. Only that kind's own code changes that kind's part of the state. The engine keeps four counters of its own, the version, the tick, the draw counts and the next instance number, and each accepted command ends with one `engine/stepped` event that carries them.
+**engine:kinds-own-their-state** An event belongs to one kind, named by the part before the slash. Only that kind's own code changes that kind's part of the state. The engine keeps four counters of its own: the version, the tick, the draw counts and the next instance number. Each accepted command ends with one `engine/stepped` event that carries them.
 
-**engine:content-checked-before-play** Content is checked before play: every entry fits its schema, every id an entry mentions exists, and every amount is a whole number. For the public content this runs in the test suite; for any content the authority loads with an overlay it runs at load, and a failure refuses the content.
+**engine:content-checked-before-play** Content is checked before play: every entry fits its schema, every id an entry mentions exists, and every amount is a whole number. For the public content this runs in the test suite. For any content the authority loads with an overlay it runs at load, and a failure refuses the content.
 
-**engine:browser-authority-for-dev-only** The in-browser authority exists for development, tests and offline play. A production build runs it only when the build is told to in so many words (`VITE_ALLOW_LOCAL_AUTHORITY=1`), and never accepts a state, a balance or a result from the client in any other way. A test proves the production resolver refuses the local authority without that setting. The server is the only authority for the public game. The online authority fails loudly and in kind. Every `/api` request goes through one request function (`apps/client/src/shared/net/http.ts`) with a clock (8 s for a read, 15 s for a command), the cookie sent same-origin only, no redirect followed, and its answer sorted into a class: `ok`; `rejected` (the game's own refusal with its code, at any status); `wall` (a redirect, an opaque redirect, a 401 or 403 with no JSON body of the server's, or a page where JSON was expected; account:session-is-secure-cookie); `server` (a 5xx without the game's refusal, or with the server's own `unavailable`, server:no-platform-error-page: that failure carries the refusal's shape but is no refusal, so the card shows for it); `network` (the fetch threw or ran out of time). No catch in the authority is empty. A failed view is asked for again twice, after 1 s and 3 s, then a card says what happened in a short headline with no full stop ("Could not connect", "Your session ended", "Something went wrong on our side") and, under it, one plain line of what to do ("Check your connection, then try again.", "Reload, then sign in if the game asks.", "It is not your connection. Try again in a moment."), with Retry, and Reload for a wall. "Could not connect" covers both a request with no answer and a part of the game that did not download (world:lazy-part-fails-softly). A failed command or Begin keeps what was sent and shows the same card over the sheet that sent it; Retry sends it again on the version it was first sent on, so a command that landed before its answer was lost comes back stale and is never played twice. "Opening your life..." adds "Still opening..." after 5 s, and "The game could not start" never shows a browser's own words. On `pageshow` and on turning visible the view is read again (one request, the usual card on failure); the clock and the month kept on the device stay. The door's run stays on the device until Begin is answered: before, a reload comes back to the page filled in; after, the authority holds the life and a reload opens it where it stands. Every call to the server goes through that request function, not the authority's alone: the age screen, the guest start, the auth library's code, Google and passkey calls (through the same function as a `fetch`), and the notice's routes; each sends the cookie same-origin. The interface counters stay on `navigator.sendBeacon` (analytics:client-batches-counters), which has no answer to sort. No screen shows an error's own text: a failed request is said by the trouble words of its kind, and a test scans the client for an error's message read to be shown. No file under `apps/client/src` sets raw HTML (`dangerouslySetInnerHTML`, `innerHTML`, `insertAdjacentHTML`, `document.write` and the like). React escapes every string it renders, so a player's words never become markup, and a test scans the sources for each of these. Online, a visitor this device keeps no life for never sees "Opening your life". While the first view is asked for, the start screen's frame stands (the sheet with the hook and the three steps, text:hook-not-explanation, over the scene's ground; the city need not draw), saying only that it is checking; when the view cannot be read (server:no-platform-error-page's `unavailable` included), the trouble card stands in that sheet with the game's name at its head, and Retry asks again with the frame still up, so the start screen itself takes the frame's place once the server answers. A player whose life is kept on the device keeps the opening words and the card in their place. The page's first paint is the splash: the game's ground on the body, the brand's small mark drawn inline in index.html (one symbol, never a request) and the game's name under it, about a third down the screen; it carries no other words, since before its script the page cannot know whether this device keeps a life. The opening screen renders the same splash from one component (`shared/ui/Splash.tsx`, held equal to index.html by a test) and adds "Opening your life..." under the name, pulsing by opacity over two seconds and still under reduced motion, with "Still opening..." after five seconds as a second line. A fault takes the game's card dress, never red text: on the splash under the mark where a life was opening, in its place elsewhere (the start screen's sheet, over the sheet that sent it); the line by its kind, a plain detail under it with no status or code, Retry as the yellow pressed button and Reload as the quiet one for a wall; the game's own fault is the same card with Reload, its headline "The game could not start" with no reason in it, and its line by the failure's kind ("Check your connection, then reload.", "Your session ended. Reload, then sign in if the game asks.", "Something went wrong on our side. Reload in a moment."). The splash's inline style and drawing stay under 1.5 KB. Every wait takes one bar (`shared/ui/Loader`): 4 px, the ink on the sheet line, running by transform alone when the share is unknown and filling to the share when known, standing still under reduced motion; the opening's words carry it, and "Still opening..." arrives under the bar so the bar never moves.
+**engine:browser-authority-for-dev-only** The in-browser authority exists for development, tests and offline play. The server is the only authority for the public game. The rule covers who may be the authority, how the client talks to the server, and how waits and failures look.
 
-**engine:first-download-has-budget** What a first visit downloads has a budget. `pnpm check:size` (a step of `pnpm check` after `check:assets`, and of the check workflow) builds the client in production mode with placeholder settings in a deploy's shape, takes the chunks the page loads first (the entry and every chunk it imports statically, which its modulepreload links name), and compares each part's gzipped size with `tools/check/size-budget.json`: the main chunk, three.js's core, the simulation with the content, the model loader, React's chunk (React, React DOM, the scheduler and the sign-in libraries, a chunk of their own so a release that changes only the game keeps its name), the other shared chunks, and their total. Each budget is the size measured when it was set plus five percent, kept beside it in whole bytes; a part over its budget fails the check with its name and both numbers. A budget is lowered on purpose and never raised quietly: every change to the file records its reason, and no budget may stand above its measured size plus five percent. Those chunks are the start screen's: the start screen, the age screen, the door, sign in, the invite page, the splash and the trouble cards. Everything the game draws once a life exists is one part apart (`apps/client/src/app/Life.tsx`), fetched while the player is on the start screen (world:lazy-part-fails-softly), and the content with the simulation stays in the first visit, since the game's store reads it as the page starts. The same check fails when any of the admin page's code is in those chunks (moderation:admin-view-for-admin-list), and when any of the life's screens is (`app/Life.tsx`, or a feature's screens other than the account's and the door's). Beside the budgets it prints, with no budget of their own, the life's screens a first visit did not bring and the whole game (every script but the admin page's). The served folder `apps/client/public` holds only what the page uses and never a markdown page: the brand's notes live in `apps/client/brand/`, and a test holds the folder to it. A build for players (`forPlayers` in `apps/client/vite/shipping.plugin.ts`, every `vite build` outside development mode, staging and production alike) ships no source map and no `sourceMappingURL`; drops every console call but `console.error` (the boundary's report, analytics:client-sends-interface-counts) and the one `console.info` build line (server:production-and-staging), and every `debugger`, through the bundler's pure-function list and minifier (one `console.warn` inside react-three-fiber's dispose stays, named as the only exception); keeps the development switches (`?paint=`, `?clock=`, `?sleep=`, `?tiles`, `?look`, `?morning=`, `__wink`) and the development-page chunks behind `import.meta.env.DEV`, so they leave the shipped code; writes every bundled library's licence, the fonts' and Tailwind's with them, to `licenses.txt` beside the page; and minifies with the default minifier and hashed file names, no obfuscation beyond that. `tests/shipped-build.test.ts` builds the client both ways and proves each point.
+- **Production builds.** A production build runs the local authority only when told to explicitly (`VITE_ALLOW_LOCAL_AUTHORITY=1`). It never accepts a state, a balance or a result from the client in any other way. A test proves the production resolver refuses the local authority without that setting.
+- **One request function.** Every `/api` request goes through `apps/client/src/shared/net/http.ts`: the authority's calls, the age screen, the guest start, the auth library's code, Google and passkey calls (passed the same function as their `fetch`), and the notice's routes. Each request has a time limit (8 s for a read, 15 s for a command), sends the cookie same-origin only and follows no redirect. The interface counters are the one exception: they go by `navigator.sendBeacon` (analytics:client-batches-counters), which has no answer to sort.
+- **Answer classes.** Every answer is sorted into one class:
+  - `ok`;
+  - `rejected`: the game's own refusal with its code, at any status;
+  - `wall`: a redirect, an opaque redirect, a 401 or 403 with no JSON body from the server, or a page where JSON was expected (account:session-is-secure-cookie);
+  - `server`: a 5xx without the game's refusal, or with the server's own `unavailable` (server:no-platform-error-page). That answer has a refusal's shape but is not a refusal, so the trouble card shows for it;
+  - `network`: the fetch threw or ran out of time.
+- **No silent failures.** No catch in the authority is empty.
+- **Failed view.** A failed view read is retried twice, after 1 s and after 3 s. Then a trouble card shows:
 
-**engine:limits-tested-through-step** Every limit the player can meet is a rule of the simulation with a test that sends the over-limit command through `step`: the slot count, the bank allowance, an offer's amount range, an obligation's payment, a deposit without an offer, a departure without a grant. No limit lives only in the interface.
+  | Class | Headline (no full stop) | Line under it | Buttons |
+  |---|---|---|---|
+  | `network` | Could not connect | Check your connection, then try again. | Retry |
+  | `wall` | Your session ended | Reload, then sign in if the game asks. | Retry, Reload |
+  | `server` | Something went wrong on our side | It is not your connection. Try again in a moment. | Retry |
 
-**engine:numbers-read-from-content** Content is one plain object, and every number the game runs on is read from it: the tuning table and the entries. A pure function `applyOverlay(content, overlay)` returns a copy with any part of that object replaced, runs the schemas and `checkContent` on the result, and throws when they fail. An overlay carries a `version` that the save records. No rule number lives in code: the offer chance per grade and its cap, the good grade, the funds share that makes a refusal reason, the band step and the soft-cap share are all tuning. The public defaults alone run the whole game and pass every test; a private overlay may change the live numbers without touching a rule.
+  "Could not connect" covers both a request with no answer and a part of the game that did not download (world:lazy-part-fails-softly).
+- **Failed command.** A failed command or Begin keeps what was sent and shows the same card over the sheet that sent it. Retry sends it again on the version it was first sent on, so a command that landed before its answer was lost comes back `stale` and is never played twice.
+- **Reading the view again.** On `pageshow` and when the page turns visible, the view is read again (one request, the usual card on failure). The clock and the month kept on the device stay.
+- **The door.** The door's run stays on the device until Begin is answered. Before that, a reload returns to the page filled in. After it, the authority holds the life and a reload opens it where it stands.
+- **No raw error text, no raw HTML.** No screen shows an error's own text: a failed request is described by the trouble words for its class, and a test scans the client for an error message read out to be shown. No file under `apps/client/src` sets raw HTML (`dangerouslySetInnerHTML`, `innerHTML`, `insertAdjacentHTML`, `document.write` and the like). React escapes every string it renders, so a player's words never become markup. A test scans the sources for each of these.
+- **The splash.** The page's first paint is the splash: the game's ground on the body, the brand's small mark drawn inline in `index.html` (one symbol, never a request) and the game's name under it, about a third of the way down the screen. It carries no other words, because before its script runs the page cannot know whether this device keeps a life. The splash's inline style and drawing stay under 1.5 KB.
+- **Opening a life.** The opening screen renders the same splash from one component (`shared/ui/Splash.tsx`, held equal to `index.html` by a test) and adds "Opening your life..." under the name. It pulses by opacity over two seconds and holds still under reduced motion. After 5 s, "Still opening..." appears as a second line. "The game could not start" never shows a browser's own words.
+- **A visitor with no life on this device.** Online, such a visitor never sees "Opening your life". While the first view is requested, the start screen's frame stands (the sheet with the hook and the three steps, text:hook-not-explanation, over the scene's ground; the city need not draw) and says only that it is checking. When the view cannot be read (including server:no-platform-error-page's `unavailable`), the trouble card stands in that sheet with the game's name at its head. Retry asks again with the frame still up, and the start screen takes the frame's place once the server answers. A player whose life is kept on the device keeps the opening words and the card in their place.
+- **How a fault looks.** A fault uses the game's card style, never red text. It sits on the splash under the mark where a life was opening, and elsewhere in place (in the start screen's sheet, or over the sheet that sent the command). It shows the line for its class, a plain detail under it with no status or code, Retry as the yellow pressed button and Reload as the quiet one for a wall.
+- **The game's own fault.** It uses the same card with Reload. The headline is "The game could not start", with no reason in it, and the line follows the failure's class: "Check your connection, then reload.", "Your session ended. Reload, then sign in if the game asks." or "Something went wrong on our side. Reload in a moment."
+- **Waiting.** Every wait uses one bar (`shared/ui/Loader`): 4 px, ink on the sheet line. It runs by transform alone when the share done is unknown and fills to the share when it is known, and stands still under reduced motion. The opening words sit above it, and "Still opening..." appears under the bar so the bar never moves.
 
-**engine:report-money-is-typed** Money in a report line's params is a typed `{ currency, amount }` in minor units, never a bare number; a bare number in a line is a count, a band or a point. The words page (`text.md`, "Money on screen") says how the screen shows it.
+**engine:first-download-has-budget** What a first visit downloads has a budget.
+
+- **The check.** `pnpm check:size` is a step of `pnpm check` (after `check:assets`) and of the check workflow. It builds the client in production mode with placeholder settings in a deploy's shape. It takes the chunks the page loads first: the entry and every chunk it imports statically, which its modulepreload links name. It compares each part's gzipped size with `tools/check/size-budget.json`.
+- **The parts.** The main chunk; three.js's core; the simulation with the content; the model loader; React's chunk (React, React DOM, the scheduler and the sign-in libraries, kept in a chunk of their own so a release that changes only the game keeps its name); the other shared chunks; and their total.
+- **The budgets.** Each budget is the size measured when it was set plus five percent, stored beside it in whole bytes. A part over its budget fails the check with its name and both numbers. A budget is lowered on purpose and never raised quietly: every change to the file records its reason, and no budget may stand above its measured size plus five percent.
+- **What a first visit holds.** Those chunks are the start screen's: the start screen, the age screen, the door, sign in, the invite page, the splash and the trouble cards. The content with the simulation stays in the first visit, because the game's store reads it as the page starts. Everything the game draws once a life exists is one separate part (`apps/client/src/app/Life.tsx`), fetched while the player is on the start screen (world:lazy-part-fails-softly).
+- **What fails the check.** Any of the admin page's code in those chunks (moderation:admin-view-for-admin-list), and any of the life's screens (`app/Life.tsx`, or a feature's screens other than the account's and the door's).
+- **What it also prints.** With no budget of their own: the life's screens a first visit did not bring, and the whole game (every script but the admin page's).
+- **The served folder.** `apps/client/public` holds only what the page uses and never a Markdown page. The brand's notes live in `apps/client/brand/`, and a test holds the folder to this.
+- **A build for players.** `forPlayers` in `apps/client/vite/shipping.plugin.ts` covers every `vite build` outside development mode, staging and production alike. Such a build:
+  - ships no source map and no `sourceMappingURL`;
+  - drops every console call except `console.error` (the boundary's report, analytics:client-sends-interface-counts) and the one `console.info` build line (server:production-and-staging), and drops every `debugger`, through the bundler's pure-function list and minifier. One `console.warn` inside react-three-fiber's dispose stays, named as the only exception;
+  - keeps the development switches (`?paint=`, `?clock=`, `?sleep=`, `?tiles`, `?look`, `?morning=`, `__wink`) and the development-page chunks behind `import.meta.env.DEV`, so they leave the shipped code;
+  - writes every bundled library's licence, including the fonts' and Tailwind's, to `licenses.txt` beside the page;
+  - minifies with the default minifier and hashed file names, with no obfuscation beyond that.
+
+  `tests/shipped-build.test.ts` builds the client both ways and proves each point.
+
+**engine:limits-tested-through-step** Every limit the player can meet is a rule of the simulation, with a test that sends the over-limit command through `step`: the slot count, the bank allowance, an offer's amount range, an obligation's payment, a deposit without an offer, a departure without a grant. No limit lives only in the interface.
+
+**engine:numbers-read-from-content** Content is one plain object, and every number the game runs on is read from it: the tuning table and the entries. No rule number lives in code: the offer chance per grade and its cap, the good grade, the funds share that makes a refusal reason, the band step and the soft-cap share are all tuning. A pure function `applyOverlay(content, overlay)` returns a copy with any part of that object replaced, runs the schemas and `checkContent` on the result, and throws when they fail. An overlay carries a `version` that the save records. The public defaults alone run the whole game and pass every test; a private overlay may change the live numbers without changing a rule.
+
+**engine:report-money-is-typed** Money in a report line's params is a typed `{ currency, amount }` in minor units, never a bare number. A bare number in a line is a count, a band or a point. The words page (`text.md`, "Money on screen") says how the screen shows money.
 
 ## 3. Commands
 
@@ -93,7 +141,7 @@ Every command has `type`, `basedOn` (the state version) and its own fields. The 
 | `return/home` | `scheme`: true asks the UK's returns service (place:returns-service-takes-you-home); otherwise nothing. The shape of the return is worked out, not sent (place:return-home-paid-or-assisted, place:return-shape-decided-at-once) | No |
 | `place/ride` | `from`, `to`, `way`: danfo, keke or okada (place:rides-between-city-places) | No |
 | `activity/now` | `activity`, `param`: a now-act answered at once where it is staged (activity:now-acts-and-month-acts) | No |
-| `chapter/lean` | `route`: make a way out heard of or looked into the plan the chapters follow (chapter.md) | No |
+| `chapter/lean` | `route`: makes a way out heard of or looked into the plan the chapters follow (chapter.md) | No |
 | `thing/buy` | `thing`: bought at a home in Lagos, the price held, delivered at once (home:things-a-life-owns) | No |
 | `thing/sell` | `thing`: an owned thing sold back at its resale share (home:things-a-life-owns) | No |
 | `wallet/top-up` | `amount` in kobo. Sent by the authority only; no server route sends it (wallet:top-ups-are-marked) | No |
@@ -105,15 +153,34 @@ Every command has `type`, `basedOn` (the state version) and its own fields. The 
 | `lottery/pay` | `draw`, `prizes`. Sent by the authority only, after the draw | No |
 | the people commands | `people/invite`, `court`, `propose`, `answer`, `withdraw`, `consent`, `end` from the player; `people/link`, `facts`, `moments`, `proposal`, `agreed`, `ended`, `declined`, `withdrawn`, `gossip`, `stand-in`, `family-request` from the authority alone (person:nobody-real-is-needed, person:courting-opens-a-bond, person:time-together-is-an-act, person:talking-adds-moments, person:proposing-a-step, person:agreed-partner-and-marriage, person:one-partner-at-a-time, person:routes-name-dependant-routes, person:statuses-name-dependants, person:family-requests-shared, person:either-side-ends-a-bond, person:joint-collapses-with-bond, person:ender-pays-in-standing, person:one-left-keeps-own-gains, person:ended-bond-record-kept and person:leaving-player-ends-bonds) | No |
 
-**Rejection codes**: `stale`, `clock-went-back`, `setpiece-open`, `not-legal`, `cannot-afford`, `unknown-id`, `bad-amount`, `not-yours` (a player sent an authority command), `ended` (the life is over: the road's `lost`, turn:finish-ends-the-life, road:lost-is-final), `prologue-open` (the prologue is open: only `prologue/choose` and `turns/grant` are accepted, prologue:prologue-life-starts-empty).
+**Rejection codes**:
 
-**engine:player-keys-read-as-own** A record read with a key the player sent (an obligation, offer, route, school, bond, slot or question id) is read as an own property only (`ownOf` in `engine/kind.ts`): a built-in name such as `constructor` finds nothing and is refused `unknown-id` like any unknown id. No player command makes the simulation throw.
+| Code | When |
+|---|---|
+| `stale` | The command's `basedOn` is behind the state version |
+| `clock-went-back` | The command's tick is lower than the last accepted one |
+| `setpiece-open` | A set piece or interview question is open |
+| `not-legal` | The command is not allowed now |
+| `cannot-afford` | The money is not there |
+| `unknown-id` | An id names nothing |
+| `bad-amount` | An amount is out of range |
+| `not-yours` | A player sent an authority command |
+| `ended` | The life is over: the road's `lost`, turn:finish-ends-the-life, road:lost-is-final |
+| `prologue-open` | The prologue is open: only `prologue/choose` and `turns/grant` are accepted (prologue:prologue-life-starts-empty) |
 
-## 4. The order of a turn
+**engine:player-keys-read-as-own** A record read with a key the player sent (an obligation, offer, route, school, bond, slot or question id) is read as an own property only (`ownOf` in `engine/kind.ts`). A built-in name such as `constructor` finds nothing and is refused `unknown-id` like any unknown id. No player command makes the simulation throw.
 
-`turn/end` is checked first, by every kind that has a validator for it, in registry order: no set piece may be open, every slot must hold an activity the character may do now and fit a free slot (turn:free-slots-per-month), and no interview question may be open (the interview kind refuses with `setpiece-open`). If any check fails the command is rejected and nothing happens.
+## 4. Turn order
 
-Then the phases run in this order (`PHASES` in `engine/kind.ts`). In each, every kind that has the phase runs, in registry order, and its events are applied before the next kind runs.
+`turn/end` is validated first, by every kind that has a validator for it, in registry order:
+
+- no set piece may be open;
+- every slot must hold an activity the character may do now and fit a free slot (turn:free-slots-per-month);
+- no interview question may be open (the interview kind refuses with `setpiece-open`).
+
+If any check fails, the command is rejected and nothing happens.
+
+Then the phases run in this order (`PHASES` in `engine/kind.ts`). In each phase every kind that has it runs, in registry order, and its events are applied before the next kind runs.
 
 | # | Phase | Kinds, in registry order | What happens |
 |---|---|---|---|
@@ -130,15 +197,15 @@ Then the phases run in this order (`PHASES` in `engine/kind.ts`). In each, every
 | 11 | month | quality, place, status, credit, people | Age goes up a month and wellbeing drifts; December abroad; a status counts a month held and a lawful month (status:lawful-months-reach-settlement); a clean year on the credit file (credit:clean-mark-drifts-up); the bonds' facts refresh, December weddings, gossip and drift |
 | 12 | come-up | offer | New offers, requests and events are rolled |
 | 13 | chapter | chapter, goal | At most one finished chapter closes and the next opens, refilling the turn bank; every open goal whose `doneIf` holds is done |
-| 14 | close | turn, activity, wallet | The month's report is stored for the view with japacity after; the month's now-acts are done with (activity:now-acts-and-month-acts); the month's money is told with its net (a month that moved nothing tells nothing) |
+| 14 | close | turn, activity, wallet | The month's report is stored for the view with japacity after; the month's now-acts are cleared (activity:now-acts-and-month-acts); the month's money is reported with its net (a month that moved nothing reports nothing) |
 
-The close phase stores the report before activity and wallet close their month, so a kind that must be read by the report closes earlier or writes to the draft.
+The close phase stores the report before activity and wallet close their month. A kind whose result the report must include closes earlier or writes to the draft.
 
 A set piece that opens during a turn does not stop the turn. It blocks the next `turn/end` until it is answered.
 
 ## 5. Kinds
 
-Each kind is one module of plain functions. A kind adds only what it needs.
+Each kind is one module of plain functions. A kind defines only the parts it needs.
 
 | Part | Signature | Job |
 |---|---|---|
@@ -154,7 +221,7 @@ Each kind is one module of plain functions. A kind adds only what it needs.
 
 - **A kind may read any part of the state. It may change only its own**, and only in `evolve`.
 - **Kinds talk through effects.** An offer that pays money emits `{ type: "money/add", ... }`. The engine hands it to the wallet, which answers with `wallet/credited`.
-- **Requirements are data too**: `{ type: "quality/min", quality: "quality.tech", value: 60 }`. One function in the engine evaluates them all, so content never needs code. The part before the slash names the kind that judges it (`job/*` is judged by `activity`, `money/*` by `wallet`). The engine judges six types itself, as they read no kind's slice: `not` (the one requirement inside fails), `any` (at least one inside holds), `month/min` (months played at least this), `var/min` and `var/max` (a world variable at least or at most this), and `era/is` (the running era is one of these). The pages of the kinds name the rest.
+- **Requirements are data too**: `{ type: "quality/min", quality: "quality.tech", value: 60 }`. One function in the engine evaluates them all, so content never needs code. The part before the slash names the kind that judges it (`job/*` is judged by `activity`, `money/*` by `wallet`). The engine judges six types itself, because they read no kind's slice: `not` (the one requirement inside fails), `any` (at least one inside holds), `month/min` (at least this many months played), `var/min` and `var/max` (a world variable at least or at most this), and `era/is` (the running era is one of these). The kinds' pages name the rest.
 - **Text never lives in the state.** The simulation emits a line as a key and numbers. Content holds the words.
 
 ## 6. Random streams
@@ -182,20 +249,20 @@ Each kind is one module of plain functions. A kind adds only what it needs.
 
 The world has its own seed and its own streams: `rate`, `shock`, `rule`, and `era` for the director's next era (director:one-era-at-a-time). A character's draws never touch them.
 
-How a draw is made: `engine/random.ts` hashes the seed and the stream's name to a 32-bit base, and the nth output is SplitMix32 at `base + n * 0x9e3779b9`. The state stores only how many draws each stream has made. Reason: engine:randomness-from-named-streams needs the nth draw by position, which a generator with internal state cannot give. Recorded in `../decisions/0003-random-draws-by-position.md`.
+How a draw is made: `engine/random.ts` hashes the seed and the stream's name to a 32-bit base, and the nth output is SplitMix32 at `base + n * 0x9e3779b9`. The state stores only how many draws each stream has made. This is because engine:randomness-from-named-streams needs the nth draw by position, which a generator with internal state cannot give. See `../decisions/0003-random-draws-by-position.md`.
 
 ## 7. The stand-in world
 
 Online, the server produces the world in real time, one stored row per tick (`apps/server/src/world/ticks.ts`, `clock.md`). The in-browser authority produces it with `world/standIn.ts` from a world seed and a tick, in the same shape.
 
-- **In the in-browser authority one tick passes for each month played**, so a tester sees the rate move in one sitting. Online, ticks follow real time and a sitting sees one or two. This difference is deliberate.
+- **In the in-browser authority, one tick passes for each month played**, so a tester sees the rate move in one sitting. Online, ticks follow real time and a sitting sees one or two. This difference is deliberate.
 - The stand-in world's rules are in `rate.md` and `news.md`.
 
-## 8. What the contract leaves to others
+## 8. Outside the contract
 
-| Part | Where it stands |
+| Topic | Where it stands |
 |---|---|
 | The client predicting results before the authority answers | The client predicts nothing: it shows the command as sent until the reply arrives (server:client-never-predicts) |
 | State shared by two players | None: each life keeps its own state, and what another life must know reaches it as an authority command (person:lives-meet-by-authority-command) |
-| Upgrading old saves | The state carries a `schema` number; `upgradeStateWith` in `engine/state.ts` carries a state from one content to the next and fills what grew in a newer schema |
-| The segmented save | Decision 0004 (`engine/replay.ts`, engine:state-is-plain-data): a list of segments, each with its own content and overlay version and a base state after the first, so a life crosses a content change |
+| Upgrading old saves | The state carries a `schema` number. `upgradeStateWith` in `engine/state.ts` carries a state from one content to the next and fills what grew in a newer schema |
+| The segmented save | Decision 0004 (`engine/replay.ts`, engine:state-is-plain-data): a list of segments, each with its own content and overlay version, and a base state after the first, so a life can cross a content change |

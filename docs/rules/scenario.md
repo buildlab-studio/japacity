@@ -13,7 +13,7 @@
 
 ## The graduate, the banker and the developer
 
-A ready life has no name and no sex of its own: the player gives the name and the look at the door (prologue:front-door-builds-a-person), and a line told by sex takes its neutral form (streets:sex-optional-with-neutral-path). Each one's family is of one people, and the family's names come from that people (person:one-mixed-name-pool).
+A ready life has no name and no sex of its own: the player gives the name and the look at the door (prologue:front-door-builds-a-person), and a line that varies by sex takes its neutral form (streets:sex-optional-with-neutral-path). Each life's family is of one people, and the family's names come from that people (person:one-mixed-name-pool).
 
 | | `scenario.graduate` | `scenario.banker` | `scenario.developer` |
 |---|---|---|---|
@@ -42,18 +42,43 @@ A ready life has no name and no sex of its own: the player gives the name and th
 
 ## The teacher
 
-`scenario.teacher`: 26, a maths teacher 48 months in, a second upper and tech 32, two siblings, ₦350,000 in the bank and ₦20,000 cash, upkeep ₦80,000 and ₦25,000 sent home; cannot drive. Its family is Efik-Ibibio, the largest share outside the big three (person:one-mixed-name-pool). Recorded as `teacher-borrower` in `simulated-play/lives.data.ts`: a borrower who plans the master's, recorded on a seed whose master's flight leaves in the master's window of 48 to 72 months (`simulated-play/lives.window.ts`). The nurse, `scenario.nurse`, is defined in `route-gates.md` (its last table); its family is Igbo.
+`scenario.teacher`:
+
+- 26, a maths teacher 48 months in, a second upper, tech 32, two siblings;
+- ₦350,000 in the bank and ₦20,000 cash, upkeep ₦80,000 and ₦25,000 sent home a month;
+- cannot drive;
+- family Efik-Ibibio, the largest share outside the big three (person:one-mixed-name-pool).
+
+It is recorded as `teacher-borrower` in `simulated-play/lives.data.ts`: a borrower who plans the master's, recorded on a seed whose master's flight leaves in the master's window of 48 to 72 months (`simulated-play/lives.window.ts`).
+
+The nurse, `scenario.nurse`, is defined in `route-gates.md` (its last table). Its family is Igbo.
 
 ## What each one tests
 
 - **The graduate** has nothing built yet: everything has to be built, and the family can carry part of the weight.
-- **The banker** has money and a job on day one and a harder file: a lower grade, an older face, land that the family thinks of as theirs.
+- **The banker** has money and a job on day one and a harder file: a lower grade, an older face, and land that the family thinks of as theirs.
 - **The developer** is closest to the dollar salary that makes the funds easy, and furthest from any help.
 - **The teacher** has a small steady wage and some tech: a maths teacher who codes after marking, with a way into tech if the portfolio is built.
 
 ## The balance targets
 
-**scenario:economy-meets-its-targets** The economy is held to its targets by simulated play (decision 0031, `../design/13-the-economy.md` section 2). The balance test plays every fixed life and a life built from each archetype's preset (prologue:archetype-presets-answers: the accountant, the writer, the trader, the shop worker, the child of the water, and a graduate who takes the customer service job) under the player styles of `simulated-play/players.ts`: the careful, the borrower, the risky and the Canada players, and four more: trade-loyal (hunts only its own trade's rungs and side job, and studies tech only when its trade is tech), boat-loyal (the child of the water on the boat ladder, activity:boat-work-at-the-net-shed: asks Sewanu at the net shed, takes the crew's place, mends nets, buys the canoe once its months and money allow and runs the taxi canoe on it, toward the fish trade's ways), free-learner pivot (careful, working the free path to the developer jobs) and paid-learner pivot (careful, the diploma, or the bootcamp when the money allows). It runs 20 seeds for 96 months in three worlds (decision 0035): a calm world, `world-3`, the first `world-<n>` whose windows for the UAE and Canada's points stay open through month 72 and whose UK care window, shut at the start in every world, never closes again once opened, for the bands and the pivot's pace; the golden world, with the UAE ban of its months 13 to 30, for the mix, the students, tech's pace and the money; and a crash world, `world-99`, the steepest pound by month 36 of `world-v` and `world-0` to `world-499` whose UAE window stays open through month 36 (about twice as dear in 36 months), so the crash reads the cheap ways in a crash and not under a ban. It holds the ten thresholds below, each world's in its own test file. "Formal flights" are flights on a route other than the road. A flight's trade is the trade of the job held on the day it flies.
+**scenario:economy-meets-its-targets** Simulated play holds the economy to its targets (decision 0031, `../design/13-the-economy.md` section 2). The balance test plays every fixed life, and a life built from each archetype's preset (prologue:archetype-presets-answers: the accountant, the writer, the trader, the shop worker, the child of the water, and a graduate who takes the customer service job), under the player styles of `simulated-play/players.ts`:
+
+- the careful, the borrower, the risky and the Canada players;
+- trade-loyal: hunts only its own trade's rungs and side job, and studies tech only when its trade is tech;
+- boat-loyal: the child of the water on the boat ladder (activity:boat-work-at-the-net-shed). It asks Sewanu at the net shed, takes the crew's place, mends nets, buys the canoe once its months and money allow, and runs the taxi canoe on it, toward the fish trade's ways;
+- free-learner pivot: careful, working the free path to the developer jobs;
+- paid-learner pivot: careful, taking the diploma, or the bootcamp when the money allows.
+
+It runs 20 seeds for 96 months in three worlds (decision 0035):
+
+| World | Seed | How it is chosen | Used for |
+|---|---|---|---|
+| Calm | `world-3` | The first `world-<n>` whose windows for the UAE and Canada's points stay open through month 72, and whose UK care window (shut at the start in every world) never closes again once opened | The bands and the pivot's pace |
+| Golden | the golden world | Has the UAE ban of its months 13 to 30 | The mix, the students, tech's pace and the money |
+| Crash | `world-99` | Of `world-v` and `world-0` to `world-499`, the steepest pound by month 36 among those whose UAE window stays open through month 36 (about twice as dear in 36 months), so the crash tests the cheap ways in a crash and not under a ban | The crash |
+
+It holds the ten thresholds below, each world's in its own test file. "Formal flights" are flights on a route other than the road. A flight's trade is the trade of the job held on the day it flies.
 
 | # | What is measured | Styles, world | Threshold |
 |---|---|---|---|
@@ -68,7 +93,7 @@ A ready life has no name and no sex of its own: the player gives the name and th
 | 9 | The money floor and the sinks | careful, golden | No careful life under the broke line more than 2 months in a row; at the rung that fits abroad, settlement, renewal and citizenship each take 0.2 to 6 months of what the month keeps |
 | 10 | A crash | trade-loyal, the crash world | The Gulf from the shop and the racks, and the UK nurse's route from the nurse, reached by month 36 for 60% or more; naira pay at month 36 under the review about 1.21 times its start in the golden world, and lower in pounds than at the start in the crash world |
 
-The cheap and dear bands, in months to the first flight for a careful player who stays in the trade, without luck, in a calm world:
+The cheap and dear bands, in months to the first flight, for a careful player who stays in the trade, without luck, in a calm world:
 
 | Trade | The cheapest way that fits | Months | The dearer way that fits | Months |
 |---|---|---|---|---|
@@ -82,4 +107,4 @@ The cheap and dear bands, in months to the first flight for a careful player who
 | Developer | Canada or the UK talent route once remote | 18 to 36 | The master's or the skilled worker | 24 to 48 |
 | Graduate | Canada's points on the customer service ladder | 36 to 54 | The master's with the pledge | 48 to 72 |
 
-The thresholds and bands are the game's aims, not real figures; a change that moves a life outside them changes the content, or the targets with a decision record that says why.
+The thresholds and bands are the game's aims, not real figures. A change that moves a life outside them changes the content, or changes the targets with a decision record that says why.

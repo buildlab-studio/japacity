@@ -14,15 +14,15 @@
   A life-sim for your phone's browser about leaving Nigeria, or staying.
 </p>
 
-<!-- teaser: the asset link below and the two pictures' links are the mp4s uploaded through GitHub's editor, which is the only way GitHub plays a video; the sources are docs/teaser/japacity-teaser.mp4 and japacity-teaser-portrait.mp4, and a new render needs new uploads (see apps/teaser/README.md) -->
+<!-- teaser: the asset link below and the two pictures' links point at mp4s uploaded through GitHub's editor, the only way GitHub plays a video in a README. The sources are docs/teaser/japacity-teaser.mp4 and japacity-teaser-portrait.mp4. A new render needs new uploads (see apps/teaser/README.md). -->
 
 https://github.com/user-attachments/assets/5949493c-b849-43f5-b139-ab0121b32426
 
 <p align="center">
-  <a href="https://github.com/user-attachments/assets/5949493c-b849-43f5-b139-ab0121b32426"><img src="docs/teaser/japacity-teaser-end.webp" height="300" alt="The landscape teaser's end card: the Japacity seal and name on night blue, Play it, japacity.app, Japa is not by force. How ready are you?, and Free. Open source on GitHub."></a>
+  <a href="https://github.com/user-attachments/assets/5949493c-b849-43f5-b139-ab0121b32426"><img src="docs/teaser/japacity-teaser-end.webp" height="300" alt="The landscape teaser's end card: the Japacity seal and name on night blue, Play it with the game's address, Japa is not by force. How ready are you?, and Free. Open source on GitHub."></a>
   <a href="https://github.com/user-attachments/assets/ac24031c-08e9-4ffb-abff-049f8905343b"><img src="docs/teaser/japacity-teaser-portrait-open.webp" height="300" alt="The portrait teaser's opening: Ada's card and the words Japa is not by force. How ready are you? over the map of Lagos from the air, with Ada standing beside them"></a>
 </p>
-<p align="center">Left, the teaser for a screen; right, the teaser for a phone. 28 seconds each, both with sound; tap a picture to play it. The files: <a href="docs/teaser/japacity-teaser.mp4">landscape</a>, <a href="docs/teaser/japacity-teaser-portrait.mp4">portrait</a>.</p>
+<p align="center">Left: the teaser for a screen. Right: the teaser for a phone. Each is 28 seconds, with sound. Tap a picture to play it. The files: <a href="docs/teaser/japacity-teaser.mp4">landscape</a>, <a href="docs/teaser/japacity-teaser-portrait.mp4">portrait</a>.</p>
 
 <p align="center">
   <img src="docs/site/public/pictures/dev-01-front-door.webp" width="30%" alt="Who are you? A sticker card with your figure, a danfo and a Ghana Must Go bag, your name with a dice beside it, and your look">
@@ -32,14 +32,14 @@ https://github.com/user-attachments/assets/5949493c-b849-43f5-b139-ab0121b32426
 
 ## How it plays
 
-*Japa* is Nigerian for leaving the country for good. Here is one life.
+*Japa* is Nigerian for leaving the country for good. One life goes like this:
 
-1. **The front door.** You pick a look, a name, a life so far and a roof to start under. A travel data page is printed with your years on it.
-2. **A month at a time.** Each night you sleep is a month of your life. You fill each month with work, study, family and errands, and cross the city by danfo, keke or okada, with the fare in your pocket.
-3. **Your phone.** The Bank keeps what you hold for the road, the jobs come up on the board, the family group chats, and your papers wait in the box under the bed.
-4. **The ways out.** Nobody picks one at the start. A master's in the UK, a tech job abroad, health care in the UK, Canada's points or a Gulf contract appear as your life comes to match them, and the Japa app keeps the brief for the next step.
-5. **The file.** You gather the papers, save the money, sit the test and wait for the answer. A refusal is not the end.
-6. **The send-off.** If the visa comes through, the family walks you to Departures, the counter asks window or aisle, Papa says go well at the gate, and the plane lifts off Lagos at night. You land on a cold bus stop with a bag and three messages from home, and the life goes on abroad. If you stay, life at home goes on too.
+1. **Start.** Pick a look, a name, a life so far and a place to live. A travel data page is printed with your years on it.
+2. **Months.** Each night you sleep is one month. You fill the month with work, study, family and errands, and cross the city by danfo, keke or okada, paying each fare.
+3. **Your phone.** The Bank holds your savings for the move, jobs appear on the board, the family talks in the group chat, and your papers are kept in the box under the bed.
+4. **Ways out.** You do not pick one at the start. A master's in the UK, a tech job abroad, health care in the UK, Canada's points or a Gulf contract appear once your life matches them. The Japa app shows the brief for the next step.
+5. **The application.** Gather the papers, save the money, sit the test and wait for the answer. A refusal is not the end.
+6. **Leaving.** If the visa is granted, the family walks you to Departures, the counter asks window or aisle, Papa says go well at the gate, and the plane leaves Lagos at night. You land at a cold bus stop with a bag and three messages from home, and the life continues abroad. If you stay, the life continues at home.
 
 <p align="center">
   <img src="docs/site/public/pictures/front/phone.webp" width="30%" alt="The phone made big over the family house: the clock, a notice that your TB test certificate is ready, and the eleven apps from Calendar to Settings">
@@ -64,22 +64,22 @@ https://github.com/user-attachments/assets/5949493c-b849-43f5-b139-ab0121b32426
 
 Play it in your browser, on a phone or a computer. Nothing to download.
 
-## Made of
+## How it is built
 
-- **[A pure, deterministic simulation](docs/site/built/simulation.md):** plain functions over whole numbers, so the same choices give the same life on the phone and on the server.
-- **[One Cloudflare Worker](docs/site/built/server.md):** it serves the game and its API, keeps every life's log and stores lives in Postgres.
-- **[Rules with names and tests](docs/rules/engine.md):** every rule has a name, every name has a test that cites it, and the check fails when one is missing.
+- **[A deterministic simulation](docs/site/built/simulation.md):** pure functions over whole numbers, so the same choices give the same life on the phone and on the server.
+- **[One Cloudflare Worker](docs/site/built/server.md):** serves the game and its API, keeps each life's log and stores lives in Postgres.
+- **[Named, tested rules](docs/rules/engine.md):** every rule has a name, every name has a test that cites it, and the check fails when one is missing.
 
 ## Read more
 
 - [How it plays](docs/site/plays/index.md)
 - [How it is built](docs/site/built/index.md)
 - [The rules](docs/rules/engine.md)
-- [Why it is the way it is](docs/design/)
-- [Working on it](docs/site/built/working.md): what you need, the commands and the check
+- [Design notes](docs/design/)
+- [Working on it](docs/site/built/working.md): requirements, commands and the check
 - [Run your own copy](docs/site/built/your-own-copy.md), with your own domain, database and keys
 - [Contributing](CONTRIBUTING.md)
-- [The decisions](docs/decisions/)
+- [Decisions](docs/decisions/)
 
 ## Licences
 

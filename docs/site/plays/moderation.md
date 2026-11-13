@@ -1,12 +1,21 @@
 # Moderation and the legal pages
 
-Wherever a player meets another player, or meets anything the game did not write, there is a way to block and a way to report. Players cannot type to each other: they speak in set phrases, so a report never carries typed text. Every report is read by a person on the team, in one queue, and the reporter hears back when it is decided. Beside the game sit two plain pages every player can read: the Terms of play and the Privacy notice.
+Wherever a player meets another player, or anything the game did not write, there is a way to block and a way to report.
+
+- Players cannot type to each other: they speak in set phrases, so a report never carries typed text.
+- Every report is read by a person on the team, in one queue, and the reporter hears back when it is decided.
+- Beside the game are two plain pages every player can read: the Terms of play and the Privacy notice.
 
 <img src="/pictures/moderation-report.webp" alt="The report sheet over a friend's card: pick what is wrong, a person on the team reads every report, and the list of reasons" width="260">
 
 ## Block
 
-One tap blocks. From then on nothing passes between the two accounts in either direction: no phrase, no invite, no pair request, no joint application, and neither sees the other's character in a place. A block needs no reason. The blocked player is never told: their sends are refused the same way as a connection that has lapsed. A block ends any shared record the two had, as a break-up does, at no cost to the one who blocked. Unblocking brings nothing back; a new invite is needed.
+One tap blocks. From then on nothing passes between the two accounts in either direction: no phrase, no invite, no pair request, no joint application, and neither sees the other's character in a place.
+
+- A block needs no reason.
+- The blocked player is never told: their sends are refused the same way as a connection that has lapsed.
+- A block ends any shared record the two had, as a break-up does, at no cost to the one who blocked.
+- Unblocking brings nothing back; a new invite is needed.
 
 ## Report
 
@@ -35,14 +44,17 @@ flowchart TD
 The reasons are a fixed list: a scam or asking for money, harassment or bullying, pretending to be someone, under 18, sexual content, hate, self-harm, something illegal, cheating, a bad advert (on an advert), something else. A player can send up to 20 reports a day.
 
 ::: info While a report is open
-What a report cites is kept as it was until the report is decided, even if either account is deleted meanwhile, for at most 90 days. A reported conversation is paused in the reported player's direction: nothing new reaches the reporter from them.
+What a report cites is kept as it was until the report is decided, for at most 90 days, even if either account is deleted meanwhile. A reported conversation is paused in the reported player's direction: nothing new reaches the reporter from them.
 :::
 
 ## The queue and the team
 
 Every report, every advert sent in and every appeal enters one queue. Under 18, self-harm, sexual content and something illegal come first, then scams, then the rest, oldest first within each. The aim is a decision within a day.
 
-The team works in an admin view reached only by accounts on the admin list, each from a session that has shown its passkey. It shows the report, what it cites, both accounts' sign-up country and age on the game, and their past reports and actions. It never shows an email address, a seed, or anything of another player's character beyond what that player's own screen would show.
+The team works in an admin view reached only by accounts on the admin list, each from a session that has shown its passkey.
+
+- It shows the report, what it cites, both accounts' sign-up country and age in the game, and their past reports and actions.
+- It never shows an email address, a seed, or anything of another player's character beyond what that player's own screen would show.
 
 | Action | What it does |
 |---|---|
@@ -57,21 +69,33 @@ The team works in an admin view reached only by accounts on the admin list, each
 
 No action edits a balance, a state or a world value directly. Every action goes into a log that can only be added to.
 
-A life is never lost to a change in the game's rules. Before a version that changes the game's rules goes live, every life is saved whole as it stands, so the new rules carry it on from there and never play its past again; a life that does not come out the same is left as it was and listed for the team. If a life ever needs checking, the phone says "Your life needs checking on our side. Try again in a while." with a Retry that asks for it again, and the team checks and mends that one life with the correction tool on the game's database, one life at a time, while everyone else plays on.
+## Lives across rule changes
+
+A life is never lost to a change in the game's rules.
+
+- Before a version that changes the game's rules goes live, every life is saved whole as it stands (`pnpm snapshot:all`). The new rules carry it on from there and never replay its past.
+- A life that does not come out the same is left as it was and listed for the team.
+- If a life ever needs checking, the phone says "Your life needs checking on our side. Try again in a while." with a Retry that asks for it again.
+- The team checks and repairs that one life with the correction tool on the game's database (`pnpm rollback check|apply <character>`), one life at a time, while everyone else plays on.
 
 ::: warning Under 18
 An upheld report that an account is under 18 closes it and deletes its data, keeping only what the hold and the log need. A new date-of-birth answer from the same sign-in does not reopen it.
 :::
 
-A player who is warned, muted, suspended or banned is told what was done, the reason from the list, and how to appeal, under "From the team", a row in the phone's Settings. An appeal is made once and decided by a different person on the team where there is more than one.
+A player who is warned, muted, suspended or banned is told what was done, the reason from the list, and how to appeal, under "From the team", a row in the phone's Settings. An appeal is made once, and decided by a different person on the team where there is more than one.
 
 ## Feedback
 
-A Feedback row sits in the phone's Settings, online. It opens a box for a short text, at most 500 characters, and a send button. Only the team reads it, it does not say who sent it, and it is never shown to another player. With the name on a dedication light (below), it is one of the two typed texts the game takes.
+Online, a Feedback row sits in the phone's Settings. It opens a box for a short text, at most 500 characters, and a send button. Only the team reads it, it does not say who sent it, and it is never shown to another player. Together with the name on a dedication light (below), it is one of the two typed texts the game accepts.
 
-## The dedication's lights
+## Dedication lights
 
-On the dedication page a player may light one light and name it for someone of their own, with the years if they want. The light shows to everyone at once, bare; its name reaches other players only once the team has approved it. The admin page's moderation tab lists the lights waiting, oldest first, with the name, the years, the account's username and sign-up country and when it was lit, and Approve or Refuse on each. Refusing puts the light out, and the player may light again. Both are written to the log with the reason `dedication`.
+On the dedication page a player may light one light and name it for someone of their own, with the years if they want.
+
+- The light shows to everyone at once, bare. Its name reaches other players only once the team has approved it.
+- The admin page's moderation tab lists the lights waiting, oldest first, with the name, the years, the account's username and sign-up country and when it was lit, and Approve or Refuse on each.
+- Refusing puts the light out, and the player may light again.
+- Both are written to the log with the reason `dedication`.
 
 ## The legal pages
 
@@ -85,7 +109,7 @@ They are linked from the start screen, the age screen, the invite page, the acco
 ::: details Exceptions
 - **Locally** there is no team and no server: the block and report controls do not show, and nothing is sent.
 - **A card before sign-up** can be reported but not blocked: there is no pair yet to block.
-- **No screen shows a phrase said in a place** or a player seen in one, so those two surfaces have no control on screen; the control is built to take them.
+- **No screen shows a phrase said in a place** or a player seen in one, so those two surfaces have no control on screen yet; the control is built to take them.
 :::
 
 ## Rules it rests on

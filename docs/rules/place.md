@@ -1,48 +1,130 @@
 # Place: home and abroad
 
-> Numbers are working values with their sources; where the game differs from real life, the real value and the factor stand beside it.
-> Kind: `place`. One per character. Background: `../design/01-concept.md` sections 12 and 14, `../research/03-life-abroad-and-return.md`.
+> Kind: `place`, one per character. Background: `../design/01-concept.md` sections 12 and 14, `../research/03-life-abroad-and-return.md`.
+> Numbers are working values with their sources. Where the game differs from real life, the real value and the factor are given beside it.
 > Departure does not end the life (route:departure-pays-flight; `../decisions/0001-the-contract-carries-the-whole-life.md`).
 
-A character is in one place at a time: at home in Lagos, or abroad in one country. Most entries carry `where`, and an entry only applies in its place.
+A character is in one place at a time: at home in Lagos, or abroad in one country. Most entries carry `where`, and an entry applies only in its place.
 
-The kind also holds `place.*` entries, one for each spot in a city (`place.ojuelegba`, the room, the test centre). They hold no state and change no rule here; their fields and rules are on `city.md` (city:place-entry-fields and on).
+The kind also holds `place.*` entries, one for each spot in a city (`place.ojuelegba`, the room, the test centre). They hold no state and change no rule on this page. Their fields and rules are in `city.md`, from city:place-entry-fields on.
 
 ## Rules
 
-**place:new-character-at-home** A new character is at home. The place slice holds `where` (`home` or `abroad`), the `country` (null at home), the month of the last move, and the record of every return: its month, its shape and the country left.
+**place:new-character-at-home** A new character starts at home. The place slice holds `where` (`home` or `abroad`), `country` (null at home), the month of the last move, and a record of every return: its month, its shape and the country left.
 
-**place:departure-moves-abroad** The effect `place/move` with `to: "abroad"` is applied by `route/depart`, which sets the country from the route's entry, and by the road's arrival, which sets `country.italy` (road:sea-arrival-in-italy). `route/depart` is accepted only at home, since the airport's gate is in Lagos: no flight leaves from abroad or from the road, so the character never moves from one country to another. It records the month. The character's home obligations of type `upkeep` and `support` close; the family house is not charged for while you are away. A room rented at home is let go (home:compound-room-is-a-home): leaving Lagos or the road, `rent` closes with them, and the year paid is gone; the return goes to the family house (place:family-takes-you-back). Leaving Lagos, by flight or by the road, sells everything owned at its resale share (`things/sell-off`) and tells it in one line, "Before you left, what you owned was sold" (home:things-a-life-owns).
+**place:departure-moves-abroad** The effect `place/move` with `to: "abroad"` is applied by `route/depart`, which sets the country from the route's entry, and by the road's arrival, which sets `country.italy` (road:sea-arrival-in-italy). It records the month.
+- `route/depart` is accepted only at home, because the airport's gate is in Lagos. No flight leaves from abroad or from the road, so a character never moves from one country to another.
+- The home obligations of type `upkeep` and `support` close. The family house is not charged for while the character is away.
+- A room rented at home is given up (home:compound-room-is-a-home). Leaving Lagos or the road closes `rent` with it, and the year already paid is lost. A later return goes to the family house (place:family-takes-you-back).
+- Leaving Lagos, by flight or by the road, sells everything owned at its resale share (`things/sell-off`) and says so in one line: "Before you left, what you owned was sold" (home:things-a-life-owns).
 
-**place:entries-legal-by-where** An entry with `where: "home"` is not legal abroad, and one with `where: "abroad"` is not legal at home. `where: "any"` applies in both. This holds for activities (activity:illegal-slot-rejects-turn rejects a slot naming one), offers (they are not rolled and not opened), obligations (they are not opened) and routes (they are not heard of or looked into).
+**place:entries-legal-by-where** An entry with `where: "home"` is not legal abroad, and one with `where: "abroad"` is not legal at home. `where: "any"` applies in both. This holds for:
+- activities: activity:illegal-slot-rejects-turn rejects a slot that names one;
+- offers: they are not rolled and not opened;
+- obligations: they are not opened;
+- routes: they are not heard of or looked into.
 
-**place:return-home-paid-or-assisted** The command `return/home` is accepted abroad when the fare can be paid, when the character holds no status and nothing in any bank pocket abroad covers the fare (the assisted return), or when it asks for the returns service (`scheme: true`) on an overstayer status whose entry carries a `returnGrant` (place:returns-service-takes-you-home). From the UAE on `status.uae-irregular`, the fare is the fare and the fine together (status:uae-fine-accrues). It applies `place/move` to home, closes every status but one a trip home keeps (return:papers-return-keeps-status), and records the return with its shape: `removed`, `assisted`, `broke`, `by-choice` or `with-papers`, by place:return-shape-decided-at-once.
+**place:return-home-paid-or-assisted** The command `return/home` is accepted abroad in three cases:
+- the fare can be paid;
+- the character holds no status and no bank pocket abroad covers the fare (the assisted return);
+- it asks for the returns service (`scheme: true`) on an overstayer status whose entry carries a `returnGrant` (place:returns-service-takes-you-home).
 
-**place:return-shape-decided-at-once** The shape of a return is decided when it happens, first match wins: `removed` if it follows the effect `status/remove`; `assisted` if no status was held and the fare was not paid, or the returns service took the character home; `broke` if the fare was paid and the character's bank and cash in every currency, valued in naira at the official rate, come to under the broke line; `with-papers` if the character holds, at the moment of leaving, a settled or citizen status, or a status a trip home keeps (return:papers-return-keeps-status) with months left; otherwise `by-choice`.
+From the UAE on `status.uae-irregular`, the fare is the fare plus the fine (status:uae-fine-accrues). The command applies `place/move` to home, closes every status except one that a trip home keeps (return:papers-return-keeps-status), and records the return with its shape (`removed`, `assisted`, `broke`, `by-choice` or `with-papers`) by place:return-shape-decided-at-once.
 
-**place:fare-home-in-local-currency** The fare home is the route's country's fare in that country's currency, times the December factor when the world's `var.season-december` is 1. It is paid with `money/take` from `any` pocket of that currency, reason `fare`. A fare that cannot be paid from that currency may be paid from the naira pockets at the official rate plus the bank charge, as wallet:foreign-fee-payment-order does for fees.
+**place:return-shape-decided-at-once** The shape of a return is decided when it happens. The first match wins:
+1. `removed` if it follows the effect `status/remove`;
+2. `assisted` if no status was held and the fare was not paid, or the returns service took the character home;
+3. `broke` if the fare was paid and the character's bank and cash in every currency, valued in naira at the official rate, come to less than the broke line;
+4. `with-papers` if, at the moment of leaving, the character holds a settled or citizen status, or a status a trip home keeps (return:papers-return-keeps-status) with months left;
+5. otherwise `by-choice`.
 
-**place:family-takes-you-back** On return the family house takes you back: the `upkeep` obligation reopens at the amount the starting life gave, the `support` obligation at its old amount if it existed, and a `standing` change applies by the shape of the return: `with-papers` +10, `by-choice` 0, `broke` -8, `assisted` -12, `removed` -20 (`tuning.return.standing`). `return.md` cites these figures and adds the capital's recovery (return:standing-by-return-shape).
+**place:fare-home-in-local-currency** The fare home is the country's fare in that country's currency, times the December factor when the world's `var.season-december` is 1. It is paid with `money/take` from `any` pocket of that currency, reason `fare`. If that currency cannot pay it, the fare may be paid from the naira pockets at the official rate plus the bank charge, in the same way wallet:foreign-fee-payment-order pays fees.
 
-**place:removal-bans-the-country** A removal (status:removal-sends-home-banned) bans every route into that country for the `banMonths` of the country's overstayer status, counted from the removal's month. No route moves: while the ban holds, a route into that country is not heard of or looked into, and a partner route into it cannot be applied for. The ban lifts in the month that is the removal's month plus those months. A return from an overstay records its ban the same way (place:leaving-an-overstay-bans), and it is read the same way.
+**place:family-takes-you-back** On return the family house takes the character back:
+- the `upkeep` obligation reopens at the amount the starting life gave;
+- the `support` obligation reopens at its old amount, if it existed;
+- `standing` changes by the shape of the return: `with-papers` +10, `by-choice` 0, `broke` -8, `assisted` -12, `removed` -20 (`tuning.return.standing`).
 
-**place:leaving-an-overstay-bans** A return home from the country's overstayer status records a ban on that country by the way the character left, counted from the return's month: at the character's own fare within the grace (status:grace-before-overstaying), none; at the character's own fare after it (`by-choice` or `broke`), the entry's `ownFareBanMonths`; `assisted`, by the assisted return or the returns service, the entry's `assistedBanMonths`; `removed`, the entry's `banMonths` (place:removal-bans-the-country). A ban of 0 records nothing. So the UK bans none, 12, 24 and 120 months; Canada none, none, 12 and 120; the UAE none, 12, 12 and 60, and none at all while the amnesty holds (status:uae-amnesty); Italy none, none, none and 36. A return from any other status records no ban. Real: the UK's refusal periods of Part Suitability SUI 11.5 and 12.1, Canada's departure, exclusion and deportation orders, the UAE's one-year labour ban and Italy's expulsion (status.md, Numbers).
+`return.md` cites these figures and adds the capital's recovery (return:standing-by-return-shape).
 
-**place:returns-service-takes-you-home** The returns service: the UK's Voluntary Returns Service, for a country whose overstayer entry carries a `returnGrant`. On that status, `return/home` with `scheme: true` is accepted whatever the money held: the scheme pays the fare (no `money/take`), the shape is `assisted`, the ban is `assistedBanMonths` (24, place:leaving-an-overstay-bans), and on arrival home the `returnGrant` (£1,500) is credited to the naira bank at the day's official rate with the reason `gift`, not flagged, since the scheme's money is documented, with a line that says where it came from. An assisted return in the UK with no fare is the same service, grant included. Real: the service books the ticket for someone who cannot pay it and may give up to £3,000 to restart; the game books it for anyone who asks and gives half the most.
+**place:removal-bans-the-country** A removal (status:removal-sends-home-banned) bans every route into that country for the `banMonths` of the country's overstayer status, counted from the month of the removal. No route is changed. While the ban holds, a route into that country is not heard of or looked into, and a partner route into it cannot be applied for. The ban lifts in the month of the removal plus `banMonths`. A return from an overstay records its ban the same way (place:leaving-an-overstay-bans), and that ban is read the same way.
 
-**place:view-shows-place-and-returns** The view shows `where`, the country, months since the last move, the record of returns (`country` null for a return from the road), the status token kept, and `fareHome`: the fare from the country the character is in with the December factor applied (place:fare-home-in-local-currency), null at home. It never shows the shape of a return as a record before it has happened; the forecast of place:view-carries-way-home is a forecast, and is marked as one.
+**place:leaving-an-overstay-bans** A return home from the country's overstayer status records a ban on that country, counted from the month of the return. The length depends on how the character left:
+- at their own fare within the grace (status:grace-before-overstaying): no ban;
+- at their own fare after the grace (`by-choice` or `broke`): the entry's `ownFareBanMonths`;
+- `assisted`, by the assisted return or the returns service: the entry's `assistedBanMonths`;
+- `removed`: the entry's `banMonths` (place:removal-bans-the-country).
 
-**place:rides-between-city-places** A ride between two places of the city is the command `place/ride` with `from`, `to` and `way`. At home the ways are the danfo, the keke, the okada, `drive` and on foot. A ride at home is accepted when both are places at home and differ, and the naira in cash and bank together hold the way's fare, taken with the reason `fare` from cash first and the bank for the rest. On foot is accepted whenever the two positions are within `tuning.city.ride.walkMetres` of each other (a place with no position is always walkable). Past it a walk is refused, except a walk to or from the character's own home (`home.place`, the family house when none) while the naira in cash and bank together cannot pay the cheapest fare of the same ride by any other way (the danfo, the keke, the okada, and `drive` while the car stands at home, at the month's fares): the long walk is a way out for a life that cannot pay a ride, never a way to save a fare, so a life with no fare walks home or out of home however far, and a life with the fare takes a ride (world:ride-sheet-shows-fares). The fare grows with the distance: `rideFare` is the way's flag-down figure (`tuning.city.ride.fareKobo`) plus its figure a kilometre (`tuning.city.ride.farePerKmKobo`) over the straight-line metres between the two places' positions (`metresApart`, whole numbers, city:positions-rough-on-purpose), rounded up to fifty naira, then the month's factor; a place with no position (their room) stands at the flag-down figure; on foot the fare is nothing, so a character with no naira can always move. The ride sheet prices from the same function with content's positions, so it says what the ride takes to the kobo. The month the fuel scarcity's ask opens (`offer.fuel-scarcity`, answered or not) every fare is `tuning.city.ride.scarcityBp` of its flat figure, and the view's `place.fareBp` carries the month's factor so the ride sheet shows the same fares. `drive` is accepted only while the life's car stands at home (home:things-a-life-owns; the hostel has no car spot, so a car is stored there and Drive is not offered); its fare is `tuning.thing.drive`, ₦300 plus ₦100 a kilometre rounded up to ₦50, the scarcity factor applying, so a drive costs more than a danfo and less than an okada.
+A ban of 0 records nothing. A return from any other status records no ban. The UAE records no ban at all while the amnesty holds (status:uae-amnesty). In months:
 
-Abroad (decision 0017, `../design/10-london.md`) a ride is accepted between two places of the character's country (a place with `where: "abroad"` and the character's country, or a country-less abroad place such as the room), on the ways the country lists in `tuning.city.ride.abroad[country].ways` (`bus`, `train`, `taxi`, each with its flag-down figure, its figure a kilometre and its pace in the country's smallest unit) and on foot by the same walking rule as at home, the country's `lonMetresPerE3` measuring longitude. The room is the home there; it has no position of its own, so a walk's distance, to it or from it, reads it at the country's `homeSpot` (`walkPosition`, world:painted-maps-abroad), while its fares stay at the flag-down figure. A walk to or from the room past the walking limit is accepted only while the country's money in cash and bank together cannot pay the cheapest fare of the same ride by the country's ways, a way the month's pass covers or the shuttle serves counting as a fare of nothing; with that fare in hand it is refused as any walk past the limit is. The fare is `rideFare` with the country's figures, rounded up to the country's `step` (five pence, five cents, twenty-five fils), taken from the country's currency with the reason `fare`, cash first and the bank for the rest; the scarcity factor is Lagos's and is not applied abroad. A country with no ways listed refuses a ride.
+| Country | Own fare, within the grace | Own fare, after it | Assisted | Removed |
+|---|---|---|---|---|
+| UK | none | 12 | 24 | 120 |
+| Canada | none | none | 12 | 120 |
+| UAE | none | 12 | 12 | 60 |
+| Italy | none | none | none | 36 |
 
-Short of the fare is `cannot-afford`; the same place twice, or a place elsewhere, is `not-legal`. The event `place/rode` records the ride, with the `currency` beside the `fare`. The view's `place.ways` lists the ways of the country the character is in with their figures (at home, the five ways), so the ride sheet prices from the same function. The simulation keeps no place of the city: the client holds where the character stands and moves only once the ride is accepted (decision 0017). `metresApart` and `withinMetres` read the metres a thousandth of a degree of longitude is worth from the country (`tuning.city.ride.lonMetresPerE3` at home, 111; `tuning.city.ride.abroad[country].lonMetresPerE3` abroad, the UK 69), since a degree of longitude shrinks toward the poles (at 51.5 degrees north it is about 0.62 of a degree of latitude); latitude stays at 111 everywhere. So the train from Peckham to Heathrow prices near £5.50 and the ward is within a walk's reach of Peckham where it is.
+Real: the UK's refusal periods of Part Suitability SUI 11.5 and 12.1, Canada's departure, exclusion and deportation orders, the UAE's one-year labour ban and Italy's expulsion (`status.md`, Numbers).
 
-**place:country-pass-covers-ways** The pass (decision 0017, `../design/11-calgary-dubai-and-castel-volturno.md` section 4). A pass is the country's: `tuning.city.ride.abroad[country].pass` is the figure and `passWays` the ways it covers (the UK `["bus"]`; Canada and the UAE `["bus", "train"]`; Italy none). The act is the country's own: `activity.bus-pass-uk` at Peckham Rye station's ticket machine (£95), `activity.transit-pass-canada` at the CTrain station's machine (C$118), `activity.transit-pass-uae` at Union station's Nol machine (AED 140), each a now-act (`slot: "none"`, `when: "now"`, once a month) paid from the country's money with the reason `fare`, read from the month's played acts. In a month it has been played, a ride on a covered way asks no fare (the fare is 0 and `place/rode` records it so), and the ride sheet's pill says so in the country's money ("£0, bus pass", "C$0, transit pass", "AED 0, zone pass"); the UK's train stays per trip. The pass is the month's, not the life's: the next month asks again. A country without a `pass` figure has no pass.
+**place:returns-service-takes-you-home** The returns service is the UK's Voluntary Returns Service, for a country whose overstayer entry carries a `returnGrant`. On that status, `return/home` with `scheme: true` is accepted whatever money the character holds:
+- the scheme pays the fare (no `money/take`);
+- the shape is `assisted`, and the ban is `assistedBanMonths` (24, place:leaving-an-overstay-bans);
+- on arrival home, the `returnGrant` (£1,500) is credited to the naira bank at the day's official rate with the reason `gift`, not flagged, because the scheme's money is documented. A line says where the money came from.
 
-**place:employer-shuttle-rides-free** The employer's shuttle (decision 0017, `../design/11-calgary-dubai-and-castel-volturno.md`). A place entry abroad may carry `shuttle: true`: the labour bus to the site in Dubai (`place.site-uae`), the gangmaster's van to the fields in Castel Volturno (`place.farm-italy`). A ride by `bus` to or from such a place asks no fare whatever the month (the fare is 0 and `place/rode` records it so), and the view's stop carries `shuttle` so the ride sheet's pill says it ("AED 0, site bus", "€0, the van"); every other way to it is priced as usual and the walk keeps its limit. The shuttle is the way the job is reached, not a pass: it covers no other stop.
+An assisted return in the UK with no fare is the same service, grant included. Real: the service books the ticket for someone who cannot pay and may give up to £3,000 to restart. The game books it for anyone who asks and gives half the maximum.
 
-**place:view-carries-way-home** The place view carries `wayHome`, the way home from where the character is today as `return/home` would take it: the fare now and off peak, where it would come from (`local`: the country's money; `naira`: bought through the bank as place:fare-home-in-local-currency allows; null: nobody), the naira it takes when bought from naira with the bank's charge, the shape by place:return-shape-decided-at-once read after the fare is paid as the wallet would pay it, the standing the return brings (the shape's figure and the capital, return:standing-by-return-shape), and `banMonths`, the ban the return would record (place:leaving-an-overstay-bans, 0 for none). The fare from the UAE on `status.uae-irregular` carries the fine within it, and `fine` says how much of it is the fine (status:uae-fine-accrues). Beside it, `scheme` is the returns service's way where the status has one (place:returns-service-takes-you-home): the grant in naira at the day's rate and its ban; null elsewhere. Where the command would refuse, the shape is null. From the road's far shore it is the assisted return with no fare (road:sea-arrival-in-italy). Null at home and on the road. It is a forecast of today, not the record: the record of returns still holds no shape before one happens (place:view-shows-place-and-returns). The client reads it and keeps no copy. The Go home card on the room abroad's bag reads everything it says from `wayHome` (return:standing-by-return-shape).
+**place:view-shows-place-and-returns** The view shows:
+- `where`, the country, and the months since the last move;
+- the record of returns (`country` is null for a return from the road);
+- the status token kept;
+- `fareHome`: the fare from the country the character is in, with the December factor applied (place:fare-home-in-local-currency), or null at home.
+
+It never shows the shape of a return as a record before the return has happened. The forecast of place:view-carries-way-home is a forecast and is marked as one.
+
+**place:rides-between-city-places** A ride between two places of the city is the command `place/ride` with `from`, `to` and `way`.
+
+At home:
+- The ways are the danfo, the keke, the okada, `drive` and on foot.
+- A ride is accepted when both places are at home and differ, and the naira in cash and bank together hold the way's fare. The fare is taken with the reason `fare`, from cash first and the bank for the rest.
+- On foot is accepted whenever the two positions are within `tuning.city.ride.walkMetres` of each other. A place with no position is always walkable.
+- Past that distance a walk is refused, with one exception: a walk to or from the character's own home (`home.place`, or the family house when there is none) while the naira in cash and bank together cannot pay the cheapest fare of the same ride by any other way (the danfo, the keke, the okada, and `drive` while the car stands at home, at the month's fares). The long walk is a way out for a life that cannot pay a ride, never a way to save a fare. A life with no fare walks home, or out from home, however far; a life with the fare takes a ride (world:ride-sheet-shows-fares).
+- The fare grows with distance. `rideFare` is the way's flag-down figure (`tuning.city.ride.fareKobo`) plus its figure per kilometre (`tuning.city.ride.farePerKmKobo`) times the straight-line distance between the two places' positions (`metresApart`, whole metres, city:positions-rough-on-purpose), rounded up to fifty naira, then multiplied by the month's factor. A place with no position (their room) costs the flag-down figure. On foot costs nothing, so a character with no naira can always move. The ride sheet prices rides with the same function and content's positions, so it shows exactly what the ride takes, to the kobo.
+- In the month the fuel scarcity's ask opens (`offer.fuel-scarcity`, answered or not), every fare is `tuning.city.ride.scarcityBp` of its normal figure. The view's `place.fareBp` carries the month's factor so the ride sheet shows the same fares.
+- `drive` is accepted only while the life's car stands at home (home:things-a-life-owns). The hostel has no car space, so a car is stored while the character lives there and Drive is not offered. Its fare is `tuning.thing.drive`: ₦300 plus ₦100 a kilometre, rounded up to ₦50, with the scarcity factor applied. A drive costs more than a danfo and less than an okada.
+
+Abroad (decision 0017, `../design/10-london.md`):
+- A ride is accepted between two places of the character's country: a place with `where: "abroad"` and that country, or an abroad place with no country, such as the room.
+- The ways are those the country lists in `tuning.city.ride.abroad[country].ways` (`bus`, `train`, `taxi`, each with its flag-down figure, its figure per kilometre and its pace, in the country's smallest unit), plus on foot under the same walking rule as at home. The country's `lonMetresPerE3` measures longitude.
+- The room is the home abroad. It has no position of its own, so the distance of a walk to or from it is read from the country's `homeSpot` (`walkPosition`, world:painted-maps-abroad). Its fares stay at the flag-down figure.
+- A walk to or from the room past the walking limit is accepted only while the country's money in cash and bank together cannot pay the cheapest fare of the same ride by the country's ways. A way the month's pass covers, or the shuttle serves, counts as a fare of nothing. With the fare in hand, the walk is refused like any walk past the limit.
+- The fare is `rideFare` with the country's figures, rounded up to the country's `step` (five pence, five cents, twenty-five fils), taken from the country's currency with the reason `fare`, cash first and the bank for the rest. The scarcity factor is Lagos's and does not apply abroad.
+- A country with no ways listed refuses every ride.
+
+Everywhere:
+- Short of the fare is `cannot-afford`. The same place twice, or a place elsewhere, is `not-legal`.
+- The event `place/rode` records the ride, with `currency` beside `fare`.
+- The view's `place.ways` lists the ways of the country the character is in, with their figures (at home, the five ways), so the ride sheet prices from the same function.
+- The simulation keeps no position in the city. The client holds where the character stands and moves the character only once the ride is accepted (decision 0017).
+- `metresApart` and `withinMetres` read how many metres a thousandth of a degree of longitude is worth from the country: `tuning.city.ride.lonMetresPerE3` at home (111), `tuning.city.ride.abroad[country].lonMetresPerE3` abroad (the UK 69). A degree of longitude shrinks towards the poles; at 51.5 degrees north it is about 0.62 of a degree of latitude. Latitude stays at 111 everywhere. So the train from Peckham to Heathrow costs about £5.50, and the ward is within walking distance of Peckham, as it is in reality.
+
+**place:country-pass-covers-ways** A pass belongs to a country (decision 0017, `../design/11-calgary-dubai-and-castel-volturno.md` section 4). `tuning.city.ride.abroad[country].pass` is its price and `passWays` the ways it covers: the UK `["bus"]`; Canada and the UAE `["bus", "train"]`; Italy none.
+- Each country has its own act: `activity.bus-pass-uk` at Peckham Rye station's ticket machine (£95), `activity.transit-pass-canada` at the CTrain station's machine (C$118), `activity.transit-pass-uae` at Union station's Nol machine (AED 140). Each is a now-act (`slot: "none"`, `when: "now"`, once a month), paid from the country's money with the reason `fare`, and read from the month's played acts.
+- In a month the pass was bought, a ride on a covered way costs nothing: the fare is 0 and `place/rode` records it so. The ride sheet's pill says so in the country's money ("£0, bus pass", "C$0, transit pass", "AED 0, zone pass"). The UK's train is still paid per trip.
+- The pass lasts the month, not the life: the next month needs a new one. A country without a `pass` figure has no pass.
+
+**place:employer-shuttle-rides-free** The employer's shuttle (decision 0017, `../design/11-calgary-dubai-and-castel-volturno.md`). A place entry abroad may carry `shuttle: true`: the labour bus to the site in Dubai (`place.site-uae`) and the gangmaster's van to the fields in Castel Volturno (`place.farm-italy`). A ride by `bus` to or from such a place costs nothing in any month (the fare is 0 and `place/rode` records it so). The view's stop carries `shuttle`, so the ride sheet's pill says it ("AED 0, site bus", "€0, the van"). Every other way to the place is priced as usual, and the walk keeps its limit. The shuttle is how the job is reached, not a pass: it covers no other stop.
+
+**place:view-carries-way-home** The place view carries `wayHome`: the way home from where the character is today, as `return/home` would take it. It holds:
+- the fare now and off peak;
+- where the fare would come from: `local` (the country's money), `naira` (bought through the bank, as place:fare-home-in-local-currency allows) or null (nobody);
+- the naira it takes when bought from naira, with the bank's charge;
+- the shape by place:return-shape-decided-at-once, read after the fare is paid as the wallet would pay it;
+- the standing the return brings (the shape's figure and the capital, return:standing-by-return-shape);
+- `banMonths`, the ban the return would record (place:leaving-an-overstay-bans), 0 for none.
+
+From the UAE on `status.uae-irregular` the fare includes the fine, and `fine` says how much of it is the fine (status:uae-fine-accrues). Beside it, `scheme` is the returns service's way where the status has one (place:returns-service-takes-you-home): the grant in naira at the day's rate, and its ban; null elsewhere. Where the command would refuse, the shape is null. From the road's far shore it is the assisted return with no fare (road:sea-arrival-in-italy). `wayHome` is null at home and on the road.
+
+It is a forecast for today, not the record: the record of returns still holds no shape before a return happens (place:view-shows-place-and-returns). The client reads it and keeps no copy. The Go home card on the bag in the room abroad reads everything it shows from `wayHome` (return:standing-by-return-shape).
 
 ## Entries: countries
 
@@ -53,9 +135,9 @@ Short of the fare is `cannot-afford`; the same place twice, or a place elsewhere
 | `country.uae` | AED | AED 1,300 | 1.4 | Real, Dubai to Lagos one way: AED 1,168 to AED 1,399, average AED 1,265; the game about 1.0. The December return's median is AED 3,147 (February's AED 2,310): AED 3,147 times 1.15 over AED 2,600 is 1.39 (KAYAK UAE) |
 | `country.italy` | EUR | €480 | 1.2 | Real, Rome to Lagos one way: cheapest €307, typical €395 to €543, average €381; the game about 1.25 times the average. Where the road ends. The December return's median is €967: €967 times 1.15 over €960 is 1.16 (KAYAK Italy) |
 
-**place:december-factor-from-the-real-median** One rule sets every country's December factor (`decemberFactorBp`): the city's real December return median times 1.15, for the Christmas week's peak over the month's median, over twice the game's one-way fare home, rounded to the nearest tenth. The countries' table shows each sum, and a country added later takes its factor the same way.
+**place:december-factor-from-the-real-median** Every country's December factor (`decemberFactorBp`) is set the same way: the city's real December return median, times 1.15 for the Christmas week's peak over the month's median, divided by twice the game's one-way fare home, rounded to the nearest tenth. The table above shows each sum. A country added later takes its factor the same way.
 
-The December factor is the world's doing, not the country's: `var.season-december` is set by the director for one tick each game year. The slice records `decemberMonth`, the month the December visit last opened (null until it first opens), so a second turn in the same December tick does not open it twice and a turn a year old does not miss it.
+The December factor belongs to the world, not the country: the director sets `var.season-december` for one tick each game year. The slice records `decemberMonth`, the month the December visit last opened (null until it first opens), so a second turn in the same December tick does not open it twice, and a turn a year later does not miss it.
 
 ## Numbers
 
@@ -78,7 +160,8 @@ The December factor is the world's doing, not the country's: `var.season-decembe
 
 ## Not verified
 
-- The fares are fare-search snapshots for the coming months, not an airline's published tariff; a fare search moves daily. The 1.15 for the Christmas week over December's median is a working value.
+- The fares are fare-search snapshots for the coming months, not an airline's published tariff, and fare searches change daily.
+- The 1.15 for the Christmas week over December's median is a working value.
 
 ## Sources
 
@@ -88,7 +171,9 @@ The December factor is the world's doing, not the country's: `var.season-decembe
 - [New Lines: Nigeria's returnees are not always welcome](https://newlinesmag.com/reportage/nigerias-returnees-arent-always-welcome/)
 - [The New Humanitarian: returnees treated alike](https://www.thenewhumanitarian.org/news-feature/2020/07/28/Nigeria-migrants-return-Europe)
 
-## Effects and requirements the place kind handles
+## Effects and requirements
+
+The effects and requirements the place kind handles:
 
 | Type | | What it does, or when it is met |
 |---|---|---|
@@ -97,4 +182,4 @@ The December factor is the world's doing, not the country's: `var.season-decembe
 | `place/is` | requirement | `where` matches, and `country` when given |
 | `place/returned` | requirement | a return of one of `shapes` is on record (place:removal-bans-the-country) |
 | `place/months-here` | requirement | the character is in `where` and `month - movedMonth` is at least `months` |
-| `place/banned` | requirement | a removal's ban, or an overstay's (place:leaving-an-overstay-bans), holds on `country` this month (place:removal-bans-the-country); a partner application asks for it not to (person:partner-gate-needs) |
+| `place/banned` | requirement | a removal's ban, or an overstay's (place:leaving-an-overstay-bans), holds on `country` this month (place:removal-bans-the-country); a partner application requires that it does not (person:partner-gate-needs) |

@@ -3,33 +3,37 @@
 > Amounts are working values.
 > Kind: `offer`. Many per character. Background: `../design/01-concept.md` sections 7 and 12, and `../research/01-japa-journey.md` section 6.
 
-An offer is anything that comes to the character with choices and a date: a family request, a job, a loan, a man who says he can arrange things. An offer reaches a character because of who they are right now.
+An offer is anything that comes to the character with choices and a deadline: a family request, a job, a loan, a man who says he can arrange things. Which offers reach a character depends on who they are now.
 
 ## Rules
 
-**offer:come-up-rolls-in-order** In the `come-up` phase, entries with a chance above zero are taken group by group, money first, then life, then family, and in id order within a group. An entry is rolled if its conditions hold, none of it is open, its cooldown has passed since it last opened, and it has not reached its limit of times. At most 2 offers open this way in a month, and none while 4 are open. The month's cap counts the offers rolled at the day's arrivals (offer:day-arrivals-roll-offers) and at the close together (decision 0012); the slice keeps the month's rolled count (`rolled`, `rolledMonth`), raised by `offer/opened` with `rolled: true`.
+**offer:come-up-rolls-in-order** In the `come-up` phase, entries with a chance above zero are taken group by group (money, then life, then family) and in id order within a group. An entry is rolled if its conditions hold, none of it is open, its cooldown has passed since it last opened, and it has not reached its limit of times. At most 2 offers open this way in a month, and none while 4 are open. The month's cap counts the offers rolled at the day's arrivals (offer:day-arrivals-roll-offers) and at the close together (decision 0012). The slice keeps the month's rolled count (`rolled`, `rolledMonth`), raised by `offer/opened` with `rolled: true`.
 
 **offer:opening-fixes-terms-and-fraud** Opening an offer fixes its terms, its expiry month, the signs it shows, and, hidden, whether it is a fraud. A range term is one draw in whole steps. A quality term is the quality times its figure. A pay term is the monthly pay of the job held times its figure, up to its cap.
 
-**offer:choice-needs-conditions-and-funds** `offer/choose` needs an open offer, one of its choices, that choice's conditions holding, every debit among its effects payable, and, where the choice asks for an amount, a whole number between the two terms it names. The choice's effects apply, the amount picked is readable as the term `amount`, and the offer is removed.
+**offer:choice-needs-conditions-and-funds** `offer/choose` needs:
+- an open offer and one of its choices;
+- that choice's conditions holding;
+- every debit among its effects payable;
+- where the choice asks for an amount, a whole number between the two terms it names.
+
+The choice's effects apply, the amount picked is readable as the term `amount`, and the offer is removed.
 
 **offer:fraud-effects-replace-ordinary** When an offer is a fraud and the chosen choice has fraud effects, those apply in place of its ordinary effects.
 
-**offer:lapsed-offer-removed** In the `expire` phase an offer whose month has come is removed. If its entry names a choice for lapsing and that choice can be taken, it is applied first. `offer.illness-worse` is the one exception: when its `cannot` cannot be taken, the health roll applies it all the same (health:worse-illness-locks-slots). Both family pledges and the family's gift for Canada name none, so an unanswered pledge or gift lapses into nothing. `route/depart` closes every open offer whose entry is `where: "home"` unanswered, with no choice recorded and nothing paid, since an ask that belongs at home cannot be answered abroad.
+**offer:lapsed-offer-removed** In the `expire` phase an offer whose month has come is removed. If its entry names a choice for lapsing and that choice can be taken, it is applied first. The one exception is `offer.illness-worse`: when its `cannot` cannot be taken, the health roll applies it all the same (health:worse-illness-locks-slots). Both family pledges and the family's gift for Canada name no lapse choice, so an unanswered pledge or gift lapses into nothing. `route/depart` closes every open offer whose entry is `where: "home"`, unanswered, with no choice recorded and nothing paid: an ask that belongs at home cannot be answered abroad.
 
 **offer:fraud-hidden-signs-shown** The view never shows whether an offer is a fraud. Each sign of an entry is shown or not when the offer opens, by one chance if it is honest and another if it is a fraud.
 
-**offer:effect-opens-named-offer** The effect `offer/open` opens the named offer only if its conditions hold. It ignores the chance, the cooldown and the monthly limit, and still respects the limit of times. Terms handed over with the effect are added to the offer's own: this is how a job offer learns which job it is for. Opening an entry that is already open closes the waiting one unanswered, with no lapse effects, and opens the new one, so a job landed while an earlier job offer waits is the one on the table.
+**offer:effect-opens-named-offer** The effect `offer/open` opens the named offer only if its conditions hold. It ignores the chance, the cooldown and the monthly limit, but respects the limit of times. Terms handed over with the effect are added to the offer's own: this is how a job offer learns which job it is for. Opening an entry that is already open closes the waiting one unanswered, with no lapse effects, and opens the new one, so the job landed most recently is the one on the table.
 
-**offer:day-arrivals-roll-offers** The day's arrivals (decision 0012). The effect `offer/come-up` with `max` rolls as the `come-up` phase does (offer:come-up-rolls-in-order: the groups in order, the conditions, the cooldown, the limit of times, the chance on the stream `offer`) and opens at most `max` offers, inside the month's cap of rolled offers and the cap of open ones; nothing else of the phase comes with it (no illness, no whip-round, no parcel). The turn kind applies it with `max` 1 each time the month's free time spent crosses one of `tuning.turn.arrivalsBp` (a third and two thirds of the free time) within one `turn/spend-days` (turn:month-lived-in-half-days), so an ask lands in the middle of the day being lived; the close's roll opens what the cap still allows.
-
-## How to read the tables
-
-Every family request lapses after one month into its last choice. "Not when broke" means the condition: at least ₦150,000 in naira, bank and cash together. It keeps the family's asks off a character who is broke, beside luck:no-kicking-while-down.
+**offer:day-arrivals-roll-offers** The day's arrivals (decision 0012). The effect `offer/come-up` with `max` rolls as the `come-up` phase does (offer:come-up-rolls-in-order: the groups in order, the conditions, the cooldown, the limit of times, the chance on the stream `offer`). It opens at most `max` offers, inside the month's cap of rolled offers and the cap of open ones. Nothing else of the phase comes with it (no illness, no whip-round, no parcel). The turn kind applies it with `max` 1 each time the month's free time spent crosses one of `tuning.turn.arrivalsBp` (a third and two thirds of the free time) within one `turn/spend-days` (turn:month-lived-in-half-days), so an ask lands in the middle of the day being lived. The close's roll opens what the cap still allows.
 
 ## Family requests
 
-Group `family`. Money paid has the reason `family`.
+Group `family`. Money paid has the reason `family`. Every family request lapses after one month into its last choice.
+
+All are "not when broke": they need at least ₦150,000 in naira, bank and cash together. This keeps the family's asks off a character who is broke, alongside luck:no-kicking-while-down. Abroad the family expects more: the same requests come with `abroadBp` applied to their amounts (abroad-money:family-asks-more-abroad).
 
 | Id | Chance a month | Cooldown | Title | Body | Choices |
 |---|---|---|---|---|---|
@@ -40,8 +44,6 @@ Group `family`. Money paid has the reason `family`.
 | `offer.roof` | 2.5% | 12 | The roof | "Rain entered the parlour again. The carpenter wants ₦200,000 for zinc and labour." | `pay` ₦200,000: standing +10. `half` ₦100,000: standing +3. `no`: standing -8 |
 | `offer.harvest` | 6% | 12 | Harvest pledge | "They are calling families by name. ₦30,000 would cover yours." | `give` ₦30,000: standing +3, wellbeing +2. `no`: standing -1 |
 | `offer.uncle-burial` | 2.5% | 12 | Your uncle's burial | "The family is contributing. Your share is ₦100,000. People will remember who gave." | `send` ₦100,000: standing +7. `token` ₦20,000: standing +1. `nothing`: standing -7 |
-
-All are "not when broke". Abroad the family expects more: the same requests come with `abroadBp` applied to their amounts (abroad-money:family-asks-more-abroad).
 
 ## Life
 
@@ -95,7 +97,7 @@ A pay term for a job paid in dollars is valued in naira at the official rate.
 | `offer.canoe-place` | Join my canoe | Sewanu: "'You want learn the water? Third in my canoe, you sort fish, I share the catch.'" | `accept` ("Take it"): start the job. `decline` ("Not now") |
 | `offer.job-word` | Try them again | Lanre: "'I put in a word for you with {lead}, so go and see them again.'" | `accept` ("Take it"): start the job. `decline` ("Keep looking") |
 
-Signs for `offer.held-funds-agent`, each shown or not when the offer opens:
+Signs for `offer.held-funds-agent`, each shown or not when the offer opens (offer:fraud-hidden-signs-shown):
 
 | Sign | Shown if honest | Shown if a fraud |
 |---|---|---|
@@ -116,7 +118,7 @@ Signs for `offer.held-funds-agent`, each shown or not when the offer opens:
 
 ## Effects and requirements this kind handles
 
-The part before the slash names the kind that carries an effect out or judges a requirement (`engine.md` section 5). The types are in `packages/sim/src/engine/types.ts`.
+The part before the slash names the kind that carries out an effect or judges a requirement (`engine.md` section 5). The types are in `packages/sim/src/engine/types.ts`.
 
 | Type | | What it does |
 |---|---|---|

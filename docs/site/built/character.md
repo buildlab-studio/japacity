@@ -1,8 +1,10 @@
 # The character
 
-A character is one life: who they are, what they have, what they hold on paper, who they know and where they stand with every way out. In code it is one plain object, the state, made of twenty-one slices, one for each kind. The player never sees that object. They see the view, which the engine builds from it each time it is asked. This page follows a character from the front door, where a life is made, through what it holds, to the view the screens draw.
+A character is one life: who they are, what they have, their papers, who they know and where they stand with every way out. In code it is one plain object, the state, made of twenty-one slices, one per kind. The player never sees the state. They see the view, which the engine builds from it on each request.
 
-## How a life begins
+This page covers how a life starts, what the state holds, and how the view is built.
+
+## Starting a life
 
 A life starts in one of two ways.
 
@@ -11,11 +13,11 @@ A life starts in one of two ways.
 | From sixteen | `scenario.prologue` | Every quality at its minimum, age sixteen, no money, no job, no papers. The prologue is open, and the years to the start are played as answers (prologue:prologue-life-starts-empty) |
 | A ready life | `scenario.graduate`, `scenario.banker`, `scenario.developer`, `scenario.nurse`, `scenario.teacher` | A fixed starting life with the prologue already closed and no steps recorded (prologue:fixed-life-skips-prologue). Offered behind Settings, never on the door |
 
-The front door's three screens build the person and start a life from sixteen. The ready lives are reached through Settings' "Start from a ready life", which asks the next door to open on them. See [The front door](../plays/front-door.md) and [The ready lives](../plays/ready-lives.md) for how each looks.
+The front door's three screens build the person and start a life from sixteen. The ready lives are reached through Settings' "Start from a ready life", which asks the next door to open on them. How each looks: [The front door](../plays/front-door.md) and [The ready lives](../plays/ready-lives.md).
 
-## The prologue: the draw and the answers
+## The prologue
 
-The prologue is the years from sixteen to the first month, played as cards. Its rules are on [the prologue page](../../rules/prologue.md), and its steps are content (`packages/content/src/prologue/prologue.data.ts`).
+The prologue is the years from sixteen to the first month, played as cards. Rules: [the prologue page](../../rules/prologue.md). Steps: content, in `packages/content/src/prologue/prologue.data.ts`.
 
 ```mermaid
 flowchart TD
@@ -36,16 +38,20 @@ flowchart TD
   H --> C["prologue closes:<br/>the home's charges open,<br/>the turn bank is filled"]
 ```
 
-The diagram leaves out the side branches (a retake, a strike that drags on); each step's answers and conditions are in content.
+The diagram leaves out side branches (a retake, a strike that drags on). Each step's answers and conditions are in content.
 
-- **The draw.** When the prologue opens, step 0 draws the family's means, whether they live in a city or a town, how many siblings there are, and whether the parents were schooled. It is drawn on the `prologue` stream, so it is fixed by the life's seed (prologue:family-draw-on-first-answer).
+- **The draw.** When the prologue opens, step 0 draws the family's means, city or town, the number of siblings, and whether the parents were schooled. It uses the `prologue` stream, so the life's seed fixes it (prologue:family-draw-on-first-answer).
 - **The answers.** Each later step offers two to four answers, sent as `prologue/choose`. An answer must be one whose requirements hold. Answers change qualities, add family money or earned cash, and may set flags. Some answers end in a draw on the same stream, whose outcome is the next card (prologue:steps-offer-legal-answers).
 - **Age.** Each step adds months to the character's age. Right after school, each path's age card sets the year the life starts, from 18 to 29, never younger than the path allows. The years from the path's end to that age are the `work` step, answered by the prologue kind itself, never shown as a card (prologue:age-advances-with-steps; decision 0023).
-- **The close.** When the last step is answered, the home it chose opens its charges, the turn bank is set from the tuning, and the state is a legal starting life (prologue:closing-opens-home-charges). While the prologue is open, every other command is refused with `prologue-open`.
+- **The close.** When the last step is answered, the chosen home opens its charges, the turn bank is set from the tuning, and the state is a legal starting life (prologue:closing-opens-home-charges).
+- **While it is open,** every other command is refused with `prologue-open`.
 
-## Archetypes are presets the client holds
+## Archetypes
 
-The door does not show the prologue's cards. The player picks an archetype tile, and the prologue is played for them. An archetype is a preset of answers, one for every step, never held by the simulation (prologue:archetype-presets-answers). The presets are content's (`packages/content/src/prologue/prologue.preset.ts`), so the client offline and the server online play one source; the tiles, with the routes each names, are the client's (`apps/client/src/shared/front-door/archetypes.ts`).
+The door does not show the prologue's cards. The player picks an archetype tile, and the prologue is played for them. An archetype is a preset of answers, one for every step; the simulation never holds it (prologue:archetype-presets-answers).
+
+- The presets are in content (`packages/content/src/prologue/prologue.preset.ts`), so the offline client and the online server play the same source.
+- The tiles, with the routes each names, are in the client (`apps/client/src/shared/front-door/archetypes.ts`).
 
 ```mermaid
 sequenceDiagram
@@ -66,7 +72,12 @@ sequenceDiagram
   Client->>Door: the page fills as the years go by
 ```
 
-For each step the answer is the first of the archetype's answers that is allowed. Where a draw has shut them all, it is the open answer that suits the archetype. Offline the client sends each answer as `prologue/choose`; online the server plays the whole preset in one transaction, one log row per step (server:server-plays-prologue-preset, decision 0008). So no card shows for a new life; the draws still run, and the travel data page says how the years went.
+For each step the answer sent is the first of the archetype's answers that is allowed. Where a draw has shut them all, it is the open answer that suits the archetype.
+
+- Offline, the client sends each answer as `prologue/choose`.
+- Online, the server plays the whole preset in one transaction, one log row per step (server:server-plays-prologue-preset, decision 0008).
+
+No card shows for a new life, but the draws still run, and the travel data page says how the years went.
 
 | Archetype | Routes its tile names |
 |---|---|
@@ -79,12 +90,12 @@ For each step the answer is the first of the archetype's answers that is allowed
 | `water` | The Gulf contract, the road. Starts in a room in Makoko (prologue:makoko-start-never-a-trap) |
 
 ::: details The door's seeds
-A tile's path must be open from the first card (prologue:tile-path-open-from-start). Where a life may be started over, in the local authority, the door tries a few named seeds in turn and starts on the first whose draws keep every step the tile chooses open (`apps/client/src/shared/front-door/draw.ts`). Online, the server draws once, and the life is lived as drawn.
+A tile's path must be open from the first card (prologue:tile-path-open-from-start). In the local authority, where a life may be started over, the door tries a few named seeds in turn and starts on the first whose draws keep open every step the tile chooses (`apps/client/src/shared/front-door/draw.ts`). Online, the server draws once, and the life is lived as drawn.
 :::
 
-## The person beside the save
+## The person, kept on the device
 
-What the door builds about the person is not part of the simulation. The look, the first name, the archetype, the player's own colours on the look and the page's photo are kept on the device, under one key of their own beside the save (`apps/client/src/shared/front-door/person.ts`). The look is a whole shipped character, never a stat, and the colours are paint only. The simulation holds none of it, so nothing about how a character looks can change a single number in their life (prologue:front-door-builds-a-person, prologue:player-colours-on-looks).
+What the door builds about the person is not part of the simulation. The look, the first name, the archetype, the player's own colours on the look and the page's photo are kept on the device under their own key beside the save (`apps/client/src/shared/front-door/person.ts`). The look is a whole shipped character, never a stat, and the colours are paint only. The simulation holds none of it, so how a character looks never changes a number in their life (prologue:front-door-builds-a-person, prologue:player-colours-on-looks).
 
 ```mermaid
 flowchart LR
@@ -98,9 +109,9 @@ flowchart LR
   V --> Screens
 ```
 
-Online, the save lives on the server, and the person is still read from the device: the city, the data page and the share cards draw the character in the kept look.
+Online, the save is on the server, but the person is still read from the device: the city, the data page and the share cards draw the character in the kept look.
 
-## What a character holds
+## What the state holds
 
 The state is the twenty-one slices plus the engine's own fields: the save's shape number, the content version, the state version, the tick of the last command, the next instance number, and two hidden fields, the seed and the draw counts. Every value is an id or a whole number.
 
@@ -128,15 +139,15 @@ The state is the twenty-one slices plus the engine's own fields: the save's shap
 | `home` | The home place (the family house, the room in a compound, the hostel room or Makoko), since when, a guest stay, moves, an eviction, a player being hosted |
 | `things` | What the life owns, each thing once, with the month it came and the price paid |
 
-The plan is the chapter slice's `chosen` way, with the plan's figures worked out in the view ([Chapters and routes](./chapters.md#the-plan-and-the-lean)). Japacity itself is never stored: it is worked out from the state each time (japacity:figure-derived-each-time).
+The plan is the chapter slice's `chosen` way; the plan's figures are worked out in the view ([Chapters and routes](./chapters.md#the-plan-and-the-lean)). Japacity is never stored: it is worked out from the state each time (japacity:figure-derived-each-time).
 
 ::: info Ids, not words
-A slice holds `activity.job-nurse`, never "Nurse". A route's state is `known`, never a sentence about it. The words come from content when the client draws the view. This is why a content change can reword the whole game without touching a save.
+A slice holds `activity.job-nurse`, never "Nurse". A route's state is `known`, never a sentence. The words come from content when the client draws the view, so a content change can reword the whole game without touching a save.
 :::
 
 ## How the view is built
 
-The view is the only thing the screens read (`PlayerView` in `engine/types.ts`, built by `viewFor` in `engine/view.ts`). Each kind gives its own part, and the engine adds four that no kind owns.
+The view is the only thing the screens read (`PlayerView` in `engine/types.ts`, built by `viewFor` in `engine/view.ts`). Each kind gives its own part, and the engine adds four parts no kind owns:
 
 ```mermaid
 flowchart LR
@@ -165,11 +176,15 @@ flowchart LR
 - **The card** is the share card due now, the rarest moment first: the send-off, the road, a grant, a status secured, the first pay abroad, December, a draw win, a chapter (share:cards-due-at-set-moments).
 - **Adverts** say whether an advert may show: only at home or abroad, never on the road or in a set piece (advert:no-adverts-on-protected-screens).
 
-A route that is only heard of has no figure in `routes`; its figure lives in the plan's `ways`, so the Japa app can say what switching to it would do. A checklist item shows whether it is met, its weight and what it has earned, with how far along it is when it fills slowly.
+Other details:
 
-The view never holds the seed, the draw counts or a `secret` object, and never a result not yet announced. Online, the server builds the view and sends it whole; nothing is predicted in the client.
+- A route that is only heard of has no figure in `routes`. Its figure is in the plan's `ways`, so the Japa app can say what switching to it would do.
+- A checklist item shows whether it is met, its weight and what it has earned, and how far along it is when it fills slowly.
 
-## Rules this page rests on
+- The view never holds the seed, the draw counts, a `secret` object or a result not yet announced.
+- Online, the server builds the view and sends it whole; the client predicts nothing.
+
+## Related rules
 
 - [The prologue](../../rules/prologue.md)
 - [Qualities](../../rules/quality.md)

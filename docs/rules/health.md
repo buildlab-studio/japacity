@@ -3,21 +3,28 @@
 > Prices are the real ones at the dates given, as working values.
 > Kinds: `quality`, `offer`, `turn` (turn:slots-can-be-locked locks), `activity`. No kind of its own.
 
-Being run down has a cost, and the choice when you fall ill is the real one: the hospital, the chemist, or ignore it.
+Staying run down leads to illness. When it comes, the player chooses as people really do: the hospital, the chemist, or ignore it.
 
 ## Rules
 
-**health:low-wellbeing-warns-first** When `quality.wellbeing` has been under `tuning.health.runDownBelow` at the `month` phase of two months in a row, the quality kind gives the line `line.quality.run-down` with attention. It is the warning; nothing else happens yet.
+**health:low-wellbeing-warns-first** When `quality.wellbeing` has been under `tuning.health.runDownBelow` at the `month` phase of two months in a row, the quality kind gives the line `line.quality.run-down` with attention. This is the warning; nothing else happens yet.
 
-**health:illness-rolls-when-run-down** From the month after the warning, while wellbeing stays under the line, each `come-up` phase rolls `offer.illness` with `tuning.health.illnessBp` on stream `health`. It lapses after one month into `ignore`. Its choices: `hospital` pays `tuning.health.hospital` (consultation, tests, drugs; reason `mishap`), locks one slot for one month (bed rest) and heals: wellbeing +20. `chemist` pays `tuning.health.chemist`, wellbeing +8, and `tuning.health.relapseChemistBp` chance that `offer.illness-worse` opens next month. `ignore` locks one slot for one month, wellbeing -15, and `tuning.health.relapseIgnoreBp` chance of `illness-worse`.
+**health:illness-rolls-when-run-down** From the month after the warning, while wellbeing stays under the line, each `come-up` phase rolls `offer.illness` at `tuning.health.illnessBp` on stream `health`. It lapses after one month into `ignore`. Its choices:
+- `hospital`: pays `tuning.health.hospital` (consultation, tests, drugs; reason `mishap`), locks one slot for one month (bed rest), wellbeing +20.
+- `chemist`: pays `tuning.health.chemist`, wellbeing +8, and a `tuning.health.relapseChemistBp` chance that `offer.illness-worse` opens next month.
+- `ignore`: locks one slot for one month, wellbeing -15, and a `tuning.health.relapseIgnoreBp` chance of `illness-worse`.
 
-**health:worse-illness-locks-slots** `offer.illness-worse` has one real choice: `hospital` pays `tuning.health.hospitalWorse` (a scan and admission) and locks two slots for two months; `cannot` (when it cannot be paid) locks two slots for three months and standing -5: the family nurses you. Left unanswered it is `cannot` even when the hospital could be paid: the offer kind's lapse cannot take it then (offer:lapsed-offer-removed), so the health roll applies `cannot`'s effects in the `come-up` phase of the month it lapses. Either way wellbeing returns to 40.
+**health:worse-illness-locks-slots** `offer.illness-worse` has one real choice. `hospital` pays `tuning.health.hospitalWorse` (a scan and admission) and locks two slots for two months. `cannot` (when the hospital cannot be paid) locks two slots for three months and costs standing -5: the family nurses you. Left unanswered it becomes `cannot` even when the hospital could be paid. The offer kind's lapse cannot apply it then (offer:lapsed-offer-removed), so the health roll applies `cannot`'s effects in the `come-up` phase of the month it lapses. Either way, wellbeing returns to 40.
 
-**health:sick-pay-unless-sick-leave** While a slot is locked for illness, a job held is paid at `tuning.health.sickPayBp` of its pay unless the entry says `sickLeave: true` (the bank jobs and the UK jobs do; the teacher, the developer at a startup and every cash job do not). The activity kind reads the lock's reason.
+**health:sick-pay-unless-sick-leave** While a slot is locked for illness, a job is paid at `tuning.health.sickPayBp` of its pay, unless its entry says `sickLeave: true`. The bank jobs and the UK jobs have it; the teacher, the developer at a startup and every cash job do not. The activity kind reads the lock's reason.
 
-**health:forced-months-spaced-apart** Illness cannot open within `tuning.health.gapMonths` of the latest month the last illness could close: the month it opened plus its time to lapse, so one answered early waits up to a month longer. Forced months of every kind (illness, a burial, a court date) are at most one in any twelve, counted from the locks' reasons. The warning always comes first.
+**health:forced-months-spaced-apart** Illness cannot open within `tuning.health.gapMonths` of the latest month the last illness could close: the month it opened plus its time to lapse, so an illness answered early waits up to a month longer. Forced months of every kind (illness, a burial, a court date) are at most one in any twelve, counted from the locks' reasons. The warning always comes first.
 
-**health:forced-months-warned-ahead** Other forced months arrive as offers that say so a month ahead: `offer.village-burial` (family: travel costs ₦60,000 and locks one slot next month; `send-money` instead costs ₦100,000 and standing -3; `absent` standing -10), and abroad `offer.court-date` (the car shortfall or an unpaid fine: a day lost, one slot locked next month). Each carries `lockNext: { slots, months, why }`, which the view reads to word the lock on the choice; the lock itself is the `turn/lock` carried by each choice that takes the slot (`go`, `attend`), so `send-money` and `absent` lock nothing.
+**health:forced-months-warned-ahead** Other forced months arrive as offers that give a month's notice:
+- `offer.village-burial` (family): `go` costs ₦60,000 in travel and locks one slot next month; `send-money` costs ₦100,000 and standing -3; `absent` costs standing -10.
+- `offer.court-date` (abroad; the car shortfall or an unpaid fine): `attend` loses a day, one slot locked next month.
+
+Each carries `lockNext: { slots, months, why }`, which the view reads to word the lock on the choice. The lock itself is the `turn/lock` carried by each choice that takes the slot (`go`, `attend`), so `send-money` and `absent` lock nothing.
 
 **health:view-shows-health-warning** The view shows the warning as a banner while it stands, every lock with its reason and months left, and the illness offer's prices before the choice. The banner stands on the phone's home and above every app.
 

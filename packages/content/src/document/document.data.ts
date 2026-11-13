@@ -21,7 +21,7 @@ export const documentTable: Record<Id<"document">, DocumentEntry> = {
   "document.uk-licence": { id: "document.uk-licence", wait: [0, 0], validMonths: null, result: null },
   // The nursing register in the UK, after the tests: 3 to 6 months. Never expires.
   "document.nmc-pin": { id: "document.nmc-pin", wait: [3, 6], validMonths: null, result: null },
-  // route-gates.md, "New qualities, documents and starting life".
+  // route-gates.md, "Qualities, documents and starting life".
 
   // A starting life or the prologue's graduation holds it.
   // A renewal is issued at once, as the page gives no wait.

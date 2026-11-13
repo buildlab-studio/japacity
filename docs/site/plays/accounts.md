@@ -1,9 +1,9 @@
 # Accounts
 
-Playing needs no sign-in method at all. Online, a new player answers one question about their age, walks through the front door and starts as a guest: the life lives in that browser on that phone. Saving it, so it can be opened anywhere, is asked for later, at moments that matter, with Google or a code sent by email; a passkey can be added once the life is saved.
+Playing needs no sign-in at all. Online, a new player answers one question about their age, walks through the front door and starts as a guest: the life lives in that browser on that phone. Saving it, so it can be opened anywhere, is asked for later, at moments that matter, with Google or a code sent by email. A passkey can be added once the life is saved.
 
 ::: info Locally there are no accounts
-The build that runs on a developer's machine, the guest start and the play driver use the local authority: the life is kept in the browser and nothing on this page applies. See [The client](../built/client.md).
+The development build (`pnpm dev`), the browser tests, offline play and the play driver (`pnpm play`) use the local authority: the life is kept in the browser and nothing on this page applies. See [The client](../built/client.md).
 :::
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
@@ -28,25 +28,33 @@ flowchart TD
   W -->|"No life with that"| S
 ```
 
-In a browser a saved life was open in, the start screen turns its two doors round: "Sign in" first, "Start a new life" under it; both ways, Sign in carries the small line "Carry on a saved life". The age screen asks for a date of birth with nothing filled in and no hint of the age needed, with one quiet line under it for a returning player who tapped Play by habit. The account keeps only that the screen was passed, never the date. The username is typed on the page into an empty box, which says whether it is free as it is typed: 3 to 20 letters, numbers or underscores, unique, never a name for the game's own people. Other players see it; it is never the character's name and never a way in. One change is free, then there is a wait between changes; the box that changes it in Settings checks the same way as it is typed.
+- **The start screen.** In a browser where a saved life was open, the start screen swaps its two buttons: "Sign in" first, "Start a new life" under it. Either way, Sign in carries the small line "Carry on a saved life".
+- **The age screen** asks for a date of birth with nothing filled in and no hint of the age needed. One quiet line under it is for a returning player who tapped Play by habit. The account keeps only that the screen was passed, never the date.
+- **The username** is typed on the page into an empty box, which says whether it is free as it is typed. Rules: 3 to 20 letters, numbers or underscores, unique, and never a name of the game's own people. Other players see it; it is never the character's name and never a way in. One change is free, then there is a wait between changes. The box that changes it in Settings checks it the same way as it is typed.
 
 ## What a guest can do
 
 A guest plays the whole single life: the city, the month, the news, the rates. A few things need a saved life, because they touch other people or real value:
 
-- buying lottery tickets,
-- appearing on a board or a public card,
-- inviting or being invited as a partner or sibling,
-- sending or reading messages,
+- buying lottery tickets;
+- appearing on a board or a public card;
+- inviting or being invited as a partner or sibling;
+- sending or reading messages;
 - having the life restored on another device.
 
-Each of them, tried as a guest, brings the ask to save the life, never a dead end. The server enforces every one.
+Trying any of these as a guest brings the ask to save the life, never a dead end. The server enforces every one.
 
 ## Saving the life
 
-The ask comes once the first month's results are read, before the visa decision, and whenever a guest tries one of the things above. Never at the door, never before the life's first win. A small "Not saved" chip under the money stands over the world for as long as the life is a guest's, and a tap on it opens the same sheet; it goes the moment the life is saved. A quiet line on the settings and on the month's results says the same thing, plainly: this life lives only on this phone until you save it.
+The ask comes:
 
-Once the life is saved, the sheet says so and offers a passkey as the next step, so the next sign-in is a face, a fingerprint or the screen lock; "Not now" skips it.
+- once the first month's results are read;
+- before the visa decision;
+- whenever a guest tries one of the things above.
+
+It never comes at the door, and never before the life's first win. A small "Not saved" chip under the money stays over the world for as long as the life is a guest's; a tap on it opens the same sheet, and it goes the moment the life is saved. A quiet line in Settings and on the month's results says the same thing plainly: this life lives only on this phone until you save it.
+
+Once the life is saved, the sheet says so and offers a passkey as the next step, so the next sign-in is a face, a fingerprint or the screen lock. "Not now" skips it.
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
 <img src="/pictures/accounts-keep-this-life.webp" alt="Save this life: save it with Google, or with your email, or Not now" width="260">
@@ -57,20 +65,23 @@ Once the life is saved, the sheet says so and offers a passkey as the next step,
 |---|---|
 | Google | First, wherever Google sign-in opens |
 | A code by email | Six digits, good for five minutes and three tries; a new code replaces the old |
-| A passkey | Offered right after the life is saved, and added from the settings any time after; bound to the game's own address |
+| A passkey | Offered right after the life is saved, and added from Settings any time after; bound to the game's own address |
 
 ::: tip Inside a chat app's browser
-Some apps' built-in browsers block Google sign-in. There the game does not show Google. The ways back in offer the email code and a way to open the game in the phone's own browser; a guest life there is saved with the email code alone, since it lives in that app's browser, and once saved it opens in any browser.
+Some apps' built-in browsers block Google sign-in, so the game does not show Google there. The ways back in offer the email code and a way to open the game in the phone's own browser. A guest life there is saved with the email code alone, since it lives in that app's browser; once saved it opens in any browser.
 :::
 
 ::: details Exceptions
-- **A sign-in already used.** Saving a guest life with a Google account or email that already has a life joins nothing and overwrites nothing: the game says so and the guest life stays as it is. It also offers "Sign in to my saved life" instead, which ends the guest one; a guest's account sheet offers "Sign in" the same way.
-- **A sign-in with no life.** The code goes to every address alike, so the ways back in never tell anyone whether an address plays here. The right code for an address no life is saved with leads into starting one, already saved with that email: the age question, then the username on its own step, whose Continue makes the account; the door follows, and the account opens on it from any phone signed in with that email. A code that ran out before Continue is told there with a new one sent, the username kept. "Continue with Google" with no life behind it leads into the same steps, under the same line, with "Use another way" to go back: Continue makes the account saved with Google, so the next "Continue with Google" opens it, and a Google sign-in that ran out before Continue is offered again on the step, the username kept. A passkey with no life behind it, or a Google account whose address Google has not verified, says so and sends you back to Play.
+- **A sign-in already used.** Saving a guest life with a Google account or email that already has a life joins nothing and overwrites nothing: the game says so and the guest life stays as it is. It also offers "Sign in to my saved life" instead, which ends the guest one. A guest's account sheet offers "Sign in" the same way.
+- **A sign-in with no life.** The code goes to every address alike, so the ways back in never reveal whether an address plays here.
+  - The right code for an address with no saved life leads into starting one, already saved with that email: the age question, then the username on its own step, whose Continue makes the account. The door follows, and the account opens on it from any phone signed in with that email. A code that ran out before Continue is reported there and a new one sent, with the username kept.
+  - "Continue with Google" with no life behind it leads into the same steps, under the same line, with "Use another way" to go back. Continue makes the account saved with Google, so the next "Continue with Google" opens it. A Google sign-in that ran out before Continue is offered again on the step, with the username kept.
+  - A passkey with no life behind it, or a Google account whose address Google has not verified, says so and sends you back to Play.
 - **Google did not finish.** A no at Google's own screen comes back as "Nothing happened. Try again when you are ready."; a trip that lost its way as "Google sign-in did not finish. Try again, or use a code by email.", at the top of the sheet it came back to.
-- **Full.** While sign-ups are switched off, a full screen says to try again shortly, and checks again on its own once the wait is over.
+- **Full.** While sign-ups are switched off, a full screen says to try again shortly, and checks again by itself once the wait is over.
 - **Too many new lives.** Guest lives from one device or one connection in a day are limited.
 - **One character.** An account holds one life at a time. Settings' "Start a new life" ends it for good first.
-- **Deleting the account.** From the settings, with a sign-in from the last ten minutes or a fresh code. Every session ends at once and everything the account held goes within 30 days.
+- **Deleting the account.** From Settings, with a sign-in from the last ten minutes or a fresh code. Every session ends at once, and everything the account held is gone within 30 days.
 :::
 
 <img src="/pictures/accounts-full.webp" alt="The full screen: Japacity is full right now. Try again shortly, with Check again waiting" width="260">

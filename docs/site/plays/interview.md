@@ -1,6 +1,12 @@
 # The interview and the set pieces
 
-Some moments in a life are scenes, not acts: the visa interview, the night meeting on the road, the December visit home, a nurse's certification exam, a talk at the hub. The game calls them set pieces. A set piece asks one question at a time, never shows a score, and holds the month open: the month cannot end until it is finished. The visa interview is the one most lives meet, and its answers move the chance of the visa.
+Some moments in a life are scenes, not acts: the visa interview, the night meeting on the road, the December visit home, a nurse's certification exam, a talk at the hub. The game calls them set pieces. A set piece:
+
+- asks one question at a time;
+- never shows a score;
+- holds the month open: the month cannot end until it is finished.
+
+The visa interview is the one most lives meet, and its answers move the chance of the visa.
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
 <img src="/pictures/interview-nudge.webp" alt="The world the month the application went in: the nudge says the visa interview waits at the visa centre" width="260">
@@ -10,9 +16,13 @@ Some moments in a life are scenes, not acts: the visa interview, the night meeti
 
 ## The visa interview
 
-Sending a visa application opens the interview at once. The nudge says it waits at the visa centre, and a tap opens it among the things waiting on you. "Enter the interview room" is the tap that starts it; it is also the tap that lets the browser play sound, so the officer's lines are spoken and shown as text together. Every line is on screen, so the sound is never needed, and a switch mutes it.
+Sending a visa application opens the interview at once. The nudge says it waits at the visa centre, and a tap opens it among the things waiting on you. "Enter the interview room" starts it. That tap also lets the browser play sound, so the officer's lines are spoken and shown as text together. Every line is on screen, so the sound is never needed, and a switch mutes it.
 
-The officer asks three questions, drawn from those that fit your file. Some always come up (why this course, who pays, what you will do after, what the course covers, where you will live); some come only when something in the file calls for them: a large sum that arrived recently, or a transcript that is not genuine. Some answers bring a follow-up question, chosen by the answer you tapped, never by what it scored.
+The officer asks three questions, drawn from those that fit your file:
+
+- Some always come up: why this course, who pays, what you will do after, what the course covers, where you will live.
+- Some come only when something in the file calls for them: a large sum that arrived recently, or a transcript that is not genuine.
+- Some answers bring a follow-up question, chosen by the answer you tapped, never by what it scored.
 
 ```mermaid
 flowchart TD
@@ -28,21 +38,21 @@ flowchart TD
   H --> I["Next month: the decision"]
 ```
 
-The score is never shown. It moves the chance of refusal by one and a half in a hundred for each point, either way. An answer that names real modules and real figures does better with interview practice behind it; with enough practice (40 or more), the screen marks the answers that would count against you.
+The score is never shown. Each point moves the chance of refusal by one and a half in a hundred, either way. An answer that names real modules and real figures does better with interview practice behind it. With enough practice (40 or more), the screen marks the answers that would count against you.
 
 ::: tip Practice
-Interview practice at the hub is an act like any other. It is what turns a detailed answer from a risk into a strength, and past 40 it shows you the weak answers before you choose.
+Interview practice at the hub is an act like any other. It turns a detailed answer from a risk into a strength, and past 40 it shows you the weak answers before you choose.
 :::
 
 ::: details Exceptions
 - **Fake papers.** If the transcript you used was bought, the officer says the university has no record of it. Every answer to that question counts against you.
-- **Borrowed money.** If more than three tenths of the funds you show came from unexplained sources, the officer asks about the large sum. Saying it was a gift from an uncle brings a follow-up.
+- **Unexplained money.** If more than three tenths of the funds you show came from unexplained sources, the officer asks about the large sum. Saying it was a gift from an uncle brings a follow-up.
 - **Other commands still work.** Only ending the month waits for the interview.
 :::
 
 ## The partner interview
 
-A route that rests on a relationship (joining a partner in the UK, being sponsored by a spouse in Canada) ends in a different interview. Both partners answer five questions on their own: where they first met, what they did, how often they have met, what the other does for work, where they will live. The questions come from the pair's own shared record, and the answers are compared. While the interview is open, each partner answers from memory: the shared moments are hidden.
+A route that rests on a relationship (joining a partner in the UK, being sponsored by a spouse in Canada) ends in a different interview. Both partners answer five questions on their own, such as where they first met, what they did, how often they have met, what the other does for work and where they will live. The questions come from the pair's own shared record, and the answers are compared. While the interview is open, each partner answers from memory: the shared moments are hidden.
 
 | Answers that matched | Result | What it does |
 |---|---|---|

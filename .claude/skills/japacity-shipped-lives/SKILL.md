@@ -3,97 +3,115 @@ name: japacity-shipped-lives
 description: "How a change is checked against the lives players already have on production. Use before changing the simulation's rules, the content's data or shape, the state's shape or the database schema once lives exist on production: how a life is kept and replayed, which kind of change breaks which lives, what carries them (content upgrades, snapshots, migrations, the rollback), and the checklist before a deploy."
 ---
 
-# A change meets the lives already shipped
+# Checking a change against shipped lives
 
-Once a player has a life on production, a change is not only code: it is something that happens to that life. This skill is how a change is judged against shipped lives before it is built and before it is deployed. Staging's lives are test lives and may be reset with the maintainer's word; production's are never reset.
+Once a player has a life on production, a change also affects that life. Use this skill to judge a change against shipped lives before you build it and before it is deployed. Staging's lives are test lives and may be reset with the maintainer's agreement. Production's lives are never reset.
 
-## How a life is kept, and why a rules change can break it
+## How a life is stored, and why a rules change can break it
 
-- The server keeps each life as a snapshot plus a log of the commands after it (a new snapshot every `snapshotEvery` commands, 20, in `apps/server/src/config.ts`). Each log row holds the command, its tick, the version after it and the hash of the state after it (server:log-rows-hash-state).
-- Every load replays the log from the snapshot under the segment's own content and compares the hash with the last row's. A mismatch, or a command the replay now rejects, refuses that life as `diverged` (HTTP 409) until it is mended; every other life carries on (`apps/server/src/authority/load.ts`).
-- So the simulation's rules (`packages/sim`, anything that changes what a command does or what a month produces) change what old commands replay to. After such a deploy, every life with commands since its last snapshot diverges on its next load. This is the same reason lockstep games bind a replay to the exact game version: inputs are only meaningful under the rules that first ran them.
-- Content is versioned (`packages/content/src/index.ts`, `content.version`, a count kept as a string, from "1"), and the version moves with any change to the content's data or the simulation's code: `pnpm check:version` fails until it is raised and sealed with `pnpm content:seal` (server:content-version-sealed). A life saved under an older content is replayed under that older content, which the server bundles beside the current (`olderContents`, server:newer-content-upgrades-state, server:upgrade-state-is-pure and server:older-contents-bundled; version 1 is the first, so the list is empty), then carried to the current by `upgradeState` (`packages/sim/src/engine/state.ts`: ids renamed through the newer content's `renames`, missing slices built by their kind's `initial`, grown slices filled), checked by every kind's invariants and `checkContent`, and opened as a new segment. A failed upgrade throws and writes nothing.
-- The database schema moves by Drizzle migrations that run before every deploy (server:migration-before-deploy): additive first, a column or table removed only in a later migration once no deployed Worker reads it.
-- The mend for a diverged life is the rollback tool (server:rollback-check-finds-divergence, server:rollback-apply-one-account and server:no-mass-rollback, `apps/server/src/ops/rollback.ts`): `pnpm rollback check|apply <character>`, one life at a time. With no flag it opens the database at `DATABASE_URL_UNPOOLED`; `--memory <save.json>` runs it against a saved file.
+- **Snapshot plus log.** The server keeps each life as a snapshot plus a log of the commands after it. A new snapshot is taken every `snapshotEvery` commands (20, in `apps/server/src/config.ts`). Each log row holds the command, its tick, the version after it and the hash of the state after it (server:log-rows-hash-state).
+- **Replay on every load.** Every load replays the log from the snapshot under the segment's own content and compares the hash with the last row's. If the hash differs, or the replay now rejects a command, that life is refused as `diverged` (HTTP 409) until it is mended. Every other life carries on (`apps/server/src/authority/load.ts`).
+- **So rules changes break replays.** Changing the simulation's rules (`packages/sim`: anything that changes what a command does or what a month produces) changes what old commands replay to. After such a deploy, every life with commands since its last snapshot diverges on its next load. A command log is only valid under the rules that first ran it.
+- **Content is versioned.** `content.version` in `packages/content/src/index.ts` is a count kept as a string, starting at "1"; it is "4" now. The version must move with any change to the content's data or the simulation's code: `pnpm check:version` fails until it is raised and sealed with `pnpm content:seal` (server:content-version-sealed).
+- **Older content is bundled and upgraded.** A life saved under an older content is replayed under that older content, which the server bundles beside the current one (`olderContents`, now versions 1, 2 and 3; server:newer-content-upgrades-state, server:upgrade-state-is-pure, server:older-contents-bundled). It is then carried to the current content by `upgradeState` (`packages/sim/src/engine/state.ts`), which:
+  - renames ids through the newer content's `renames`;
+  - builds missing slices with their kind's `initial`;
+  - fills slices that grew.
 
-## First, know what is shipped
+  The result is checked by every kind's invariants and `checkContent`, and opened as a new segment. A failed upgrade throws and writes nothing.
+- **Schema changes are migrations.** The database schema changes through Drizzle migrations that run before every deploy (server:migration-before-deploy). Add first; remove a column or table only in a later migration, once no deployed Worker reads it.
+- **Diverged lives are mended with the rollback tool** (server:rollback-check-finds-divergence, server:rollback-apply-one-account, server:no-mass-rollback; `apps/server/src/ops/rollback.ts`): `pnpm rollback check|apply <character>`, one life at a time. With no flag it opens the database at `DATABASE_URL_UNPOOLED`; `--memory <save.json>` runs it against a saved file.
 
-1. Production's commit and content version: `/api/health` answers `content`, and the maintainer's record of the deploy names the commit.
-2. Whether lives exist on it: the maintainer counts `characters` in production's database (an agent never reads it, and asks the maintainer). No lives, no carrying: anything may change.
-3. What is on staging, likewise, and whose lives they are.
+## Step 1: find out what is shipped
 
-## Then classify the change
+1. Production's commit and content version: `/api/health` returns `content`, and the maintainer's record of the deploy names the commit.
+2. Whether lives exist on production: the maintainer counts `characters` in production's database. An agent never reads that database; ask the maintainer. If there are no lives, nothing needs carrying and anything may change.
+3. The same for staging: what is there, and whose lives they are.
 
-| The change touches | What happens to a shipped life | What carries it |
+## Step 2: classify the change
+
+| The change touches | Effect on a shipped life | What carries the life over |
 |---|---|---|
-| Words, screens, the client alone, the teaser, docs | Nothing | Nothing |
-| Content data under `packages/content` (an entry, a number, a table) with the state's shape unchanged | The life's segment names the old content; it replays under the old bundle and upgrades on load | `pnpm content:freeze`, then raise `content.version` by one and run `pnpm content:seal` (the shipped version joins `olderContents` exactly as it shipped; see How to raise the content version); `renames` for any id that changed; the upgrade test from the shipped version (`apps/server/src/authority/upgrade.test.ts`) |
-| The state's shape (`packages/sim` types, a kind's schema, a new slice) | As above, and the upgrade must build or fill the slice | A content version raise as the trigger, with the shipped version in `olderContents`; the kind's `initial`, and the engine's filling of slices that grew inside a kind (`grownTo4` under `upgradeState` in `packages/sim/src/engine/state.ts`); invariants that accept the carried state; the upgrade test with a save recorded under the shipped version |
-| The simulation's rules (`evolve`, a command's acceptance, a month's results, the random streams) | Every life with commands since its last snapshot diverges on its next load | The content version is raised and sealed (server:content-version-sealed), and the shipped version joins `olderContents` (its data as it shipped: the current data under the old version when only the code changed). No deploy of a rules change over shipped lives without the maintainer's word, and then only after `pnpm snapshot:all` has snapshotted every life from the live commit (server:snapshot-before-deploy: a new segment per life with the current state as its base and an empty log, one transaction each); a life that diverges anyway is mended with the rollback tool, one at a time |
-| The database schema (`packages/db/src/schema`) | None if the migration is additive | `pnpm --filter @japacity/db db:generate --name <x>` after the last; the migration runs before the deploy; never edit a committed migration; a removal comes in a later migration |
+| Words, screens, the client alone, the teaser, docs | None | Nothing needed |
+| Content data under `packages/content` (an entry, a number, a table), with the state's shape unchanged | The life's segment names the old content. It replays under the old bundle and is upgraded on load | `pnpm content:freeze`, then raise `content.version` by one and run `pnpm content:seal`, so the shipped version joins `olderContents` exactly as it shipped (see [Raising the content version](#raising-the-content-version)). Add `renames` for any id that changed. The upgrade test from the shipped version (`apps/server/src/authority/upgrade.test.ts`) must pass |
+| The state's shape (`packages/sim` types, a kind's schema, a new slice) | As above, and the upgrade must build or fill the slice | A content version raise as the trigger, with the shipped version in `olderContents`. The kind's `initial` builds a new slice; the engine fills slices that grew inside a kind (`grownTo4` under `upgradeState` in `packages/sim/src/engine/state.ts`). Invariants must accept the carried state. The upgrade test needs a save recorded under the shipped version |
+| The simulation's rules (`evolve`, a command's acceptance, a month's results, the random streams) | Every life with commands since its last snapshot diverges on its next load | Raise and seal the content version (server:content-version-sealed), and add the shipped version to `olderContents` (its data as it shipped; when only the code changed, that is the current data under the old version). Never deploy a rules change over shipped lives without the maintainer's agreement, and then only after `pnpm snapshot:all` has snapshotted every life from the live commit (server:snapshot-before-deploy: one new segment per life with the current state as its base and an empty log, one transaction each). Mend any life that still diverges with the rollback tool, one at a time |
+| The database schema (`packages/db/src/schema`) | None if the migration only adds | Run `pnpm --filter @japacity/db db:generate --name <x>` after the last migration. The migration runs before the deploy. Never edit a committed migration. Removals come in a later migration |
 | The server's own state outside the life (switches, boards, the draw) | Depends on the table | Say so in the report; the maintainer decides |
 
-A change that does not fit a row goes to the maintainer before it is built.
+If a change fits no row, take it to the maintainer before building it.
 
-## How to raise the content version
+## Raising the content version
 
-Every version below the current one is kept exactly as it shipped, frozen and listed, whether or not lives were found under it, since no check can see the databases (server:older-content-frozen). `pnpm check:version` fails until it is. The order:
+Every version below the current one is kept exactly as it shipped, frozen and listed, whether or not lives exist under it, because no check can see the databases (server:older-content-frozen). `pnpm check:version` fails until this holds. Steps, in order:
 
-1. **Freeze, before anything changes.** On a checkout where `pnpm check:version` passes, run `pnpm content:freeze`. It writes the sealed version's content to `packages/content/src/older/<version>/content.json`, with `seal.json` beside it holding the fingerprint of that content alone, and lists it in `olderContents` in `packages/content/src/index.ts`. It refuses a content or a simulation that moved since the seal, since only what shipped is frozen, and a version already frozen. If the change is already made, set it aside (`git stash`), freeze, and bring it back (`git stash pop`). The check now fails because the frozen version is not below the current one: the raise below mends that.
-2. **Change.** The content, the simulation, or both: the rule, then the test, then the code (`japacity-dev`).
-3. **Raise.** `version` in `packages/content/src/index.ts` by one, with `renames` for any id that changed.
-4. **Seal.** `pnpm content:seal`. `pnpm check:version` passes again: the new version sealed, every version below it frozen and listed. A frozen folder is never edited; the check holds it to its fingerprint, and a failure there is mended by restoring the folder from git.
-5. **Bless.** The goldens and the recorded lives name the content version they were made under, so the maintainer re-records (`pnpm record:lives`) and runs `pnpm bless` after the raise; the report names each golden that moved, from which month, and why. The upgrade test (`apps/server/src/authority/upgrade.test.ts`) carries a save from the frozen version to the new one, and its expectation of an empty `olderContents` moves with the first freeze.
-6. **Snapshot, at the deploy.** When the simulation's code changed and production holds lives, `pnpm snapshot:all` runs from a checkout of the commit production is running, after the migration and before `wrangler deploy` (server:snapshot-before-deploy). A change to the content alone needs no snapshot: the frozen version replays the old segments and each is upgraded on its next load.
+1. **Freeze, before changing anything.** On a checkout where `pnpm check:version` passes, run `pnpm content:freeze`. It writes the sealed version's content to `packages/content/src/older/<version>/content.json`, with `seal.json` beside it holding the fingerprint of that content alone, and lists it in `olderContents` in `packages/content/src/index.ts`. It refuses if the content or the simulation moved since the seal (only what shipped is frozen), and refuses a version already frozen. If you have already made the change, set it aside (`git stash`), freeze, and bring it back (`git stash pop`). The check now fails because the frozen version is not below the current one; step 3 fixes that.
+2. **Change** the content, the simulation, or both: the rule, then the test, then the code (`japacity-dev`).
+3. **Raise** `version` in `packages/content/src/index.ts` by one, with `renames` for any id that changed.
+4. **Seal** with `pnpm content:seal`. `pnpm check:version` passes again: the new version is sealed and every version below it is frozen and listed. Never edit a frozen folder. The check holds it to its fingerprint; if that fails, restore the folder from git.
+5. **Bless.** The goldens and the recorded lives name the content version they were made under, so after the raise the maintainer re-records (`pnpm record:lives`) and runs `pnpm bless`. The report names each golden that moved, from which month, and why. The upgrade test (`apps/server/src/authority/upgrade.test.ts`) carries a save from the frozen version to the new one, and its list of expected `olderContents` versions grows with each freeze.
+6. **Snapshot at the deploy.** When the simulation's code changed and production holds lives, run `pnpm snapshot:all` from a checkout of the commit production is running, after the migration and before `wrangler deploy` (server:snapshot-before-deploy). A change to the content alone needs no snapshot: the frozen version replays the old segments, and each is upgraded on its next load.
 
-## How to see it before anyone is hurt
+## Catching breakage before players see it
 
-- `pnpm bless` after a rules change: every recorded life whose golden moves is a life that would replay differently. The list of changed goldens is the list of what the change does to past play; the report names them.
-- The upgrade test (`apps/server/src/authority/upgrade.test.ts`) must pass from the shipped content version to the new one; add a save from the shipped version if none covers the shape that changed.
-- The replay test (`packages/sim/src/engine/replay.test.ts`) and the rollback tests (`apps/server/src/ops/rollback.test.ts`) stay green; never loosened.
-- On staging, after the deploy, a tester's existing life loads (one `GET /api/view` answers 200, not 409) before the same deploy goes to production. The Workers Logs for `japacity-server` show no 409 on `/api/view` after a production deploy; if they do, name the account and run the rollback.
+- Run `pnpm bless` after a rules change. Every recorded life whose golden moves is a life that would replay differently. The list of changed goldens is the list of what the change does to past play; the report names them.
+- The upgrade test (`apps/server/src/authority/upgrade.test.ts`) must pass from the shipped content version to the new one. Add a save from the shipped version if none covers the shape that changed.
+- The replay test (`packages/sim/src/engine/replay.test.ts`) and the rollback tests (`apps/server/src/ops/rollback.test.ts`) stay green and are never loosened.
+- On staging, after the deploy and before the same deploy goes to production, a tester's existing life must load (one `GET /api/view` returns 200, not 409).
+- After a production deploy, the Workers Logs for `japacity-server` must show no 409 on `/api/view`. If they do, name the account and run the rollback.
 
-## How to rehearse a version raise before the deploy
+## Rehearsing a version raise before the deploy
 
-A raise is rehearsed on the local stack first, and on staging when staging holds lives, with lives played under the version that ships now and carried to the version about to ship. `apps/server/src/authority/carry.test.ts` holds the same path in a unit test, for every version in `olderContents`; the rehearsal runs it on the real Worker, the real database and the built client.
+Rehearse a raise on the local stack first, and on staging when staging holds lives: play lives under the version that ships now, then carry them to the version about to ship. `apps/server/src/authority/carry.test.ts` covers the same path in a unit test for every version in `olderContents`; the rehearsal runs it on the real Worker, the real database and the built client.
 
 On the local stack:
 
-1. On a checkout of the commit the environment runs, start the stack (`pnpm dev:full`). Give it a database of its own with `LOCAL_DATABASE_URL` in `.env.local` (a database made with `createdb` in the Compose Postgres) so the lives in the rehearsal are the only ones there.
-2. Play the lives a deploy meets, each with `--keep <file>` (a file outside the repository; it holds a signed-in session and is never printed):
+1. On a checkout of the commit the environment runs, start the stack (`pnpm dev:full`). Give it its own database with `LOCAL_DATABASE_URL` in `.env.local` (a database made with `createdb` in the Compose Postgres), so the rehearsal's lives are the only ones there.
+2. Play the lives a deploy meets, each with `--keep <file>`. The file must be outside the repository; it holds a signed-in session and is never printed.
    ```sh
    pnpm play --url https://localhost:8787 --life nurse --months 2 --keep /tmp/japacity-kept/nurse.json --out /tmp/japacity-play/nurse
    pnpm play --url https://localhost:8787 --life water --months 2 --keep /tmp/japacity-kept/water.json --out /tmp/japacity-play/water
    pnpm play --url https://localhost:8787 --life accountant --stop door --keep /tmp/japacity-kept/door.json --out /tmp/japacity-play/door
    pnpm play --url https://localhost:8787 --life trader --months 1 --stop planned --keep /tmp/japacity-kept/planned.json --out /tmp/japacity-play/planned
    ```
-   `--stop door` keeps a life made at Begin with its years before unplayed; `--stop planned` keeps one with a month planned and not ended.
-3. Do what the deploy does, in its order: the migration (`pnpm db:migrate:local`), then `pnpm snapshot:all` from the same checkout with `DATABASE_URL_UNPOOLED` set to the local database's string (server:snapshot-before-deploy). Every line reads `snapshotted` or `already`, and the last counts no `diverged` or `failed`.
-4. To meet the race a live deploy has, play one kept life on with `--resume <file> --keep <file> --months 1` after the snapshot and before the switch: its commands are logged after its snapshot under the version that ships now.
-5. Stop the stack, check out the commit about to ship, and start the stack again; the migrations run as they do before a deploy.
+   `--stop door` keeps a life made at Begin with its years before unplayed. `--stop planned` keeps one with a month planned and not ended.
+3. Do what the deploy does, in the same order: run the migration (`pnpm db:migrate:local`), then `pnpm snapshot:all` from the same checkout with `DATABASE_URL_UNPOOLED` set to the local database's connection string (server:snapshot-before-deploy). Every line must read `snapshotted` or `already`, and the last line must count no `diverged` or `failed`.
+4. To reproduce the race a live deploy has, play one kept life on with `--resume <file> --keep <file> --months 1` after the snapshot and before the switch. Its commands are then logged after its snapshot, under the version that ships now.
+5. Stop the stack, check out the commit about to ship, and start the stack again. The migrations run as they do before a deploy.
 6. Resume every kept life: `pnpm play --url https://localhost:8787 --resume <file> --months 2 --out <folder>`.
 7. Run `pnpm rollback check <character>` for each life, with `DATABASE_URL_UNPOOLED` set as in step 3. The character ids are in the `characters` table, by the account's username, which the driver logs at Begin.
 
-On staging the deploy workflow runs the migration, the snapshot step and the deploy itself, and the rollback check is the maintainer's, on staging's database. The driver reaches staging with `--url https://staging.japacity.app` and the Access service token in `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` (`tools/local/access.ts`), but staging's bot check refuses its browser at Begin, so it makes no life there to keep: before a staging deploy, the lives to carry are the testers' own, and after it each tester's life loads (see How to see it before anyone is hurt). A storage kept from a staging session the driver did not make is resumed the same way, with `--resume`.
+On staging, the deploy workflow runs the migration, the snapshot step and the deploy. The rollback check on staging's database is done by the maintainer. The driver reaches staging with `--url https://staging.japacity.app` and the Access service token in `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` (`tools/local/access.ts`). Staging's bot check refuses the driver's browser at Begin, so the driver cannot make a life there to keep. Before a staging deploy, the lives to carry are the testers' own; after it, check that each tester's life loads (see [Catching breakage before players see it](#catching-breakage-before-players-see-it)). A storage file kept from a staging session the driver did not make is resumed the same way, with `--resume`.
 
-What to read after:
+What to read afterwards:
 
-- Each resumed run: its first picture, `NN-resumed.png`, shows the life where it was left (the world, or the years before filling for a life stopped at the door); its last line ends every month asked with no problem. A `PROBLEM the server refused the resumed life: 409 on /api/view` is a life that diverged; any other status, or a trouble card, is a load that failed. Either fails the run.
-- Each `rollback check`: its report says `"ok": true`, `"firstDiff": null` and `"dropped": []` for every account. A `firstDiff` names the first version that replays differently; that life is mended with `pnpm rollback apply <character>` before the deploy goes further.
-- The database: each carried life has one more segment, under the new version, opened at its first load after the switch and never again (`segments` by character).
-- Going back to the commit before the raise after a carried life has played under the new version strands that life: the older code does not bundle the newer content, so its load fails and its rollback check answers `no-content`. A deploy is rolled back only to a commit that bundles every version a life's segment names.
+- **Each resumed run.** Its first picture, `NN-resumed.png`, shows the life where it was left (the world, or the years before filling for a life stopped at the door). Its last line shows every month asked for ended, with no problem. `PROBLEM the server refused the resumed life: 409 on /api/view` means the life diverged. Any other status, or a trouble card, means a load failed. Either fails the run.
+- **Each `rollback check`.** Its report must say `"ok": true`, `"firstDiff": null` and `"dropped": []` for every account. A `firstDiff` names the first version that replays differently; mend that life with `pnpm rollback apply <character>` before the deploy goes further.
+- **The database.** Each carried life has one more segment, under the new version, opened at its first load after the switch and never again (`segments` by character).
+- **Going back strands lives.** Reverting to the commit before the raise, after a carried life has played under the new version, strands that life: the older code does not bundle the newer content, so the load fails and its rollback check returns `no-content`. Only roll a deploy back to a commit that bundles every version a life's segment names.
 
-## Before a production deploy, the maintainer checks
+## Production deploy checklist (for the maintainer)
 
-1. The migration, if any, is generated after the last and applies on staging first.
-2. The content version: raised and sealed whenever the content or the simulation changed (`pnpm check:version` passes); the version production runs is in `olderContents` exactly as it shipped when lives exist under it.
-3. A rules change: the maintainer's word, and `pnpm snapshot:all` before `wrangler deploy` (server:snapshot-before-deploy), or, on the maintainer's word, a wipe of the lives.
-4. The record: the maintainer's record of the deploy names the commit, the content version and which of the above applied.
+1. The migration, if any, is generated after the last one and applied on staging first.
+2. The content version is raised and sealed whenever the content or the simulation changed (`pnpm check:version` passes). When lives exist under the version production runs, that version is in `olderContents` exactly as it shipped.
+3. For a rules change: the maintainer's agreement, and `pnpm snapshot:all` before `wrangler deploy` (server:snapshot-before-deploy), or, with the maintainer's agreement, a wipe of the lives.
+4. The maintainer's record of the deploy names the commit, the content version and which of the above applied.
 
 ## Reporting
 
-An agent's report says, under its own heading "Shipped lives": which row of the table the change is, which goldens moved and why, whether a content bump or a migration was added, and what the maintainer must do at the deploy. "None" is a valid answer only for the first row.
+An agent's report has its own heading, "Shipped lives", which says:
 
-## Where the industry's practice agrees
+- which row of the table the change falls under;
+- which goldens moved, and why;
+- whether a content version raise or a migration was added;
+- what the maintainer must do at the deploy.
 
-Version every save and migrate forward in a chain of one step per version, with new fields starting at defaults: that is the content version, `upgradeState` and the kinds' `initial`. Never load an input log under rules other than the ones that recorded it: that is the snapshot at the version boundary (server:snapshot-before-deploy). The migration step before the build and the deploy, expand first and contract later, is the database's side of the same rule (server:migration-before-deploy).
+"None" is a valid answer only for the first row.
+
+## Why it works this way
+
+These follow common practice for versioned saves:
+
+- Version every save and migrate forward one step per version, with new fields starting at defaults: here, the content version, `upgradeState` and the kinds' `initial`.
+- Never replay an input log under rules other than the ones that recorded it: here, the snapshot at the version boundary (server:snapshot-before-deploy).
+- Migrate the database before the build and the deploy, adding first and removing later (server:migration-before-deploy).
