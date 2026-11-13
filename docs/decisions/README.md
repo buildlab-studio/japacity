@@ -148,3 +148,4 @@ An accepted record's decision is never edited. A record may have its wording, li
 | No. | Decision |
 |---|---|
 | [0039](0039-ci-gates-checks-taken-away-not-test-edits.md) | CI gates a check taken away, not a test edited |
+| [0040](0040-quick-checks-on-a-pull-request-full-run-in-the-merge-queue.md) | Quick checks on a pull request, the full run in the merge queue |

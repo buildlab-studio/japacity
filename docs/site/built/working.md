@@ -292,7 +292,7 @@ Finished pieces land together, in batches, so the expensive steps run once per b
 
 1. The lead merges the batch's branches, in the order set, into one merge branch.
 2. One full check and one browser suite run on that branch.
-3. The branch lands in `main` through a pull request, squash merged, and staging deploys once the check passes on `main` (`.github/workflows/deploy-staging.yml`).
+3. The branch lands in `main` through a pull request and the merge queue, squash merged, and staging deploys once the check passes on `main` (`.github/workflows/deploy-staging.yml`). Each push to the pull request runs the quick checks, with only the unit tests the change reaches; the queue runs every unit test and simulated play before the merge (decision 0040).
 4. Staging is looked at, then a release tag `v*` on the commit staging serves deploys production once the maintainer approves the run (`deploy-production.yml`). Each deploy migrates, snapshots every character from the live commit, builds, deploys and checks the deployment (server:migration-before-deploy, server:snapshot-before-deploy, server:production-and-staging).
 
 Deploying by hand from a checkout, in the same order and with the same checks (`apps/server/README.md`), is the fallback when the workflows cannot run. The whole browser suite also runs each night, and when started by hand, in four shards (`.github/workflows/browser.yml`), with no secrets.

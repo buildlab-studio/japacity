@@ -86,7 +86,7 @@ Before the first deploy, set spending alerts in your Cloudflare account (server:
 
 The workflows deploy from GitHub once you have set them up; until then they deploy nothing and fail nothing.
 
-- `.github/workflows/check.yml` runs the quick checks on every pull request and every push to `main`, with no secrets.
+- `.github/workflows/check.yml` runs the quick checks on every push to a pull request, and every unit test and simulated play in the merge queue and on every push to `main`, with no secrets. Turn on the merge queue in `main`'s ruleset and require `check`, `unit`, `play` and `secrets`, so a pull request merges only after the full run (decision 0040).
 - `.github/workflows/deploy-staging.yml` deploys staging after every push to `main` whose check passed, and deploys the commit the check passed. It waits for `check.yml` to finish (a `workflow_run` trigger) and does nothing when the check failed or was cancelled.
 - `.github/workflows/deploy-production.yml` deploys production on a release tag `v*`, or when started by hand from `main`, and only a commit on `main` that staging serves: it first reads staging's `japacity-build` meta at `STAGING_URL` and stops when the commit differs.
 - `.github/workflows/browser.yml` runs the whole browser suite each night and when started by hand, with no secrets.

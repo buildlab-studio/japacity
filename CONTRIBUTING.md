@@ -48,11 +48,13 @@ A contribution from outside the project certifies the [Developer Certificate of 
 
 ## Every change goes through a pull request
 
-Every change reaches `main` through a pull request, the maintainer's own included, and every merge is a squash merge. A change to a file `.github/CODEOWNERS` names needs the code owner's review when it comes from outside the project; the maintainer's own pull requests merge through the ruleset's pull-request bypass, since an author cannot approve their own, and still wait for the check. A pull request's title is a short conventional title (`type(scope): what`, for example `fix(map): keep names readable over roofs`), and its description follows `.github/pull_request_template.md`: what and why, the changes, how it was tested. Each pull request is set to merge by itself once the check passes:
+Every change reaches `main` through a pull request, the maintainer's own included, and every merge is a squash merge. A change to a file `.github/CODEOWNERS` names needs the code owner's review when it comes from outside the project; the maintainer's own pull requests merge through the ruleset's pull-request bypass, since an author cannot approve their own, and still wait for the check. A pull request's title is a short conventional title (`type(scope): what`, for example `fix(map): keep names readable over roofs`), and its description follows `.github/pull_request_template.md`: what and why, the changes, how it was tested. A pull request merges through the merge queue: each push to it runs the quick checks (types, lint, the unit tests the change reaches), and once they pass it joins the queue, which runs every unit test and simulated play on `main` with the change on top and merges it only if they pass (decision 0040). On GitHub that is the "Merge when ready" button; from the command line:
 
 ```sh
-gh pr merge --auto --squash
+gh pr merge --auto
 ```
+
+To run simulated play on a branch before it is queued, start the check by hand: `gh workflow run check --ref <branch>`.
 
 Merging to `main` deploys staging, and only staging; production waits for a release tag `v*` on the commit staging serves and the maintainer's approval. See "Branches and releases" below.
 
@@ -97,7 +99,7 @@ The site in `docs/site` (VitePress, `pnpm docs:dev`) explains how the game is bu
 The maintainer applies these rules in GitHub's settings; the repository holds the files they rest on.
 
 - `main` takes changes only through a pull request. Nobody pushes to it directly, the maintainer included.
-- The check workflow must pass before a pull request merges.
+- The check workflow's `check`, `unit`, `play` and `secrets` must pass, and a pull request merges only through the merge queue, which runs the full tier (every unit test and simulated play) on `main` with the change on top.
 - History stays linear (squash merges), force pushes are blocked, and `main` cannot be deleted.
 - A change to a file in `.github/CODEOWNERS` (the lint config, `tests/`, the scrub check, `tools/repo.ts` with the checks' run guard, the Worker configs, the workflows, `packages/content/src/legal/`) from an outside contributor needs the maintainer's review, and a new commit dismisses an earlier approval. The maintainer's own pull requests merge through the ruleset's pull-request bypass, which waives that review alone.
 - An outside contribution certifies the DCO in its description (above), and a change that takes away a test, an assertion or a golden needs the `approved-test-change` label.

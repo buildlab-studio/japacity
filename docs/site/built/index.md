@@ -140,6 +140,7 @@ The browser tests (`pnpm test:browser`) are not part of the check. Neither is `p
 - The maintainer's git hooks, kept outside the repository, check every commit. A refused commit is fixed, never forced.
 - In CI, `pnpm check:protected` asks for a label when a change takes away a test, an assertion or a golden file, or grows the pending rules list.
 - Golden files change only through `pnpm bless`. See [The simulation](./simulation.md#goldens-recorded-lives-and-simulated-play).
+- In CI, each push to a pull request runs the quick checks with only the unit tests the change reaches; the merge queue runs every unit test and simulated play before the merge (decision 0040).
 :::
 
 ## Where to read next

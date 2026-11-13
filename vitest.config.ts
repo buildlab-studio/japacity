@@ -69,6 +69,16 @@ export default defineConfig({
   plugins: [{ name: "pg-protocol-commonjs", enforce: "pre", resolveId: (id: string) => (id === "pg-protocol" ? pgProtocolCommonJs : null) }],
   test: {
     reporters: [["default", { summary: false }]],
+    // A change to one of these runs every test, in watch mode and under --changed (CI's pull requests): the inputs every
+    // file is built on that no import reaches. Vitest's own defaults end in /**, which a changed file's path never matches.
+    forceRerunTriggers: [
+      "**/package.json",
+      "**/{vitest,vite}.config.*",
+      "**/pnpm-lock.yaml",
+      "**/pnpm-workspace.yaml",
+      "**/.node-version",
+      "**/tsconfig*.json",
+    ],
     projects: [
       {
         // Mirrors the path mapping in packages/sim/tsconfig.json.

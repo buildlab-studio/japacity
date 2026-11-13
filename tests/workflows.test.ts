@@ -285,17 +285,34 @@ describe("the workflows", () => {
     ]);
   });
 
-  test("given the check workflow, when its simulated-play jobs are read, then the play project's files are listed, each played on its own runner, and the play job fails unless the listing passed and the playing passed or was not needed", () => {
+  test("given the check workflow, when its triggers and the unit tests are read, then it runs in the merge queue too, and the unit tests run in three parts, on a pull request only those its change reaches, under one unit check", () => {
     const text = read("check.yml");
+    expect(text).toMatch(/\non:\n {2}push:\n {4}branches: \[main\]\n {2}pull_request:\n {2}merge_group:\n {2}workflow_dispatch:\n/);
+    // The quick checks no longer run the unit tests themselves.
+    expect(text).not.toContain("      - run: pnpm test\n");
+    expect(text).toContain("        part: [1, 2, 3]\n");
+    expect(text).toContain('pnpm exec vitest run --changed "$(git merge-base "origin/${BASE}" HEAD)" --shard="${PART}/3" --passWithNoTests');
+    expect(text).toContain('pnpm exec vitest run --shard="${PART}/3"');
+    expect(text).toMatch(/\n {2}unit:\n {4}needs: unit-run\n {4}if: always\(\)\n/);
+    expect(text).toContain('[ "$RAN" = "success" ]');
+  });
+
+  test("given the check workflow, when its simulated-play jobs are read, then they run everywhere but a pull request, each file on its own runner, and the play job, skipped on a pull request, fails unless the listing and every file passed", () => {
+    const text = read("check.yml");
+    expect(text).toMatch(/\n {2}play-files:\n {4}if: github\.event_name != 'pull_request'\n/);
     expect(text).toContain("pnpm exec vitest list --project=play --filesOnly --json=");
-    // Every push and every run by hand plays every file; a pull request plays them when its diff reaches the simulation.
-    expect(text).toContain('if [ "$EVENT" != "pull_request" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi');
-    expect(text).toContain("'^(packages/sim/|packages/content/|vitest\\.config\\.ts$|package\\.json$|pnpm-lock\\.yaml$|pnpm-workspace\\.yaml$|\\.node-version$|\\.github/workflows/check\\.yml$)'");
-    expect(text).toMatch(/\n {2}play-run:\n {4}needs: play-files\n {4}if: needs\.play-files\.outputs\.files != '\[\]'\n/);
+    expect(text).toMatch(/\n {2}play-run:\n {4}needs: play-files\n/);
     expect(text).toContain("        file: ${{ fromJSON(needs.play-files.outputs.files) }}\n");
     expect(text).toContain('        run: pnpm test:play "$FILE"\n');
-    expect(text).toMatch(/\n {2}play:\n {4}needs: \[play-files, play-run\]\n {4}if: always\(\)\n/);
-    expect(text).toContain('[ "$LISTED" = "success" ] && { [ "$PLAYED" = "success" ] || [ "$PLAYED" = "skipped" ]; }');
+    expect(text).toMatch(/\n {2}play:\n {4}needs: \[play-files, play-run\]\n {4}if: always\(\) && github\.event_name != 'pull_request'\n/);
+    expect(text).toContain('[ "$LISTED" = "success" ] && [ "$PLAYED" = "success" ]');
+  });
+
+  test("given the test config, when its rerun triggers are read, then the dependencies, the workspace, the Node version, the TypeScript configs and the test config each run every test", () => {
+    const config = readFileSync(join(REPO_ROOT, "vitest.config.ts"), "utf8");
+    for (const pattern of ['"**/package.json"', '"**/{vitest,vite}.config.*"', '"**/pnpm-lock.yaml"', '"**/pnpm-workspace.yaml"', '"**/.node-version"', '"**/tsconfig*.json"']) {
+      expect({ pattern, present: config.includes(pattern) }).toEqual({ pattern, present: true });
+    }
   });
 
   test("given the scripts, when the unit tests and the full check are read, then pnpm test leaves simulated play out and pnpm check runs it right after", () => {

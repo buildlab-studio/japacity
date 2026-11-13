@@ -202,7 +202,7 @@ flowchart LR
   D --> E["the golden test<br/>replays every save"]
 ```
 
-**Simulated play.** `packages/sim/src/simulated-play/` plays many random lives and simulated players and, after every command, checks the invariants, that the view has every key and no hidden one, and that replay gives the same hash. It is how a rule that breaks some unlikely life gets caught. The heaviest files (the balance tests, the endings and the random play) are Vitest's `play` project: `pnpm test` leaves them out, `pnpm test:play` and `pnpm check` run them, and CI plays each on its own runner when a change reaches the simulation or the content, and on every push to main.
+**Simulated play.** `packages/sim/src/simulated-play/` plays many random lives and simulated players and, after every command, checks the invariants, that the view has every key and no hidden one, and that replay gives the same hash. It is how a rule that breaks some unlikely life gets caught. The heaviest files (the balance tests, the endings and the random play) are Vitest's `play` project: `pnpm test` leaves them out, `pnpm test:play` and `pnpm check` run them, and CI plays each on its own runner in the merge queue, before a pull request merges, and on every push to main.
 
 ::: warning Never by hand
 Golden files and recorded lives are never edited by hand, and a failing golden is never re-blessed to get a pass without saying why. If a golden moves, something in the rules moved, and that is the thing to explain.
