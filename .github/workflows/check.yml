@@ -25,7 +25,8 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # The unit tests take 16 to over 21 minutes on GitHub's runners, so the limit leaves room for a slow one.
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
