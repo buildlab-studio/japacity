@@ -1,6 +1,6 @@
 // @ts-check
-// The purity rules for the simulation live here. Changing this file on a pull
-// request needs the approved-test-change label (see tools/check/protected.ts).
+// The purity rules for the simulation live here, and the rules that refuse
+// skipped, focused and commented-out tests (decision 0039).
 import js from "@eslint/js";
 import vitest from "@vitest/eslint-plugin";
 import { defineConfig, globalIgnores } from "eslint/config";

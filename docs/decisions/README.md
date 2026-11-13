@@ -142,3 +142,9 @@ An accepted record's decision is never edited. A record may have its wording, li
 |---|---|
 | [0025](0025-the-games-look.md) | The game's look |
 | [0024](0024-the-japa-type.md) | A life is shared as a japa type, never a score |
+
+### Working on the code
+
+| No. | Decision |
+|---|---|
+| [0039](0039-ci-gates-checks-taken-away-not-test-edits.md) | CI gates a check taken away, not a test edited |

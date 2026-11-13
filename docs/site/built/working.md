@@ -47,7 +47,7 @@ pnpm docs:preview  # the built site on port 5181
 | `pnpm check:rules --write-pending` | Rewrite `tools/rules-pending.json` to the rules that have no test yet |
 | `pnpm check:version` | The content version moved with any change to the content's data or the simulation's code (server:content-version-sealed) |
 | `pnpm check:assets` | The asset build check of `docs/decisions/0009-models-are-code.md`. It opens Playwright's Chromium for the last step |
-| `pnpm check:protected -- <base-ref>` | CI only: changed tests, goldens or schemas need the `approved-test-change` label |
+| `pnpm check:protected -- <base-ref>` | CI only: a deleted test file, fewer tests or assertions in one, a changed golden or a grown pending list needs the `approved-test-change` label |
 | `pnpm content:freeze` | Keep the shipped content before its version is raised: written to `packages/content/src/older/<version>` and listed (server:older-content-frozen) |
 | `pnpm content:seal` | Seal the content version after raising it: the fingerprint `pnpm check:version` compares (server:content-version-sealed) |
 | `pnpm record:lives`, `pnpm bless` | Record the simulated lives, then regenerate the golden files. Goldens change only this way |
@@ -200,7 +200,7 @@ flowchart LR
 - **Every rule has a name.** A rule page defines it on a line that starts with the name in bold, such as `**turn:month-turns-on-empty-bank**`: the page's file name, a colon and a short slug of what the rule holds, unique on its page. Only the maintainer adds rules and edits rule pages; a contributor who needs one asks for it.
 - **Every rule has a test.** The test's title starts with the name in brackets, then given, when, then: `[turn:month-turns-on-empty-bank] given no turn banked, when the turn is ended, then the month turns, as the bank gates nothing (decision 0011)`. A rule with numbers gets a test at each edge, and reads its numbers from content.
 - **`pnpm check:rules`** fails a rule with no test, a test that cites a name that does not exist, and a name defined on a page it does not name. `tools/rules-pending.json` lists the rules still waiting; it is rewritten only by `pnpm check:rules --write-pending`, never by hand.
-- **Tests are not loosened to pass.** An existing test, golden file, schema or lint rule is never edited, deleted, skipped or weakened to get a pass. If one is wrong, stop and report. CI fails a pull request that changes a protected file unless a maintainer adds the `approved-test-change` label (`tools/check/protected.ts`).
+- **Tests are not loosened to pass.** An existing test, golden file, schema or lint rule is never edited, deleted, skipped or weakened to get a pass. If one is wrong, stop and report. CI fails a pull request that takes a check away (a test file deleted, fewer tests or assertions in one, a golden changed, the pending list grown) unless a maintainer adds the `approved-test-change` label (`tools/check/protected.ts`, decision 0039).
 - **The test fails first.** It is written, run and seen to fail for the right reason before the code that makes it pass. A bug fix starts with a failing test that shows the bug.
 - **Both ways.** `pnpm check:rules` fails a rule nobody tests and a test that cites a rule nobody wrote, so the rule pages and the tests cannot drift apart.
 - **Goldens change one way.** The golden files in `packages/sim/src/goldens/` are recorded lives replayed against a stored result. Only the maintainer re-records them (`pnpm record:lives`) and blesses them (`pnpm bless`), with the reason in the commit.
