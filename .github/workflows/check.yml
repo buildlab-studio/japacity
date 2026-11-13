@@ -1,12 +1,13 @@
 name: check
 
 # The quick checks on every push to main and every pull request: the Workers' generated types, typecheck, lint, the unit tests,
-# the size budget of a first visit and the audit of the production dependencies (about half an hour on GitHub's runners, most of it the unit tests); on a pull request also a
-# secret scan of its commits. The full check (`pnpm check`: the rules and assets checks too) and the browser
-# suite stay local, run before every push, so Actions minutes stay low on the
-# free plan. It runs with no secrets, on pull_request (never
-# pull_request_target), so a fork's code never meets this repository's secrets. Every action is pinned to a
-# commit, with its version beside it.
+# the size budget of a first visit and the audit of the production dependencies; on a pull request also a secret scan of its
+# commits. Simulated play (the play project in vitest.config.ts: whole lives played month by month, most of the tests' time)
+# runs in its own jobs, one file to a runner, on every push to main and on a pull request that reaches the simulation, its
+# content or the tools they run on; the play job reports them as one check. The full check (`pnpm check`, which runs simulated
+# play too, with the rules and assets checks) and the browser suite stay local, run before every push. It runs with no secrets,
+# on pull_request (never pull_request_target), so a fork's code never meets this repository's secrets. Every action is pinned
+# to a commit, with its version beside it.
 on:
   push:
     branches: [main]
@@ -24,7 +25,8 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # The unit tests take 16 to over 21 minutes on GitHub's runners, so the limit leaves room for a slow one.
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -61,6 +63,98 @@ jobs:
         env:
           APPROVED_TEST_CHANGE: ${{ contains(github.event.pull_request.labels.*.name, 'approved-test-change') && '1' || '0' }}
         run: pnpm check:protected -- origin/${{ github.base_ref }}
+
+  # Which simulated-play files this change runs: all of them on a push to main or by hand, all of them on a pull request whose
+  # diff reaches packages/sim, packages/content, the test config or the dependencies, and none on any other pull request.
+  play-files:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      files: ${{ steps.list.outputs.files }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The pull request's diff against its base.
+          fetch-depth: 0
+
+      - name: Does the change reach the simulation
+        id: reach
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.base_ref }}
+        run: |
+          if [ "$EVENT" != "pull_request" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if git diff --name-only "origin/${BASE}...HEAD" | grep -qE '^(packages/sim/|packages/content/|vitest\.config\.ts$|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|\.node-version$|\.github/workflows/check\.yml$)'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        if: steps.reach.outputs.run == 'true'
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: steps.reach.outputs.run == 'true'
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+        if: steps.reach.outputs.run == 'true'
+
+      - name: List the play project's files
+        id: list
+        env:
+          RUN: ${{ steps.reach.outputs.run }}
+        run: |
+          if [ "$RUN" != "true" ]; then echo "files=[]" >> "$GITHUB_OUTPUT"; exit 0; fi
+          pnpm exec vitest list --project=play --filesOnly --json="$RUNNER_TEMP/play.json"
+          files=$(node -e 'const root = process.cwd() + "/"; const listed = require(process.argv[1]); console.log(JSON.stringify(listed.map((entry) => entry.file.replace(root, "")).sort()))' "$RUNNER_TEMP/play.json")
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+          echo "$files"
+
+  # One runner to each simulated-play file, so the job takes as long as the slowest file.
+  play-run:
+    needs: play-files
+    if: needs.play-files.outputs.files != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        file: ${{ fromJSON(needs.play-files.outputs.files) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Play the file
+        env:
+          FILE: ${{ matrix.file }}
+        run: pnpm test:play "$FILE"
+
+  # The one check the rules require for simulated play: it passes when every file played passed, or when the change
+  # did not reach the simulation, and fails otherwise.
+  play:
+    needs: [play-files, play-run]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every play file passed, or none was needed
+        env:
+          LISTED: ${{ needs.play-files.result }}
+          PLAYED: ${{ needs.play-run.result }}
+        run: |
+          echo "listing: $LISTED, playing: $PLAYED"
+          [ "$LISTED" = "success" ] && { [ "$PLAYED" = "success" ] || [ "$PLAYED" = "skipped" ]; }
 
   # Secret scanning of a pull request's own commits. gitleaks' own action needs a paid licence on an
   # organisation's repository, so the job runs gitleaks' released binary at a pinned version and refuses it unless its

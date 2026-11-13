@@ -34,7 +34,8 @@ It runs these in order and stops at the first failure, ending with `CHECK PASSED
 | check:types | `pnpm check:types` | The Workers' generated bindings and runtime types still match each `wrangler.jsonc` |
 | typecheck | `pnpm typecheck` | Every package's types, the browser tests' too |
 | lint | `pnpm lint` | Zero warnings. Holds the simulation's purity rules |
-| test | `pnpm test` | Every unit test project: sim, content, store, db, tools, models, server, server-workers, client, teaser |
+| test | `pnpm test` | Every unit test project: sim, content, store, db, tools, models, server, server-workers, client, teaser; simulated play left out |
+| test:play | `pnpm test:play` | Simulated play: the balance, endings and random-play files in `packages/sim/src/simulated-play/`, whole lives played month by month (scenario:economy-meets-its-targets). CI plays them one file to a runner when a change reaches the simulation or the content |
 | check:rules | `pnpm check:rules` | Every rule name in `docs/rules/` has a test that cites it, and every cited name exists. `tools/rules-pending.json` lists the rules waiting for a test |
 | check:version | `pnpm check:version` | The content's data and the simulation's code match the fingerprint sealed with the content version; after a change, `pnpm content:freeze` first, then raise the version and run `pnpm content:seal` (server:content-version-sealed, server:older-content-frozen) |
 | check:assets | `pnpm check:assets` | The city's models and pictures match their manifest |
