@@ -16,11 +16,11 @@ A share card is a picture a player sends to friends at a moment worth telling: a
 - a status is secured;
 - the December visit;
 - a Friday draw win (`lottery.md`);
-- the end of the road chain: the real-story card (road:real-story-card-after-chain).
+- the end of the road chain: the real-story card (road:real-story-card-after-chain), whose `kind` is `lost` when the chain ended lost.
 
 The view's `card` carries the moment as `kind`. The send-off card comes with a ticket stub beside it, and the player picks which to share. Once the japa type is read (decision 0024), the stub carries the type's badge. Neither the stub nor the badge is a `kind` of its own. When a moment card has already told a chapter's outcome, that chapter's card is kept in the gallery and does not open (moment:card-shows-when-outcome-lands).
 
-**share:no-card-for-harm** No card is due for anything on the road chain except the real-story card (road:road-earns-nothing), for a refusal, for a removal, for a return marked `assisted` or `removed`, or for a life that ended `lost`. A card never celebrates harm.
+**share:no-card-for-harm** No card is due for anything on the road chain except the real-story card (road:road-earns-nothing), for a refusal, for a removal, or for a return marked `assisted` or `removed`. A road chain that ended lost shows its real-story card as `lost`, which is shown and never shared (`shareable` false in the client's card face). A card never celebrates harm.
 
 **share:card-offered-never-sent** A card is offered, never sent. The player presses share; nothing is posted for them. Nothing asks them to share to earn anything, and no reward is ever tied to sharing: the same rule as invites (`../design/01-concept.md` section 6, safety rule 6).
 

@@ -61,7 +61,7 @@ The foreign leg is a debit with the reason `remit`, and the fee is `remit-fee`. 
 |---|---|---|---|
 | UK personal allowance | £12,570 | 2026/27 | `country.uk.taxFreeLine` |
 | UK basic rate plus employee national insurance | 20% + 8% | 2026/27 | `country.uk.taxBp` 2800 |
-| UK room rent outside London | £668 a month | SpareRoom Q1 2026 | `rent-room` 67000 |
+| UK room rent outside London | £670 a month (the real £668, rounded) | SpareRoom Q1 2026 | `rent-room` 67000 |
 | UK one-bed flat outside London | £950 | Working value | `rent-flat` 95000 |
 | Canada tax, flat working band | 25% above C$16,000 | Working value for Ontario at these incomes | `country.canada.taxBp` 2500 |
 | Canada shared room | C$900 a month | Working value | `obligation.rent-room-canada` 90000 |

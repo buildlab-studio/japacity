@@ -22,7 +22,7 @@ Staying run down leads to illness. When it comes, the player chooses as people r
 
 **health:forced-months-warned-ahead** Other forced months arrive as offers that give a month's notice:
 - `offer.village-burial` (family): `go` costs ₦60,000 in travel and locks one slot next month; `send-money` costs ₦100,000 and standing -3; `absent` costs standing -10.
-- `offer.court-date` (abroad; the car shortfall or an unpaid fine): `attend` loses a day, one slot locked next month.
+- `offer.court-date` (abroad; a car shortfall, abroad or brought home, or any loan in default owed in the country's own money): `attend` loses a day, one slot locked next month.
 
 Each carries `lockNext: { slots, months, why }`, which the view reads to word the lock on the choice. The lock itself is the `turn/lock` carried by each choice that takes the slot (`go`, `attend`), so `send-money` and `absent` lock nothing.
 
@@ -35,7 +35,7 @@ Each carries `lockNext: { slots, months, why }`, which the view reads to word th
 | `offer.illness` | life, bad | run down (health:illness-rolls-when-run-down) | 2500 | `hospital` ₦85,000; `chemist` ₦9,000; `ignore` |
 | `offer.illness-worse` | life, bad | opened by the chemist's or ignore's relapse | | `hospital` ₦180,000; `cannot` |
 | `offer.village-burial` | family | at home, standing 20 or more | 150 | `go` ₦60,000 and one slot locked next month; `send-money` ₦100,000; `absent` |
-| `offer.court-date` | abroad | a car shortfall or a defaulted loan abroad | 500 | `attend` one slot locked next month |
+| `offer.court-date` | abroad | a car shortfall, or a loan in default owed in the country's own money | 500 | `attend` one slot locked next month |
 
 ## Numbers
 

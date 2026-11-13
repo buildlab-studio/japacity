@@ -8,9 +8,9 @@ The prologue draws a background and then plays it: eleven steps from secondary s
 
 ## Rules
 
-**prologue:prologue-life-starts-empty** A new character from `scenario.prologue` starts with every quality at its minimum except age (192 months: sixteen years), no money, no job, no documents, no obligations, and the prologue open at step 0. While the prologue is open, `turn/end` and every other command except `prologue/choose` and `turns/grant` are rejected with `prologue-open`.
+**prologue:prologue-life-starts-empty** A new character from `scenario.prologue` starts with every quality at its minimum except age (192 months: sixteen years) and the body (belly and energy start where their entries' `start` says, quality:body-belly-and-energy), no money, no job, no documents, no obligations, and the prologue open at step 0. While the prologue is open, `turn/end` and every other command except `prologue/choose` and `turns/grant` are rejected with `prologue-open`.
 
-**prologue:family-draw-on-first-answer** Step 0 is the family draw. It is made on stream `prologue` when the first answer is given (`begin`, the opening card's one answer), not when the prologue opens. It draws:
+**prologue:family-draw-on-first-answer** Step 0 is the family draw. It is made on stream `prologue` when the first answer is given (`begin`, the opening card's one answer, which also adds wellbeing +60, `START_WELLBEING` in `prologue.data.ts`), not when the prologue opens. It draws:
 
 - `familyMeans`, between 10 and 80;
 - `town`: `city` (55%) or `town` (45%);
@@ -99,7 +99,7 @@ The age picked is the age the life starts at, to the year (decision 0023):
 | A2 `years` | "Year three. You know the trade and the customers know you." | `stay`: network +15, standing +5. `leave`: cash ₦150,000 (gig), standing -8, to step 10 at once | | 24 |
 | A3 `settlement` | "Settlement day." | Draw: `generous` (3000) ₦6,000,000 cash; `fair` (5000) ₦2,500,000; `cheated` (2000) ₦400,000, standing -5 | `quality.land` +1 at `generous`; then step 10 | 24 |
 
-The apprenticeship origin is where the road's offers reach first (`road.md`): the character is 22, has capital in the bank (decision 0014), no degree and a network in the market.
+The apprenticeship origin is where the road's offers reach first (`road.md`): the character is 23 (283 months), has capital in the bank (decision 0014), no degree and a network in the market.
 
 ## The front door
 

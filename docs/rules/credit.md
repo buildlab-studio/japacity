@@ -11,7 +11,7 @@ Credit history does not cross borders. Everyone arrives abroad with an empty fil
 
 **credit:payments-move-the-mark** In the `due` phase, each obligation abroad whose entry says `reportsToCredit` moves the mark: paid in full adds `tuning.credit.onTime`, missed takes `tuning.credit.onMiss`, a default takes `tuning.credit.onDefault`. The mark never leaves 0 to 100.
 
-**credit:clean-mark-drifts-up** In the `month` phase, a mark with no miss in the last 12 months gains `tuning.credit.drift`, up to `tuning.credit.driftTo`. A miss within 12 months stops the drift.
+**credit:clean-mark-drifts-up** In the `month` phase, a mark gains `tuning.credit.drift`, up to `tuning.credit.driftTo`, once `tuning.credit.cleanMonths` (12) months have passed since the later of the arrival in the country and the file's last miss. A new file therefore gains nothing but its payments in its first 12 months, and a miss starts the 12 months again.
 
 **credit:approval-reads-the-mark** An obligation entry abroad names the mark it needs as `creditMin`, and the view lists those as `credit.needs`. The activity that opens it carries the requirement `credit/min` with the same figure, and that requirement decides. A thin file is the common refusal: a car on finance needs 30, a flat in your own name 20, a phone contract 10. Below those, the room is shared, the phone is pay as you go, and the car is cash or nothing.
 

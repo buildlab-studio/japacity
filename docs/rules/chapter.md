@@ -85,9 +85,9 @@ The variants of `chapter.build-the-file` and `chapter.decision-day`:
 | Way | Build the file | Decision day |
 |---|---|---|
 | care | `tenure` (24 months as a nurse, `activity/tenure` on `activity.job-nurse`), `verification` (`document.nmcn-verification` held), `sponsor` (a sponsor recorded, the gate step), `applied` | `tb`, `police`, `applied`, `granted` |
-| talent | `portfolio` (`quality.portfolio` at the endorsement's bar), `endorsement` (the gate step), `applied` | `tb`, `applied`, `granted` |
+| talent | `portfolio` (`quality.portfolio` at the endorsement's bar), `endorsement` (`document.endorsement` held), `applied` | `tb`, `applied`, `granted` |
 | points | `eca` (`document.eca` held), `english` (the band at 60), `pool` (the gate step), `invited` | `police`, `applied`, `granted` |
-| gulf | `passport`, `medical`, `agent`, `contract` (the gate steps; the passport first, since only the road leaves without papers) | `police`, `applied`, `granted` |
+| gulf | `passport` (held, first, since only the road leaves without papers), `medical` (`document.medical` held), `agent` (the gate step `sponsor`: an agent recorded with the contract's terms), `contract` (the route applied: the agent takes the papers to the employer, `activity.apply-gulf-contract`) | `police`, `applied`, `granted` |
 
 **chapter:view-says-closes-and-next** The chapter view carries:
 
@@ -96,7 +96,7 @@ The variants of `chapter.build-the-file` and `chapter.decision-day`:
 
 Japa shows the chapter ahead from these and keeps no copy of the order or the lean.
 
-**chapter:first-chapter-mission-card** The first chapter opens as a mission card handed over by its person, once per life, in their voice. It shows the three things as sticker tiles, the reward as picture chips, the next brief faint, and Let's go (`../design/09-the-games-look.md` section 4).
+**chapter:first-chapter-mission-card** The first chapter opens as a mission card handed over by its person, once per life, in their voice. It shows each of the chapter's things as a sticker tile (four for Find your feet: a job, a pay, a way heard of, a way known), the reward as picture chips, the next brief faint, and Let's go (`../design/09-the-games-look.md` section 4).
 
 - **Tile looks.** A tile has one look for each state:
   - done: recedes (a muted fill, its picture and words faded but readable, a tick and "Done" where its place stood);

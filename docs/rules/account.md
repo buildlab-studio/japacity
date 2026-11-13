@@ -27,7 +27,7 @@ An account is a way back to one character. It keeps as little personal data as s
   - If the code's proof has run out at Continue: "Your code ran out. We sent a new one to {email}.", with the code form on the step and the username kept. Its right code lets Continue go on.
   - If the address was taken meanwhile, the player is sent a code that opens that account.
   - A player who came to sign in is never made into a plain guest.
-- **A passkey this site does not know, or a Google trip whose address Google has not verified**, finds no life. Only their holder sees that answer, so they keep their own words, with "Start a new life" under them, which opens Play's start.
+- **A passkey this site does not know, or a Google trip whose address Google has not verified**, finds no life. Only the holder of that passkey or Google account can try it, so saying no life was found tells nobody else anything (unlike an email address, which anyone can type). These cases keep their own words, with "Start a new life" under them, which opens Play's start.
 - A banned address or Google identity is refused as moderation:ban-survives-as-hash says.
 
 **account:email-code-is-short-lived** An email code is 6 digits, valid for 5 minutes, and allows 3 tries. A new code replaces the old one. The email's subject leads with the code ("{code} is your Japacity code"), so it can be read from the phone's notification. A code is sent without the request waiting on the send. The send answers the same for every address, with or without an account, inside the send limits, which count every address alike (account:sign-in-routes-rate-limited, account:sign-in-without-secret). The database keeps only a code's hash, so reading the database yields no working code.

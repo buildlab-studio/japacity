@@ -514,7 +514,7 @@ Other apps:
 - Settings carries the feedback box and From the team.
 - Chats' slots end with the sponsoring card, and a thread has read and new marks, phrase chips and refusals in words.
 
-**world:nobody-picked-from-list** Nobody is picked from a list. A person the character could meet shows up in a place the player already spends time in (the hub, the church, a friend's room), and a friend's message in Chats can point there; it is never a hunt. Courting starts by tapping them there. Everything after the meeting follows `person.md` and `pair.md` as written, and the invite path for real friends stays. Their calls and messages arrive in Chats.
+**world:nobody-picked-from-list** Nobody is picked from a list. A person the character could meet shows up in a place the player already spends time in (the hub, or the family house, where the people met after church and a friend of the family visiting are found), and a friend's message in Chats can point there; it is never a hunt. Courting starts by tapping them there. Everything after the meeting follows `person.md` and `pair.md` as written, and the invite path for real friends stays. Their calls and messages arrive in Chats.
 
 Where people are met:
 
@@ -554,7 +554,7 @@ Pictures that keep their own colours, as the 3D world does:
 - The two lights over the start screen (account:two-lights-and-wink-lines) are a picture of everyone, not the interface. They alone may draw soft gradients, two of them: the dusk across the top and the glow of each bulb. The palette's test counts them apart.
 - The third light, a player's own light beside it and the dedication page's light (account:dedication-page-and-its-doors, account:name-a-light-for-yours) glow with the same fill, read from the two lights' file. No other gradient is drawn for them.
 - The dedication page's picture (account:dedication-page-and-its-doors) uses literal colours like the two lights and the paper map: the sky `#172647`, the water `#111d38`, the boxes `#24345a`, `#3b4c77`, `#c8c3b4` and `#8e97ab`. It adds no gradient.
-- The drawn map's water (`--water`) is the lagoon tone `#5f9fc0` in both paints, so the lagoon reads as water wherever the map draws it, the start screen included, never as the bands' navy.
+- The drawn map's water token (`--water`) is `#5f9fc0` in both paints (`apps/client/src/index.css`), so water reads as water wherever a map draws it, never as the bands' navy. Lagos's map overrides it with the murky lagoon of world:map-is-painted-lagos, `#565d41` by day and `#121612` by night (`.paper[data-city="lagos"]` in `apps/client/src/features/map/paper/aerial/aerial.css`); the painted maps abroad keep the token.
 - Google's own mark on its sign-in button (`apps/client/public/brand/google-g.svg`, drawn as Google ships it, with its gradient) is the one outside mark the palette rule does not touch, since Google's branding guideline requires it unchanged.
 
 **world:interface-sounds-made-live** Interface sounds are small cues made on the fly, with no files: a tap, a coin, a confirm, a whoosh, the cues of world:motions-under-half-second, and a `pop` for a thing lifted in buy mode. Mute in Settings silences them; muted, nothing is fetched.

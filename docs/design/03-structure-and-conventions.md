@@ -220,7 +220,7 @@ The simulation's and content's import limits are also lint rules in `eslint.conf
 | A copy of shared state on each side | One record per pair, with a sorted id | Two copies drift apart; one record cannot |
 | Events only | Commands separate from events, with a state version | A stale command is refused before it changes anything |
 | Dotted ids alone | Dotted, typed ids with a rename table | Old saves keep loading after a rename |
-| A lint rule for imports | A boundary test whose exceptions only shrink | A list that only shrinks stops leaks from growing |
+| A lint rule for every package's imports | A boundary test whose exceptions only shrink; lint (`no-restricted-imports` in `eslint.config.js`) only for what the simulation and content, and their tests, may import | A list that only shrinks stops leaks from growing; the purity of the simulation and content is checked as each file is written |
 | Classes, inheritance, entries that inherit | Plain functions and plain data | Inheritance across entries scatters what an entry means |
 | A state-machine library | Stages as plain unions in each kind | A kind has few stages, and they read best beside its logic |
 | Layered front-end architectures | Features by kind, with `shared/` under them | One kind's screens live in one place |

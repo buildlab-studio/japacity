@@ -51,7 +51,7 @@ After a default on a group loan or a sponsor's undertaking (`obligation.group-lo
 
 **obligation:way-out-at-every-stage** Every stage has a way out, written plainly: the loan can be paid ahead (obligation:paying-down-obligations), a family request can be answered, and the whip-round (luck:whip-round-once-per-life) can reach a character once no loan of theirs is in default. The words never make the recovery a joke.
 
-**obligation:cooking-and-fetching-water** Cooking and fetching water: `activity.cook-at-home` and `activity.fetch-water`, two activities with `slot: "none"`, at home and abroad.
+**obligation:cooking-and-fetching-water** Cooking and fetching water: `activity.cook-at-home` and `activity.fetch-water`, two activities with `slot: "none"`, offered at home only (`where: "home"`). Abroad, water is not an act and cooking is the country's own meal (below).
 - They answer now (`when: "now"`), fill no slot and repeat (activity:acts-may-repeat-in-month). Each one's relief is taken once a month however often it is done: a source already on the upkeep adds nothing.
 - Each applies the effect `obligation/relief` to the upkeep of the place the character lives in. The next charge of that upkeep is lowered by `tuning.room.cookedBp` (cooking) or `tuning.room.waterBp` (water) of its amount, never below zero, and that charge uses up the relief. The relief is recorded on the upkeep at once, for its next charge at the month's end.
 - The results give each its own line ("Food, cooked at home: ₦15,000 less.", "Water, fetched yourself: ₦4,000 less."). The scene shows each with no line, and the phone's Calendar app says what the chores took off this month ("Cooked and fetched water: ₦X less this month").
@@ -85,7 +85,7 @@ Cooking's relief applies at home, where an upkeep carries food. In a home of you
 | `obligation.upkeep-compound` | Upkeep (home:compound-room-is-a-home) | ₦50,000 | | | | Standing -3, wellbeing -5 | |
 | `obligation.rent-compound` | Rent (home:compound-room-is-a-home), every 12 months, prepaid (obligation:prepaid-entries-skip-first-charge) | ₦350,000 a year | | | 2 | Standing -3, wellbeing -5 | closes it; the character goes back to the family house (home:rent-default-returns-to-family) |
 | `obligation.tech-diploma` | Course fee, as `activity.masters-at-home`'s (activity:paid-tech-courses) | ₦40,000 | | 12 months | | that month gives no gain and does not count | |
-| `obligation.bootcamp` | Loan, owed after a developer job (activity:bootcamp-paid-after-a-job) | | 0 | 36 months | 2 | Standing -4 | Standing -10, credit mark +1 |
+| `obligation.bootcamp` | Loan, owed after a developer job (activity:bootcamp-paid-after-a-job) | | 0 | 36 months | 2 | None | None |
 | `obligation.education-loan` | Loan in pounds, paid to the school (route:education-loan-pays-the-school) | nothing while studying, then from the repayment's start | 0.8% flat | 180 months | 2 | Standing -4 | Standing -10, credit mark +1 |
 
 Upkeep is food, transport, phone and what you give at home. Its reason is `upkeep`. Support's reason is `family`.

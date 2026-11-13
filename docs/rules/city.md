@@ -7,7 +7,7 @@ The city is where the life is seen: a set of 3D places such as streets, markets,
 
 ## Rules: the city and the simulation
 
-**city:places-change-no-state** The city has no command, effect, state or stream of its own in the simulation. Entering, leaving, walking round a place and tapping are client state only: they cost no turn and the authority never hears of them. An act picked on a thing, a sleep and a wake send the simulation's own command for that act, the same one its sheet sends (world:things-are-tappable-models, world:fan-of-sticker-buttons, world:sleep-ends-the-month), and nothing else.
+**city:places-change-no-state** The city has no command, effect, state or stream of its own in the simulation. Entering and leaving the place the character is at, walking round it and tapping are client state only: they cost no turn and the authority never hears of them. Going from one place to another is the place kind's own command, `place/ride` (place:rides-between-city-places), with its fare and time, not the city's. An act picked on a thing, a sleep and a wake send the simulation's own command for that act, the same one its sheet sends (world:things-are-tappable-models, world:fan-of-sticker-buttons, world:sleep-ends-the-month), and nothing else.
 
 **city:place-shows-only-the-view** The city shows only what the view holds (engine:view-holds-no-hidden-field). A place may show a scene for an open set piece, an open offer, an activity in the month's report, a news story already delivered, or a route the character has heard of. It never shows a hidden field: not whether an offer is a fraud, not a sign the offer did not show, not a score, not a route still unknown.
 
@@ -161,7 +161,7 @@ The world is the game and the sheets support it (`../design/07-the-world-first.m
 - Residents are the computer people of city:players-fill-the-crowd and city:dress-mix-by-place, chosen as city:sample-seeded-by-date chooses them.
 - The targets live in the private settings (server:private-settings-and-dials); the public content holds working values.
 
-**city:residents-carry-no-tag** A resident carries no tag and no mark over the head. A tap on a resident opens a small card with a name and a role from content and the line "Lives in the city", for example "Iya Bisi, trader. Lives in the city." A resident's name comes from the generated list of person:computer-names-generated.
+**city:residents-carry-no-tag** A resident carries no tag and no mark over the head. A tap on a resident opens a small card with a name and a role from content and the line "Lives in the city", for example "Iya Bisi, trader. Lives in the city." A resident's name is a common first name from the client's fixed list, with a street title by age and sex (Iya, Mama, Aunty; Baba, Oga, Brother; or the name alone), picked from the resident's hash (`RESIDENT_NAMES` and `RESIDENT_TITLES` in `apps/client/src/features/city/city.words.ts`). It is not drawn from person:computer-names-generated.
 
 **city:players-carry-name-tags** Another real player carries a name tag with their username over the head for as long as they stand in the place. A resident carries none, so a name over a head always marks a player. Players take every slot that no part holds (city:players-fill-the-crowd), so in a busy place every head except the parts' may carry a name. The player's own character always carries its indicator above the head.
 
@@ -177,7 +177,7 @@ The world is the game and the sheets support it (`../design/07-the-world-first.m
 
 **city:party-room-sets-the-bar** The party room is the bar every staged place must meet. It is the family house (`place.family-house`) dressed for `offer.send-off-party`, the bag's second act, in the wide house's yard:
 - the car, the carport and the washing line hidden, and the crates moved;
-- about ten people (`crowd.target` 10, three dancers among them) idling on loops with random phase;
+- about ten people (three dancers among them) idling on loops with random phase: the dressing's own crowd, kept over the family house's `crowd.target` of 4 (`crowdTuning` in `apps/client/src/shared/scene/limits.ts`);
 - tap to walk;
 - the ambient motion of city:one-clock-one-wind, city:motion-in-vertex-shader, city:no-script-loop-per-sheet, city:motion-never-turned-off and city:hidden-scene-idles;
 - two dance loops played on three different bodies, one in an agbada and one in a wrapper.
@@ -374,8 +374,8 @@ The UK's 3D place is Peckham, although the three universities of `route.md` are 
 | Cost of the fine mesh level | about 63% more triangles and 20% more frame time (10,520 against 17,080 triangles; 50.7 against 62.1 ms on a software renderer) | Measured on one waterside corner; comparative only | the reason for city:motion-never-turned-off |
 | Frames a second behind the panels | 1 | Working value | `IDLE_MS` in `apps/client/src/features/city/scene/CityScene.tsx` |
 | Walking pace | 1,400 mm a second | The 1.4 m/s design guides use for walking speed (Wikipedia, preferred walking speed) | `tuning.city.walkMmPerS` |
-| Stop short of a person or object | 800 mm | Working value | `tuning.city.stopShortMm` |
-| Target headcount | exterior 12, interior 8, the party room 10 | Working values | each entry's `crowd.target`, private settings |
+| Stop short of a person or object | 300 mm | Working value | `tuning.city.stopShortMm` |
+| Target headcount | by how busy the place is: packed and busy 12, quiet and few 8; the family house 4, the neighbours' and the corridor's homes 2; the party room 10, from its dressing | Working values | each entry's `crowd.target` (`PACKED`, `BUSY`, `QUIET`, `FEW`, `FAMILY`, `NEIGHBOURS`, `CORRIDOR` in `place.data.ts`), the dial of server:private-settings-and-dials; the party's crowd in `apps/client/src/shared/scene/limits.ts` |
 | Players kept in today's list | 20 a place | Working value, the size of the presence sample (`clock.md`) | `presence.todayMax` |
 | Cheap phone profile | 360 by 640 CSS px, device scale 2, processor slowed 6 times | The asset phone shot (`assets.md`), with the processor slowed 6 times as the place check runs it | the place check's profile |
 | Dance loops in the party room | 2, on 3 bodies | Working value | the party room |

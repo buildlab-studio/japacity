@@ -9,7 +9,7 @@ The world is a pool of stories that really happened, fired in an order that caus
 
 **director:world-variables-per-route** The world's variables are those in `rate.md`, plus:
 
-- for each route: a window (`var.<route>-window`: 2 open, 1 narrowing, 0 closed), a strictness (`var.<route>-strictness`, 0 to 100) and a surge (`var.<route>-surge`, 0 to 100). The talent and Gulf routes have no strictness in content (`var.uk-talent-strictness` and `var.uae-strictness` do not exist), because neither gate reads one;
+- for each route: a window (`var.<route>-window`: 2 open, 1 narrowing, 0 closed), a strictness (`var.<route>-strictness`, 0 to 100) and a surge (`var.<route>-surge`, 0 to 100). The talent, Gulf and family routes have no strictness in content (no `var.uk-talent-strictness`, `var.uae-strictness`, `var.uk-family-strictness` or `var.canada-family-strictness`): they have a window and a surge only, because neither gate reads one;
 - at home: `var.inflation` (0 to 100), and `var.season-december` and `var.season-rains` (0 or 1);
 - the status and fee variables named on the other pages.
 

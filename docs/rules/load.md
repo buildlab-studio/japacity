@@ -22,6 +22,8 @@ The load test answers one question: does the authority, with its stores, take th
 | `setpiece/answer` | 10% |
 | a command touching a pair | 5% |
 
+The mix is the kinds asked for. When an account's view offers no legal command of the kind asked for, the picker sends a `turn/end`, then an answer the turn waits on, then any legal command (`chooseCommand` in `tools/load/pick.js`). The view rarely offers `obligation/pay`, `setpiece/answer` or a pair command, so most of those picks go out as a month. The summary lists the kinds asked for and the kinds sent.
+
 **load:some-commands-sent-stale** `config.load.staleShareBp` of commands are sent deliberately stale (an old `basedOn`), so the rejection path is under load too.
 
 **load:peak-reads-reported-only** A second scenario, run after the first, adds the reads of the full peak (heartbeats, view fetches and world fetches) to reach `config.load.requestsPerSecond` in total. It is reported but is not a gate: the load generator and the server share one machine, and at that rate the machine measures itself as much as the code.

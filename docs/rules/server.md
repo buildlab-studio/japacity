@@ -160,7 +160,7 @@ A reply carries only the view, the report lines, the current world and the clock
   - the content object serialized with its keys in the order the content has them, its version aside. The simulation meets a table's entries in that order, so a reorder alone moves the fingerprint;
   - every file of the simulation's source (`packages/sim/src`, without its tests, its test helpers, and the `simulated-play`, `testing` and `goldens` folders), each printed by the TypeScript printer with comments removed and kept as its tokens.
 - A comment, a change of layout or a test leaves the fingerprint as it was. A changed number in content, a changed line of the simulation's code, or a file added to it moves it.
-- `pnpm check:version` (`tools/check/version.ts`, a step of `pnpm check` and of the `check` workflow) fails when the fingerprint moved and the version did not, and says what to do: raise the version by one, add the content of the old version to `olderContents` as it shipped when lives exist under it (server:older-contents-bundled), and seal. It also fails while the seal names a version other than the content's.
+- `pnpm check:version` (`tools/check/version.ts`, a step of `pnpm check` and of the `check` workflow) fails when the fingerprint moved and the version did not, and says what to do: set the change aside (`git stash`), run `pnpm content:freeze`, which writes the sealed version's content to `packages/content/src/older/<version>` and lists it in `olderContents` (server:older-content-frozen), bring the change back (`git stash pop`), raise the version by one and run `pnpm content:seal`. Every lower version is frozen and listed, whether or not lives exist under it. It also fails while the seal names a version other than the content's.
 - `pnpm content:seal` writes the seal, and refuses a changed fingerprint under the version already sealed.
 - A version that is not a whole number from 1, or is below the sealed one, is refused by both.
 
@@ -202,8 +202,8 @@ While players are few, these rules keep a small crowd together and let it be ste
 
 **server:private-settings-and-dials** The private settings are the private overlay (server:public-defaults-run-the-game) plus the switch row of server:four-off-switches, both server-only (server:secrets-stay-on-server).
 
-- Two dials live in the overlay: the target headcount of each place (city:residents-fill-to-target, each entry's `crowd.target`) and how readily a computer partner is offered (person:computer-partner-offer-dial, `tuning.people.computerAfterMonths`).
-- The lottery's odds (lottery:odds-fixed-at-draw-open, `tuning.lottery.odds`) live there too.
+- Two dials live in the switch row's `dials` (`Dials` in `packages/store/src/switches.ts`), set from the admin page through `POST /api/admin/dials`: the target headcount of each place (city:residents-fill-to-target) and how readily a computer partner is offered (person:computer-partner-offer-dial). A dial left unset (null) falls back to the content: each entry's `crowd.target` and `tuning.people.computerAfterMonths`.
+- The lottery's odds (lottery:odds-fixed-at-draw-open) are read from the content's `tuning.lottery.odds`, which the private overlay may change (`lotteryOdds` in `apps/server/src/switches/dials.ts`).
 - The public content holds working values for all three, and the public defaults run the whole game.
 
 **server:four-off-switches** Four off switches live in one switch row in the database: `signups`, `lottery`, `adverts` and `partnerPlay`, each on by default. The server reads the row on each request, cached for at most `switches.cacheMs`, so a switch takes effect without a deploy. Every change is written to the admin log (moderation:admin-actions-logged-append-only) with who and why. The same row also holds the board switches of city:boards-switch-when-and-who.
