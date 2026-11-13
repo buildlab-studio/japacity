@@ -1,17 +1,20 @@
 name: check
 
-# The quick checks on every push to main and every pull request: the Workers' generated types, typecheck, lint, the unit tests,
-# the size budget of a first visit and the audit of the production dependencies; on a pull request also a secret scan of its
-# commits. Simulated play (the play project in vitest.config.ts: whole lives played month by month, most of the tests' time)
-# runs in its own jobs, one file to a runner, on every push to main and on a pull request that reaches the simulation, its
-# content or the tools they run on; the play job reports them as one check. The full check (`pnpm check`, which runs simulated
-# play too, with the rules and assets checks) and the browser suite stay local, run before every push. It runs with no secrets,
-# on pull_request (never pull_request_target), so a fork's code never meets this repository's secrets. Every action is pinned
-# to a commit, with its version beside it.
+# Two tiers. On every push to a pull request, the quick tier: the Workers' generated types, typecheck, lint, the content
+# version, the size budget of a first visit, the audit of the production dependencies, the protected-tests check, the secret
+# scan, and the unit tests the change can reach (Vitest's --changed against the merge base, everything when the config, the
+# dependencies or the Node version change), split across three runners. In the merge queue, on every push to main and by hand,
+# the full tier: every unit test across the three runners, and simulated play (the play project in vitest.config.ts: whole
+# lives played month by month, most of the tests' time), one file to a runner. A pull request merges only through the queue,
+# so main takes nothing the full tier has not passed (decision 0040). The full check (`pnpm check`, with the rules and assets
+# checks) and the browser suite stay local, run before every push. It runs with no secrets, on pull_request (never
+# pull_request_target), so a fork's code never meets this repository's secrets. Every action is pinned to a commit, with its
+# version beside it.
 on:
   push:
     branches: [main]
   pull_request:
+  merge_group:
   workflow_dispatch:
 
 # A newer push to the same branch cancels the run in progress.
@@ -25,8 +28,7 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    # The unit tests take 16 to over 21 minutes on GitHub's runners, so the limit leaves room for a slow one.
-    timeout-minutes: 40
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -47,7 +49,6 @@ jobs:
       - run: pnpm check:types
       - run: pnpm typecheck
       - run: pnpm lint
-      - run: pnpm test
 
       # server:content-version-sealed: the content version moves with any change to the content's data or the simulation's code.
       - run: pnpm check:version
@@ -64,50 +65,79 @@ jobs:
           APPROVED_TEST_CHANGE: ${{ contains(github.event.pull_request.labels.*.name, 'approved-test-change') && '1' || '0' }}
         run: pnpm check:protected -- origin/${{ github.base_ref }}
 
-  # Which simulated-play files this change runs: all of them on a push to main or by hand, all of them on a pull request whose
-  # diff reaches packages/sim, packages/content, the test config or the dependencies, and none on any other pull request.
+  # The unit tests in three parts, by Vitest's --shard. On a pull request, only the tests its change can reach: Vitest
+  # follows each test's imports from the files changed since the merge base, and runs every test when a file matches the
+  # forceRerunTriggers in vitest.config.ts. A part may then have nothing to run, which passes.
+  unit-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        part: [1, 2, 3]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # --changed diffs against the merge base, so it needs history.
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Run this part of the unit tests
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.base_ref }}
+          PART: ${{ matrix.part }}
+        run: |
+          if [ "$EVENT" = "pull_request" ]; then
+            pnpm exec vitest run --changed "$(git merge-base "origin/${BASE}" HEAD)" --shard="${PART}/3" --passWithNoTests
+          else
+            pnpm exec vitest run --shard="${PART}/3"
+          fi
+
+  # The one check the rules require for the unit tests: it passes when every part passed.
+  unit:
+    needs: unit-run
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every part passed
+        env:
+          RAN: ${{ needs.unit-run.result }}
+        run: |
+          echo "unit tests: $RAN"
+          [ "$RAN" = "success" ]
+
+  # The simulated-play files, listed for the full tier: in the merge queue, on a push to main and by hand.
   play-files:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
       files: ${{ steps.list.outputs.files }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          # The pull request's diff against its base.
-          fetch-depth: 0
-
-      - name: Does the change reach the simulation
-        id: reach
-        env:
-          EVENT: ${{ github.event_name }}
-          BASE: ${{ github.base_ref }}
-        run: |
-          if [ "$EVENT" != "pull_request" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi
-          if git diff --name-only "origin/${BASE}...HEAD" | grep -qE '^(packages/sim/|packages/content/|vitest\.config\.ts$|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|\.node-version$|\.github/workflows/check\.yml$)'; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "run=false" >> "$GITHUB_OUTPUT"
-          fi
 
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
-        if: steps.reach.outputs.run == 'true'
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        if: steps.reach.outputs.run == 'true'
         with:
           node-version-file: .node-version
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
-        if: steps.reach.outputs.run == 'true'
 
       - name: List the play project's files
         id: list
-        env:
-          RUN: ${{ steps.reach.outputs.run }}
         run: |
-          if [ "$RUN" != "true" ]; then echo "files=[]" >> "$GITHUB_OUTPUT"; exit 0; fi
           pnpm exec vitest list --project=play --filesOnly --json="$RUNNER_TEMP/play.json"
           files=$(node -e 'const root = process.cwd() + "/"; const listed = require(process.argv[1]); console.log(JSON.stringify(listed.map((entry) => entry.file.replace(root, "")).sort()))' "$RUNNER_TEMP/play.json")
           echo "files=$files" >> "$GITHUB_OUTPUT"
@@ -116,7 +146,6 @@ jobs:
   # One runner to each simulated-play file, so the job takes as long as the slowest file.
   play-run:
     needs: play-files
-    if: needs.play-files.outputs.files != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -140,21 +169,21 @@ jobs:
           FILE: ${{ matrix.file }}
         run: pnpm test:play "$FILE"
 
-  # The one check the rules require for simulated play: it passes when every file played passed, or when the change
-  # did not reach the simulation, and fails otherwise.
+  # The one check the rules require for simulated play. On a pull request it is skipped, which the rules count as passed,
+  # and the queue plays it before the merge; elsewhere it passes only when the listing and every file passed.
   play:
     needs: [play-files, play-run]
-    if: always()
+    if: always() && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Every play file passed, or none was needed
+      - name: Every play file passed
         env:
           LISTED: ${{ needs.play-files.result }}
           PLAYED: ${{ needs.play-run.result }}
         run: |
           echo "listing: $LISTED, playing: $PLAYED"
-          [ "$LISTED" = "success" ] && { [ "$PLAYED" = "success" ] || [ "$PLAYED" = "skipped" ]; }
+          [ "$LISTED" = "success" ] && [ "$PLAYED" = "success" ]
 
   # Secret scanning of a pull request's own commits. gitleaks' own action needs a paid licence on an
   # organisation's repository, so the job runs gitleaks' released binary at a pinned version and refuses it unless its

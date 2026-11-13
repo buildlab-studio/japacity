@@ -35,7 +35,7 @@ It runs these in order and stops at the first failure, ending with `CHECK PASSED
 | typecheck | `pnpm typecheck` | Every package's types, the browser tests' too |
 | lint | `pnpm lint` | Zero warnings. Holds the simulation's purity rules |
 | test | `pnpm test` | Every unit test project: sim, content, store, db, tools, models, server, server-workers, client, teaser; simulated play left out |
-| test:play | `pnpm test:play` | Simulated play: the balance, endings and random-play files in `packages/sim/src/simulated-play/`, whole lives played month by month (scenario:economy-meets-its-targets). CI plays them one file to a runner when a change reaches the simulation or the content |
+| test:play | `pnpm test:play` | Simulated play: the balance, endings and random-play files in `packages/sim/src/simulated-play/`, whole lives played month by month (scenario:economy-meets-its-targets). CI plays them one file to a runner in the merge queue and on every push to main, not on a pull request's pushes |
 | check:rules | `pnpm check:rules` | Every rule name in `docs/rules/` has a test that cites it, and every cited name exists. `tools/rules-pending.json` lists the rules waiting for a test |
 | check:version | `pnpm check:version` | The content's data and the simulation's code match the fingerprint sealed with the content version; after a change, `pnpm content:freeze` first, then raise the version and run `pnpm content:seal` (server:content-version-sealed, server:older-content-frozen) |
 | check:assets | `pnpm check:assets` | The city's models and pictures match their manifest |
@@ -125,7 +125,7 @@ The simulation is pure: no clock, no randomness of its own, no network, no scree
   Use the dev server port your task gives (`pnpm --filter @japacity/client exec vite --port <n> --strictPort`). Never use another piece's port.
 - **Stay in your folders.** Your task names them. Anything else you need changed goes in your report, with file, line and why.
 - **Commits**: small, a subject that says what changed and where, `git add` with explicit paths.
-- **Push your branch** only when `pnpm check` ends `CHECK PASSED` and your task says to. Never force-push, never touch `main`, never deploy. Each pull request merges by itself once the check passes.
+- **Push your branch** only when `pnpm check` ends `CHECK PASSED` and your task says to. Never force-push, never touch `main`, never deploy. A pull request merges through the merge queue: each push runs the quick checks, and the queue runs every unit test and simulated play before the merge (decision 0040).
 - **The report** (`REPORT.md` at the worktree's root, never committed): what you built by rule name; the last lines of `pnpm check`; every change outside your folders and why; rules you could not build or test; what you would look at next. Update it after each piece is done, so a restart loses nothing.
 
 ## Before you say done

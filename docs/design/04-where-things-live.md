@@ -110,7 +110,7 @@ The game has preset phrases only (pair:preset-phrases-only); nobody types a mess
 | Postgres provider | Neon, London (server:worker-placed-near-database) |
 | One deployable or two | One Worker serving the client and the API: the client's build at `japacity.app`, the server's code only under `/api`. Code stays in separate packages |
 | Where the code lives | One repository, with the design pages in its `docs/` |
-| Checks on every change | GitHub Actions run the quick checks on every push to `main` and every pull request (`.github/workflows/check.yml`); the full check and the browser suite run locally |
+| Checks on every change | GitHub Actions run the quick checks on every push to a pull request, and every unit test and simulated play in the merge queue and on every push to `main` (`.github/workflows/check.yml`, decision 0040); the full check and the browser suite run locally |
 | Tests against a database | An in-process Postgres for unit tests (PGlite, `packages/db`). Provider branches for previews |
 | Email for sign-in codes | Cloudflare Email Service (decision 0007). Google sign-in is the main path |
 | People built on the device or shipped as files | Shipped as files (`apps/client/public/assets/shared/person`) |
